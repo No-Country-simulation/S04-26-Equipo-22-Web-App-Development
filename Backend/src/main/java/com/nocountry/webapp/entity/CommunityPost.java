@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ComunityPost {
+public class CommunityPost {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
