@@ -1,5 +1,6 @@
 package com.nocountry.webapp.entity;
 
+import com.nocountry.webapp.entity.enums.Role; 
 import jakarta.persistence.*;
 import lombok.*; 
 
@@ -20,5 +21,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role; 
 }

@@ -1,6 +1,7 @@
 package com.nocountry.webapp.service;
 
 import com.nocountry.webapp.entity.User;
+import com.nocountry.webapp.entity.enums.Role; 
 import com.nocountry.webapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,10 @@ public class UserService {
     }
 
     public User guardarUsuario(User user) {
+    
+        if (user.getRole() == null) {
+            user.setRole(Role.ROLE_USER);
+        }
         return userRepository.save(user);
     }
 }

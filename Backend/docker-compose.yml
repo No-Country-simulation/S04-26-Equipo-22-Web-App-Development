@@ -8,6 +8,11 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d talent"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
@@ -21,4 +26,5 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
     depends_on:
-      - db
+      db:
+        condition: service_healthy
