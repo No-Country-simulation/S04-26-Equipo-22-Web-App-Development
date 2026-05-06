@@ -1,19 +1,12 @@
 package com.nocountry.webapp.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "community_posts")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class CommunityPost {
 
     @Id
@@ -38,7 +31,4 @@ public class CommunityPost {
     @ManyToOne
     @JoinColumn(name = "community_id", nullable = false)
     private Community community;
-
-
-
 }

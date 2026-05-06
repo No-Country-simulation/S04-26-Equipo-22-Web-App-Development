@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_talent
+    environment:
+      - POSTGRES_DB=talent
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    container_name: talent_circle_backend
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=talent
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      - db
