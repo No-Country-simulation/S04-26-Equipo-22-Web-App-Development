@@ -5,9 +5,6 @@ package com.nocountry.webapp.exception.base;
  * Excepción personalizada para indicar conflictos, 
  * como por ejemplo recursos duplicados.
  * 
- * File: ConflictException.java
- * Created: 2026-05-08
- * Last Updated: 2026-05-08
  */
 
 

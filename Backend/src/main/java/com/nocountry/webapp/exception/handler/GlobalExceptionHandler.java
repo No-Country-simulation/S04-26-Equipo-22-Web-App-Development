@@ -1,7 +1,16 @@
 package com.nocountry.webapp.exception.handler;
 
+/**
+ * 
+ * Manejador global de excepciones para la aplicación. 
+ * Intercepta las excepciones lanzadas por los controladores
+ * 
+ */
+
+
 import com.nocountry.webapp.exception.base.AppException;
 import com.nocountry.webapp.exception.dto.ErrorResponse;
+import com.nocountry.webapp.exception.enums.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -51,18 +60,22 @@ public class GlobalExceptionHandler {
                 ex.getBindingResult()
                         .getFieldErrors()
                         .stream()
-                        .collect(Collectors.toMap(
+                        .collect(Collectors.groupingBy(
                                 FieldError::getField,
-                                field -> field.getDefaultMessage() != null
-                                        ? field.getDefaultMessage()
-                                        : "valor inválido"
+                                java.util.LinkedHashMap::new,
+                                Collectors.mapping(
+                                        field -> field.getDefaultMessage() != null
+                                                ? field.getDefaultMessage()
+                                                : "valor inválido",
+                                        Collectors.joining("; ")
+                                )
                         ));
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .errorCode("VALIDATION_ERROR")
+                .errorCode(ErrorCode.VALIDATION_ERROR.name())
                 .validationErrors(errors)
                 .path(request.getRequestURI())
                 .build();
@@ -80,7 +93,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .errorCode("MALFORMED_JSON")
+                .errorCode(ErrorCode.MALFORMED_JSON.name())
                 .message("JSON mal formado o estructura inválida")
                 .path(request.getRequestURI())
                 .build();
@@ -100,7 +113,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .errorCode("INTERNAL_SERVER_ERROR")
+                .errorCode(ErrorCode.INTERNAL_SERVER_ERROR.name())
                 .message("Ocurrió un error inesperado")
                 .path(request.getRequestURI())
                 .build();

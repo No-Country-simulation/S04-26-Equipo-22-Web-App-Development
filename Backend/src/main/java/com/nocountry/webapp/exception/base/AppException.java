@@ -4,9 +4,6 @@ package com.nocountry.webapp.exception.base;
  * 
  * Clase base para todas las excepciones personalizadas en la aplicación.
  * 
- * File: AppException.java
- * Created: 2026-05-08
- * Last Updated: 2026-05-08
  */
 
 

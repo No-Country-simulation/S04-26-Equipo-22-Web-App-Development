@@ -4,9 +4,6 @@ package com.nocountry.webapp.exception.base;
  * 
  * Excepción personalizada para errores de negocio.
  * 
- * File: BusinessException.java
- * Created: 2026-05-08
- * Last Updated: 2026-05-08
  */
 
 

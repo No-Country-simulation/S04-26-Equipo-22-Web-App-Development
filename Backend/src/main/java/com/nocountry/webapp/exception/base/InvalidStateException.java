@@ -6,9 +6,6 @@ package com.nocountry.webapp.exception.base;
  * realizar por el estado actual, ejemplo: Intentás publicar un draft 
  * ya publicado, "Lo que pedís no tiene sentido ahora"
  * 
- * File: InvalidStateException.java
- * Created: 2026-05-08
- * Last Updated: 2026-05-08
  */
 
 

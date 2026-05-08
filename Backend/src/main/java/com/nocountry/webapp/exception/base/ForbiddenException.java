@@ -6,9 +6,6 @@ package com.nocountry.webapp.exception.base;
  * para acceder a un recurso o realizar una acción. ejemplo: Token válido 
  * pero rol USER intenta algo de ADMIN, "Sé quién sos, pero no podés"
  * 
- * File: ForbiddenException.java
- * Created: 2026-05-08
- * Last Updated: 2026-05-08
  */
 
 import com.nocountry.webapp.exception.enums.ErrorCode;

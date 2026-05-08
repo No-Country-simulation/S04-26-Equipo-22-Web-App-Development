@@ -1,5 +1,12 @@
 package com.nocountry.webapp.exception.dto;
 
+/**
+ * 
+ * Clase que representa la estructura de la respuesta de error
+ * 
+ */
+
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Data;
