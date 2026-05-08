@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
 
-        log.warn("Application exception: {} | errorCode: {}", ex.getMessage(), ex.getErrorCode());
+        log.debug("Malformed JSON request at path: {}", request.getRequestURI(), ex);
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
@@ -55,6 +55,7 @@ public class GlobalExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request
     ) {
+        log.debug("Validation error at path: {}", request.getRequestURI(), ex);
 
         Map<String, String> errors =
                 ex.getBindingResult()
@@ -88,6 +89,7 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException ex,
             HttpServletRequest request
     ) {
+        log.debug("Malformed JSON request at path: {}", request.getRequestURI(), ex);
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
