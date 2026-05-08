@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request
     ) {
 
-        log.warn("Application exception: {}", ex.getMessage());
+        log.warn("Application exception: {} | errorCode: {}", ex.getMessage(), ex.getErrorCode());
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

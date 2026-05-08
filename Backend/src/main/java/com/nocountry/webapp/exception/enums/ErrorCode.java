@@ -1,5 +1,16 @@
 package com.nocountry.webapp.exception.enums;
 
+/**
+ * 
+ * Enumeración que define los códigos de error para 
+ * la aplicación.
+ * 
+ * File: ErrorCode.java
+ * Created: 2026-05-08
+ * Last Updated: 2026-05-08
+ */
+
+
 public enum ErrorCode {
 
     // ==================== GENERALES ====================
