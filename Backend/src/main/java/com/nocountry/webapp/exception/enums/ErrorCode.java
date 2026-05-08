@@ -1,0 +1,37 @@
+package com.nocountry.webapp.exception.enums;
+
+public enum ErrorCode {
+
+    // ==================== GENERALES ====================
+
+    INTERNAL_SERVER_ERROR,
+    VALIDATION_ERROR,
+    MALFORMED_JSON,
+
+    // ==================== AUTH ====================
+
+    UNAUTHORIZED,
+    FORBIDDEN,
+    INVALID_CREDENTIALS,
+
+    // ==================== RECURSOS ====================
+
+    RESOURCE_NOT_FOUND,
+    RESOURCE_CONFLICT,
+
+    // ==================== NEGOCIO ====================
+
+    BUSINESS_RULE_VIOLATION,
+
+    // ==================== IA / EXTERNAL SERVICES ====================
+
+    EXTERNAL_SERVICE_ERROR,
+    OPENAI_SERVICE_ERROR,
+    LINKEDIN_PUBLICATION_ERROR,
+
+    // ==================== WORKFLOW ====================
+
+    DRAFT_ALREADY_PUBLISHED,
+    DIGEST_ALREADY_GENERATED,
+    INVALID_DRAFT_STATUS
+}
