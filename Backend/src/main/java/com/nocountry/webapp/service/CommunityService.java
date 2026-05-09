@@ -81,7 +81,7 @@ public class CommunityService {
             // Si el nombre cambió, verificar que no exista otra comunidad con ese nombre
             if (!existing.getName().equalsIgnoreCase(newName) 
                     && communityRepository.existsByNameIgnoreCase(newName)) {
-                throw new ConflictException("Ya existe otra comunidad con el nombre: " + newName);
+                throw new ConflictException("Ya existe una comunidad con el nombre: " + newName);
             }
             existing.setName(newName);
         }

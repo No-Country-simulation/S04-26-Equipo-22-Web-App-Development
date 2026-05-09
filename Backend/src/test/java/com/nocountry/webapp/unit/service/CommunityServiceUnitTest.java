@@ -213,7 +213,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
         // ACT & ASSERT
         assertThatThrownBy(() -> communityService.updateCommunity(1L, updatedData))
                 .isInstanceOf(ConflictException.class)
-                .hasMessageContaining("Ya existe otra comunidad con el nombre: Other Community");
+                .hasMessageContaining("Ya existe una comunidad con el nombre: Other Community");
         
         // Verifica que NUNCA se intentó guardar
         verify(communityRepository, never()).save(any());

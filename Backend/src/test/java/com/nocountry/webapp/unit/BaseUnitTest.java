@@ -26,6 +26,6 @@ public abstract class BaseUnitTest {
      * Método helper para mensajes de conflicto
      */
     protected String conflictMessage(String entityName, String field, String value) {
-        return String.format("Ya existe un %s con %s: %s", entityName, field, value);
+        return String.format("Ya existe una %s con el %s: %s", entityName, field, value);
     }
 }
