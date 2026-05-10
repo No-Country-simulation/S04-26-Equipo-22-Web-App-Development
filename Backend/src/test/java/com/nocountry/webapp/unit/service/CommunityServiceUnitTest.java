@@ -32,6 +32,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
 
     // @Mock: Crea un objeto falso que simula el comportamiento del repositorio
     // NO usa base de datos real. Mockito crea este mock y luego lo inyecta en el servicio
+    @Mock
     private CommunityRepository communityRepository;
 
     // @InjectMocks: Inyecta los mocks (@Mock) dentro del servicio real
