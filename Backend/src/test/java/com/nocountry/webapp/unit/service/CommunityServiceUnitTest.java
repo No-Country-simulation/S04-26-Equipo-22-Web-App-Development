@@ -31,8 +31,7 @@ import static org.mockito.Mockito.*;
 class CommunityServiceUnitTest extends BaseUnitTest {
 
     // @Mock: Crea un objeto falso que simula el comportamiento del repositorio
-    // NO usa base de datos real. Spring reemplaza el bean real por este mock
-    @Mock
+    // NO usa base de datos real. Mockito crea este mock y luego lo inyecta en el servicio
     private CommunityRepository communityRepository;
 
     // @InjectMocks: Inyecta los mocks (@Mock) dentro del servicio real
@@ -51,7 +50,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
         community.setId(1L);
         community.setName("Backend Developers");
         community.setPlatform("DISCORD");
-        community.setIsActive(true);
+        community.setActive(true);
     }
 
     // ==================== TESTS DE LECTURA ====================
@@ -181,7 +180,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
         Community updatedData = new Community();
         updatedData.setName("Backend Experts");
         updatedData.setPlatform("TELEGRAM");
-        updatedData.setIsActive(true);
+        updatedData.setActive(true);
 
         // Simulamos que la comunidad existe
         when(communityRepository.findById(1L)).thenReturn(Optional.of(community));
@@ -196,7 +195,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
         // ASSERT
         assertThat(result.getName()).isEqualTo("Backend Experts");
         assertThat(result.getPlatform()).isEqualTo("TELEGRAM");
-        assertThat(result.getIsActive()).isTrue();
+        assertThat(result.isActive()).isTrue();
     }
 
     @Test
@@ -231,7 +230,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
         communityService.deactivateCommunity(1L);
 
         // ASSERT: El objeto fue modificado (isActive = false)
-        assertThat(community.getIsActive()).isFalse();
+        assertThat(community.isActive()).isFalse();
         
         // Verifica que se guardó el cambio
         verify(communityRepository, times(1)).save(community);
@@ -240,7 +239,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
     @Test
     void activateCommunity_ShouldSetIsActiveToTrue() {
         // ARRANGE: Comunidad existe pero está inactiva
-        community.setIsActive(false);
+        community.setActive(false);
         when(communityRepository.findById(1L)).thenReturn(Optional.of(community));
         when(communityRepository.save(any(Community.class))).thenReturn(community);
 
@@ -248,7 +247,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
         communityService.activateCommunity(1L);
 
         // ASSERT: Ahora está activa
-        assertThat(community.getIsActive()).isTrue();
+        assertThat(community.isActive()).isTrue();
         verify(communityRepository, times(1)).save(community);
     }
 

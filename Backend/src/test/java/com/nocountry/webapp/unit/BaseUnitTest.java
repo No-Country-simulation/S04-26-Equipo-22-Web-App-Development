@@ -2,8 +2,6 @@ package com.nocountry.webapp.unit;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
 /**
  * Clase base para todos los Unit Tests del servicio.
@@ -12,7 +10,6 @@ import org.mockito.quality.Strictness;
  * Uso: extender esta clase en lugar de usar @ExtendWith en cada test
  */
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 public abstract class BaseUnitTest {
     
     /**

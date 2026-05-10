@@ -51,12 +51,14 @@ public class CommunityService {
             throw new IllegalArgumentException("El nombre de la comunidad es obligatorio");
         }
 
+        String normalizedName = community.getName().trim();
+        
         // Verificar duplicado
-        if (communityRepository.existsByNameIgnoreCase(community.getName().trim())) {
-            throw new ConflictException("Ya existe una comunidad con el nombre: " + community.getName());
+        if (communityRepository.existsByNameIgnoreCase(normalizedName)) {
+            throw new ConflictException("Ya existe una comunidad con el nombre: " + normalizedName);
         }
 
-        community.setName(community.getName().trim());
+        community.setName(normalizedName);
         
         // Si platform es null, guardar como null (no obligatorio)
         // Si isActive es null, el default de la entidad es true
@@ -92,9 +94,8 @@ public class CommunityService {
         }
         
         // Actualizar estado activo si viene
-        if (updatedData.getIsActive() != null) {
-            existing.setIsActive(updatedData.getIsActive());
-        }
+        existing.setActive(updatedData.isActive());
+        
         
         Community saved = communityRepository.save(existing);
         log.info("Comunidad actualizada: {} (ID: {})", saved.getName(), saved.getId());
@@ -108,7 +109,7 @@ public class CommunityService {
     @Transactional
     public void deactivateCommunity(Long id) {
         Community community = getCommunityById(id);
-        community.setIsActive(false);
+        community.setActive(false);
         communityRepository.save(community);
         log.info("Comunidad desactivada: {} (ID: {})", community.getName(), community.getId());
     }
@@ -119,7 +120,7 @@ public class CommunityService {
     @Transactional
     public void activateCommunity(Long id) {
         Community community = getCommunityById(id);
-        community.setIsActive(true);
+        community.setActive(true);
         communityRepository.save(community);
         log.info("Comunidad activada: {} (ID: {})", community.getName(), community.getId());
     }

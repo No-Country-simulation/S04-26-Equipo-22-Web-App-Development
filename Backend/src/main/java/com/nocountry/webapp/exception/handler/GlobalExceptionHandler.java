@@ -33,8 +33,12 @@ public class GlobalExceptionHandler {
             AppException ex,
             HttpServletRequest request
     ) {
-
-        log.debug("Malformed JSON request at path: {}", request.getRequestURI(), ex);
+        
+        log.warn("Application exception at path: {}. errorCode={}, message={}",
+                request.getRequestURI(),
+                ex.getErrorCode(),
+                ex.getMessage(),
+                ex);
 
         ErrorResponse response = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())

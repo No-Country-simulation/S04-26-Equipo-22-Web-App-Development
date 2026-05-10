@@ -22,5 +22,5 @@ public class Community {
     private String platform;
 
     @Column(nullable = false)
-    private Boolean isActive = true;
+    private boolean isActive = true;
 }
