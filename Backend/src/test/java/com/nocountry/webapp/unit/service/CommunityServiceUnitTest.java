@@ -60,7 +60,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
     void getAllActiveCommunities_ShouldReturnOnlyActiveCommunities() {
         // ARRANGE (Given) - Configurar lo que el mock debe devolver
         // when(...).thenReturn(...) : Programamos el comportamiento del mock
-        when(communityRepository.findByIsActiveTrue()).thenReturn(List.of(community));
+        when(communityRepository.findByActiveTrue()).thenReturn(List.of(community));
 
         // ACT (When) - Ejecutar el método que queremos probar
         List<Community> result = communityService.getAllActiveCommunities();
@@ -71,7 +71,7 @@ class CommunityServiceUnitTest extends BaseUnitTest {
         
         // verify: Comprueba que el mock fue llamado exactamente 1 vez
         // Si no se llama, el test falla. Esto asegura que el servicio USÓ el repositorio
-        verify(communityRepository, times(1)).findByIsActiveTrue();
+        verify(communityRepository, times(1)).findByActiveTrue();
     }
 
     @Test
