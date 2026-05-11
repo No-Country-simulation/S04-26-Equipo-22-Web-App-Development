@@ -1,6 +1,7 @@
 package com.nocountry.webapp.controller;
 
 import com.nocountry.webapp.dto.CommunityRequestDTO;
+import com.nocountry.webapp.dto.CommunityUpdateDTO;
 import com.nocountry.webapp.dto.CommunityResponseDTO;
 import com.nocountry.webapp.entity.Community;
 import com.nocountry.webapp.service.CommunityService;
@@ -104,7 +105,7 @@ public class CommunityController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Comunidad actualizada exitosamente",
                      content = @Content(mediaType = "application/json", 
-                     schema = @Schema(implementation = CommunityResponseDTO.class))),
+                     schema = @Schema(implementation = CommunityUpdateDTO.class))),
         @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
         @ApiResponse(responseCode = "404", description = "Comunidad no encontrada", content = @Content),
         @ApiResponse(responseCode = "409", description = "Ya existe otra comunidad con ese nombre", content = @Content),
@@ -113,7 +114,7 @@ public class CommunityController {
     public ResponseEntity<CommunityResponseDTO> updateCommunity(
             @Parameter(description = "ID de la comunidad", example = "1", required = true)
             @PathVariable Long id,
-            @Valid @RequestBody CommunityRequestDTO requestDTO) {
+            @Valid @RequestBody CommunityUpdateDTO requestDTO) {
         // Convertir DTO a Entity para la actualización
         Community updatedData = new Community();
         updatedData.setName(requestDTO.getName());
