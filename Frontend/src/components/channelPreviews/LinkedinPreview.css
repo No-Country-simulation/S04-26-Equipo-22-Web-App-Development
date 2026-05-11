@@ -1,0 +1,188 @@
+.linkedin-card {
+	background: #fff;
+	border: 1px solid #dfe3e8;
+	border-radius: 12px;
+
+	display: flex;
+	flex-direction: column;
+
+	overflow: hidden;
+
+	max-width: 620px;
+	width: 100%;
+
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+	transition:
+		box-shadow 0.2s ease,
+		transform 0.2s ease;
+}
+
+.linkedin-card:hover {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+	transform: translateY(-2px);
+}
+
+/* HEADER */
+
+.linkedin-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+
+	padding: 1rem 1rem 0.7rem;
+}
+
+.linkedin-user {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+}
+
+.linkedin-avatar {
+	width: 48px;
+	height: 48px;
+
+	border-radius: 50%;
+	object-fit: cover;
+
+	border: 1px solid #e5e7eb;
+}
+
+.linkedin-user-info {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+
+.linkedin-user-info h3 {
+	margin: 0;
+
+	font-size: 15px;
+	font-weight: 600;
+	color: #191919;
+
+	line-height: 1.2;
+}
+
+.linkedin-user-info h3:hover {
+	color: #0a66c2;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.linkedin-role {
+	font-size: 13px;
+	color: #666;
+
+	line-height: 1.3;
+
+	max-width: 380px;
+}
+
+.linkedin-time {
+	font-size: 13px;
+	color: #777;
+
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+}
+
+/* CONTENT */
+
+.linkedin-content {
+	padding: 0 1rem 1rem;
+
+	font-size: 13px;
+	line-height: 1.5;
+	color: #1f1f1f;
+
+	white-space: pre-line;
+	word-break: break-word;
+}
+
+/* STATS */
+
+.linkedin-stats {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	padding: 0.7rem 1rem;
+
+	font-size: 13px;
+	color: #666;
+
+	border-bottom: 1px solid #eef0f2;
+}
+
+.linkedin-reactions {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.linkedin-reaction-icons {
+	display: flex;
+	align-items: center;
+}
+
+.linkedin-reaction-icons span {
+	width: 18px;
+	height: 18px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	border-radius: 50%;
+
+	font-size: 10px;
+	color: white;
+
+	margin-right: -4px;
+	border: 2px solid white;
+}
+
+.like {
+	background: #0a66c2;
+}
+
+.retweet {
+	background: #27ae60;
+}
+
+.send {
+	background: #e74c3c;
+}
+
+/* ACTIONS */
+
+.linkedin-actions {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+
+	padding: 0.2rem 0.5rem;
+}
+
+.linkedin-action-btn {
+	background: transparent;
+	border: none;
+
+	height: 48px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+
+	font-size: 14px;
+	font-weight: 600;
+	color: #666;
+
+	border-radius: 8px;
+
+	cursor: pointer;
+	transition: background 0.15s ease;
+}
