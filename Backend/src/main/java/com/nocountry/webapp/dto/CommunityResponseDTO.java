@@ -23,5 +23,5 @@ public class CommunityResponseDTO {
     private String platform;
 
     @Schema(description = "Estado activo de la comunidad", example = "true")
-    private boolean isActive;
+    private boolean active;
 }

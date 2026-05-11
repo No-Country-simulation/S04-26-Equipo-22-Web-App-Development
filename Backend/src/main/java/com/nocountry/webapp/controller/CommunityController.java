@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/communities")
 @RequiredArgsConstructor
 @Tag(name = "Communities", description = "Endpoints para gestión de comunidades")
-@CrossOrigin(origins = "*")
 public class CommunityController {
 
     private final CommunityService communityService;
@@ -35,7 +35,7 @@ public class CommunityController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Comunidades obtenidas exitosamente",
                      content = @Content(mediaType = "application/json", 
-                     schema = @Schema(implementation = CommunityResponseDTO.class))),
+                     array = @ArraySchema(schema = @Schema(implementation = CommunityResponseDTO.class)))),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })
     public ResponseEntity<List<CommunityResponseDTO>> getAllActiveCommunities() {
@@ -52,7 +52,7 @@ public class CommunityController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Comunidades obtenidas exitosamente",
                      content = @Content(mediaType = "application/json", 
-                     schema = @Schema(implementation = CommunityResponseDTO.class))),
+                     array = @ArraySchema(schema = @Schema(implementation = CommunityResponseDTO.class)))),
         @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })
     public ResponseEntity<List<CommunityResponseDTO>> getAllCommunities() {
@@ -118,7 +118,6 @@ public class CommunityController {
         Community updatedData = new Community();
         updatedData.setName(requestDTO.getName());
         updatedData.setPlatform(requestDTO.getPlatform());
-        updatedData.setActive(requestDTO.isActive());
         
         Community updated = communityService.updateCommunity(id, updatedData);
         return ResponseEntity.ok(convertToDTO(updated));

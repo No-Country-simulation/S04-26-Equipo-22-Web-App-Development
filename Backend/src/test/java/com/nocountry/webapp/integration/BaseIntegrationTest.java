@@ -31,15 +31,4 @@ public abstract class BaseIntegrationTest {
     @Autowired
     protected CommunityRepository communityRepository;
 
-    @BeforeEach
-    protected void setUp()  {
-        // Limpiar la base de datos antes de cada test
-        communityRepository.deleteAll();
-    }
-
-    @AfterEach
-    protected void tearDown() {
-        // Limpiar después de cada test
-        communityRepository.deleteAll();
-    }
 }

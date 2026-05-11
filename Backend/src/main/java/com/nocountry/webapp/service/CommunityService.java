@@ -23,7 +23,7 @@ public class CommunityService {
      * Obtener todas las comunidades activas
      */
     public List<Community> getAllActiveCommunities() {
-        return communityRepository.findByIsActiveTrue();
+        return communityRepository.findByActiveTrue();
     }
 
     /**
@@ -61,7 +61,9 @@ public class CommunityService {
         community.setName(normalizedName);
         
         // Si platform es null, guardar como null (no obligatorio)
-        // Si isActive es null, el default de la entidad es true
+        if (community.getPlatform() != null) {
+            community.setPlatform(community.getPlatform().trim());
+        }
         
         Community saved = communityRepository.save(community);
         log.info("Comunidad creada: {} (ID: {})", saved.getName(), saved.getId());

@@ -13,7 +13,7 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
     /**
      * Busca comunidades activas
      */
-    List<Community> findByIsActiveTrue();
+    List<Community> findByActiveTrue();
 
     /**
      * Busca comunidades por plataforma

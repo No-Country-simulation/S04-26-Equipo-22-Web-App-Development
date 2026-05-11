@@ -25,7 +25,6 @@ public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
 
     @BeforeEach
     protected void setUp() {
-        super.setUp();
         
         // Configurar request válido para pruebas
         validRequest = new CommunityRequestDTO();
