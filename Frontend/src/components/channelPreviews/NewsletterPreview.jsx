@@ -30,9 +30,7 @@ function NewsletterPreview({ data }) {
 				)
 			}
 
-			<button className="newsletter-button">
-				{data.buttonText}
-			</button>
+			
 
 		</article>
 	);

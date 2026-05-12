@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 import "./ChannelPreview.css";
-import { previewData } from "../data/previewData";
+
+import { channelDraftsMock } from "../data/channelDraftsMock";
+import { channelDraftAdapter } from "../adapters/channelDraftAdapter";
 
 import LinkedinPreview from "../components/channelPreviews/LinkedinPreview";
 import TwitterPreview from "../components/channelPreviews/TwitterPreview";
@@ -9,7 +11,10 @@ import NewsletterPreview from "../components/channelPreviews/NewsletterPreview";
 
 function ChannelPreview() {
 
-const [activeTab, setActiveTab] = useState("All");
+  const adaptedData = channelDraftsMock.map(channelDraftAdapter);
+
+  const [activeTab, setActiveTab] = useState("All");
+
   const renderPreview = (preview) => {
 
     switch (preview.channel) {
@@ -45,44 +50,47 @@ const [activeTab, setActiveTab] = useState("All");
       </header>
 
       <nav className="preview-tabs">
-<button
-  className={activeTab === "All" ? "active-tab" : ""}
-  onClick={() => setActiveTab("All")}
->
-  Todos
-</button> 
-      <button
-  className={activeTab === "Newsletter" ? "active-tab" : ""}
-  onClick={() => setActiveTab("Newsletter")}
->
-  Newsletter
-</button>
 
-<button
-  className={activeTab === "LinkedIn" ? "active-tab" : ""}
-  onClick={() => setActiveTab("LinkedIn")}
->
-  LinkedIn
-</button>
+        <button
+          className={activeTab === "All" ? "active-tab" : ""}
+          onClick={() => setActiveTab("All")}
+        >
+          Todos
+        </button>
 
-<button
-  className={activeTab === "Twitter" ? "active-tab" : ""}
-  onClick={() => setActiveTab("Twitter")}
->
-  Twitter
-</button>
+        <button
+          className={activeTab === "Newsletter" ? "active-tab" : ""}
+          onClick={() => setActiveTab("Newsletter")}
+        >
+          Newsletter
+        </button>
+
+        <button
+          className={activeTab === "LinkedIn" ? "active-tab" : ""}
+          onClick={() => setActiveTab("LinkedIn")}
+        >
+          LinkedIn
+        </button>
+
+        <button
+          className={activeTab === "Twitter" ? "active-tab" : ""}
+          onClick={() => setActiveTab("Twitter")}
+        >
+          Twitter
+        </button>
 
       </nav>
 
       <section className="preview-grid">
 
-       {previewData
-  .filter(
-    (preview) =>
-      activeTab === "All" ||
-      preview.channel === activeTab
-  )
-  .map((preview) => (
+        {adaptedData
+          .filter(
+            (preview) =>
+              activeTab === "All" ||
+              preview.channel === activeTab
+          )
+          .map((preview) => (
+
             <div className="preview-card" key={preview.id}>
 
               <h3 className="preview-card-title">
