@@ -1,5 +1,6 @@
 package com.nocountry.webapp.entity;
 
+import com.nocountry.webapp.entity.enums.CommunityPostType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -16,17 +17,27 @@ public class CommunityPost {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 150)
     private String authorName;
 
-    @Column(nullable = false)
-    private Integer reactionsCount;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private CommunityPostType type = CommunityPostType.QUESTION;
 
     @Column(nullable = false)
-    private Integer commentsCount;
+    private Integer reactionsCount = 0;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private Integer commentsCount = 0;
+
+    @Column(length = 255)
+    private String externalPostId;
+
+    @Column(length = 255)
+    private String sourceUrl;
+
+    @Column(nullable = false)
+    private LocalDateTime collectedAt;
 
     @ManyToOne
     @JoinColumn(name = "community_id", nullable = false)

@@ -105,7 +105,7 @@ public class CommunityController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Comunidad actualizada exitosamente",
                      content = @Content(mediaType = "application/json", 
-                     schema = @Schema(implementation = CommunityUpdateDTO.class))),
+                     schema = @Schema(implementation = CommunityResponseDTO.class))),
         @ApiResponse(responseCode = "400", description = "Datos inválidos", content = @Content),
         @ApiResponse(responseCode = "404", description = "Comunidad no encontrada", content = @Content),
         @ApiResponse(responseCode = "409", description = "Ya existe otra comunidad con ese nombre", content = @Content),
