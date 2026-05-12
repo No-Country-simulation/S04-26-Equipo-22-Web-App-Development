@@ -95,10 +95,6 @@ public class CommunityService {
             existing.setPlatform(updatedData.getPlatform().trim());
         }
         
-        // Actualizar estado activo si viene
-        existing.setActive(updatedData.isActive());
-        
-        
         Community saved = communityRepository.save(existing);
         log.info("Comunidad actualizada: {} (ID: {})", saved.getName(), saved.getId());
         

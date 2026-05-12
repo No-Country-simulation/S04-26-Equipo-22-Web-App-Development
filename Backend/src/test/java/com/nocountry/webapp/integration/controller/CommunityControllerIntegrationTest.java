@@ -1,6 +1,7 @@
 package com.nocountry.webapp.integration.controller;
 
 import com.nocountry.webapp.dto.CommunityRequestDTO;
+import com.nocountry.webapp.dto.CommunityUpdateDTO;
 import com.nocountry.webapp.entity.Community;
 import com.nocountry.webapp.integration.BaseIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +22,7 @@ import static org.hamcrest.Matchers.containsString;
 public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
 
     private CommunityRequestDTO validRequest;
-    private CommunityRequestDTO updateRequest;
+    private CommunityUpdateDTO updateRequest;
 
     @BeforeEach
     protected void setUp() {
@@ -33,10 +34,9 @@ public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
         validRequest.setActive(true);
 
         // Configurar request para actualización
-        updateRequest = new CommunityRequestDTO();
+        updateRequest = new CommunityUpdateDTO();
         updateRequest.setName("Java Developers Latam");
         updateRequest.setPlatform("Slack");
-        updateRequest.setActive(true);
     }
 
     // Método auxiliar para crear una comunidad y devolver su ID
@@ -234,8 +234,7 @@ public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
                             .content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.name").value("Java Developers Latam"))
-                    .andExpect(jsonPath("$.platform").value("Slack"))
-                    .andExpect(jsonPath("$.active").value(true));
+                    .andExpect(jsonPath("$.platform").value("Slack"));
 
             // Verify in database
             Community updated = communityRepository.findById(id).orElseThrow();
@@ -257,9 +256,8 @@ public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
         void updateCommunity_WithDuplicateName_ShouldReturn409() throws Exception {
             // Create first community
             CommunityRequestDTO firstRequest = new CommunityRequestDTO();
-            firstRequest.setName("First Community");
-            firstRequest.setPlatform("Discord");
-            firstRequest.setActive(true);
+                firstRequest.setName("First Community");
+                firstRequest.setPlatform("Discord");
 
             mockMvc.perform(post("/api/communities")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -268,9 +266,8 @@ public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
             
             // Create second community
             CommunityRequestDTO secondRequest = new CommunityRequestDTO();
-            secondRequest.setName("Second Community");
-            secondRequest.setPlatform("Discord");
-            secondRequest.setActive(true);
+                secondRequest.setName("Second Community");
+                secondRequest.setPlatform("Discord");
             
             String response = mockMvc.perform(post("/api/communities")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -283,10 +280,9 @@ public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
             Long id2 = objectMapper.readTree(response).get("id").asLong();
             
             // Try to update second community with first community's name
-            CommunityRequestDTO duplicateRequest = new CommunityRequestDTO();
+            CommunityUpdateDTO duplicateRequest = new CommunityUpdateDTO();
             duplicateRequest.setName("First Community");
             duplicateRequest.setPlatform("Slack");
-            duplicateRequest.setActive(true);
             
             mockMvc.perform(put("/api/communities/{id}", id2)
                             .contentType(MediaType.APPLICATION_JSON)
