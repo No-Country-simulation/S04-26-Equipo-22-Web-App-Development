@@ -1,16 +1,15 @@
+
 import { useState } from "react";
-
 import "./ChannelPreview.css";
-
+import { useNavigate } from "react-router-dom";
 import { channelDraftsMock } from "../data/channelDraftsMock";
 import { channelDraftAdapter } from "../adapters/channelDraftAdapter";
-
 import LinkedinPreview from "../components/channelPreviews/LinkedinPreview";
 import TwitterPreview from "../components/channelPreviews/TwitterPreview";
 import NewsletterPreview from "../components/channelPreviews/NewsletterPreview";
 
 function ChannelPreview() {
-
+  const navigate = useNavigate();
   const adaptedData = channelDraftsMock.map(channelDraftAdapter);
 
   const [activeTab, setActiveTab] = useState("All");
@@ -39,7 +38,7 @@ function ChannelPreview() {
 
       <header className="preview-header">
 
-        <button className="back-button">
+        <button className="back-button"  onClick={() => navigate(-1)} >
           ← Volver
         </button>
 
