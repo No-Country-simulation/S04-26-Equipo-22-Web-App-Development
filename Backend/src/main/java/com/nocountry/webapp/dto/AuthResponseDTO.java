@@ -1,11 +1,15 @@
 package com.nocountry.webapp.dto;
-import lombok.AllArgsConstructor;
+
+import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-@AllArgsConstructor
+@Setter
+@Builder
 public class AuthResponseDTO {
 
-    private String token;
-    
+    private String accessToken;
+
+    private String refreshToken;
 }

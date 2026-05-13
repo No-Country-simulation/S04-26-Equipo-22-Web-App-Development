@@ -19,11 +19,19 @@ import java.util.List;
 public class JwtUtil {
 
     private final SecretKey signingKey;
+
     private final long expirationMs;
+
+    private final long refreshExpirationMs;
 
     public JwtUtil(
             @Value("${app.jwt.secret}") String secret,
-            @Value("${app.jwt.expiration-ms}") long expirationMs
+
+            @Value("${app.jwt.expiration-ms}")
+            long expirationMs,
+
+            @Value("${app.jwt.refresh-expiration-ms}")
+            long refreshExpirationMs
     ) {
 
         this.signingKey = Keys.hmacShaKeyFor(
@@ -31,8 +39,13 @@ public class JwtUtil {
         );
 
         this.expirationMs = expirationMs;
+
+        this.refreshExpirationMs = refreshExpirationMs;
     }
 
+    /**
+     * ACCESS TOKEN
+     */
     public String generateToken(UserDetails userDetails) {
 
         List<String> roles = userDetails.getAuthorities()
@@ -45,7 +58,30 @@ public class JwtUtil {
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(
-                        new Date(System.currentTimeMillis() + expirationMs)
+                        new Date(
+                                System.currentTimeMillis()
+                                        + expirationMs
+                        )
+                )
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * REFRESH TOKEN
+     */
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + refreshExpirationMs
+                        )
                 )
                 .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
