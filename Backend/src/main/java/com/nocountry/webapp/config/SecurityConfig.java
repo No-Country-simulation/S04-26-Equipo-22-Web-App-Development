@@ -1,5 +1,7 @@
 package com.nocountry.webapp.config;
 
+import com.nocountry.webapp.exception.handler.JwtAccessDeniedHandler;
+import com.nocountry.webapp.exception.handler.JwtAuthenticationEntryPoint;
 import com.nocountry.webapp.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +28,8 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
     private final UserDetailsService userDetailsService;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtAccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http)
@@ -41,16 +45,24 @@ public class SecurityConfig {
                         )
                 )
 
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
+                )
+
                 .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/api/auth/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/error"
+                ).permitAll()
+                .requestMatchers("/error").permitAll()
+                .requestMatchers("/api/communities/**")
+                .authenticated()
 
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-
-                        .anyRequest().authenticated()
+                .anyRequest().authenticated()
                 )
 
                 .authenticationProvider(authenticationProvider())

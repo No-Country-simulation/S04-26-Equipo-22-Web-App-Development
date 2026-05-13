@@ -1,7 +1,5 @@
 package com.nocountry.webapp.security;
 
-import com.nocountry.webapp.entity.User;
-import com.nocountry.webapp.repository.UserRepository;
 import com.nocountry.webapp.service.impl.UserDetailsServiceImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -16,10 +14,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 
 import java.io.IOException;
 
@@ -30,7 +29,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -38,6 +36,8 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain chain
     ) throws ServletException, IOException {
+
+        log.info("➡️ JWT FILTER HIT: {}", request.getRequestURI());
 
         String path = request.getRequestURI();
 
@@ -48,104 +48,101 @@ public class JwtFilter extends OncePerRequestFilter {
 
         final String authHeader =
                 request.getHeader("Authorization");
+        
+        log.debug("Authorization header received");
 
-        if (authHeader == null ||
-                !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Token no proporcionado"
-            );
-
-            return;
-        }
+                throw new InsufficientAuthenticationException(
+                        "Token no proporcionado"
+                );
+                }
 
         final String jwt = authHeader.substring(7);
+
+        log.debug("JWT token received");
 
         try {
 
             final String email =
                     jwtUtil.extractEmail(jwt);
+                
+                log.info("Email from token: {}", email);
 
-            if (email != null &&
-                    SecurityContextHolder
-                            .getContext()
-                            .getAuthentication() == null) {
+                if (email != null &&
+                        SecurityContextHolder
+                                .getContext()
+                                .getAuthentication() == null) {
 
                 UserDetails userDetails =
                         userDetailsService
                                 .loadUserByUsername(email);
 
-                if (jwtUtil.isValid(jwt, userDetails)) {
+                log.info("USER AUTHORITIES: {}", userDetails.getAuthorities());
 
-                    User user = userRepository
-                            .findByEmail(email)
-                            .orElseThrow(() ->
-                                    new UsernameNotFoundException(
-                                            "Usuario no encontrado"
-                                    ));
+                if (!jwtUtil.isValid(jwt, userDetails)) {
 
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    user,
-                                    null,
-                                    userDetails.getAuthorities()
-                            );
-
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource()
-                                    .buildDetails(request)
-                    );
-
-                    SecurityContextHolder
-                            .getContext()
-                            .setAuthentication(authToken);
+                        throw new BadCredentialsException(
+                                "Token inválido"
+                        );
                 }
-            }
+
+                log.info("➡️ SETTING SECURITY CONTEXT");
+
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities()
+                        );
+
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource()
+                                .buildDetails(request)
+                );
+
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(authToken);
+
+                log.info("AUTH SET: {}",
+                        SecurityContextHolder.getContext().getAuthentication());
+                }
 
             chain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {
 
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Token expirado"
-            );
+    throw new BadCredentialsException(
+            "Token expirado",
+            e
+    );
 
         } catch (MalformedJwtException | SignatureException e) {
 
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Token inválido"
-            );
+        throw new BadCredentialsException(
+                "Token inválido",
+                e
+        );
+
+        } catch (BadCredentialsException | InsufficientAuthenticationException e) {
+
+        throw e;
 
         } catch (Exception e) {
 
-            log.error("Error JWT", e);
+        log.error("Error JWT", e);
 
-            response.sendError(
-                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Error autenticando usuario"
-            );
+        throw new RuntimeException(
+                "Error autenticando usuario"
+        );
         }
     }
 
-    private boolean isPublicEndpoint(String path) {
-
-        String[] publicPaths = {
-                "/api/auth/",
-                "/v3/api-docs",
-                "/swagger-ui/",
-                "/swagger-ui.html"
-        };
-
-        for (String publicPath : publicPaths) {
-
-            if (path.startsWith(publicPath)) {
-                return true;
-            }
+        private boolean isPublicEndpoint(String path) {
+        return path.startsWith("/api/auth/")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui")
+                || path.startsWith("/error");
         }
-
-        return path.equals("/");
-    }
 }
