@@ -251,7 +251,7 @@ class CommunityPostServiceUnitTest extends BaseUnitTest {
     void getTopResourcesOfWeek_ShouldReturnTopResources() {
         // ARRANGE
         List<CommunityPost> expectedResources = List.of(post2);
-        when(communityPostRepository.findByTypeAndCollectedAtBetween(
+        when(communityPostRepository.findByTypeAndCollectedAtBetweenOrderByReactionsCountDesc(
                 eq(CommunityPostType.RESOURCE), any(LocalDateTime.class), any(LocalDateTime.class), any(PageRequest.class)))
                 .thenReturn(expectedResources);
 
@@ -262,7 +262,7 @@ class CommunityPostServiceUnitTest extends BaseUnitTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getType()).isEqualTo(CommunityPostType.RESOURCE);
         verify(communityPostRepository, times(1))
-                .findByTypeAndCollectedAtBetween(
+                .findByTypeAndCollectedAtBetweenOrderByReactionsCountDesc(
                         eq(CommunityPostType.RESOURCE), any(LocalDateTime.class), any(LocalDateTime.class), any(PageRequest.class));
     }
 
@@ -418,7 +418,7 @@ class CommunityPostServiceUnitTest extends BaseUnitTest {
                 eq(CommunityPostType.QUESTION), any(LocalDateTime.class), any(LocalDateTime.class), any(PageRequest.class)))
                 .thenReturn(List.of(post1));
         
-        when(communityPostRepository.findByTypeAndCollectedAtBetween(
+        when(communityPostRepository.findByTypeAndCollectedAtBetweenOrderByReactionsCountDesc(
                 eq(CommunityPostType.RESOURCE), any(LocalDateTime.class), any(LocalDateTime.class), any(PageRequest.class)))
                 .thenReturn(List.of(post2));
         

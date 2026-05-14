@@ -63,4 +63,12 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
             LocalDateTime end,
             Pageable pageable
     );
+
+        // Recursos/posts ordenados por reacciones
+        List<CommunityPost> findByTypeAndCollectedAtBetweenOrderByReactionsCountDesc(
+                CommunityPostType type,
+                LocalDateTime start,
+                LocalDateTime end,
+                Pageable pageable
+        );
 }

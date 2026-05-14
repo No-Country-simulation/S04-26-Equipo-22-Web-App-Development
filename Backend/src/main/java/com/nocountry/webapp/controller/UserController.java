@@ -1,29 +1,23 @@
 package com.nocountry.webapp.controller;
 
-import com.nocountry.webapp.entity.User;
+import com.nocountry.webapp.dto.UserResponseDTO;
 import com.nocountry.webapp.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<User> getAll() {
-        return userService.listarUsuarios();
-    }
-
-    @PostMapping
-    @PreAuthorize("permitAll()")
-    public User create(@RequestBody User user) {
-        return userService.guardarUsuario(user);
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getCurrentUser(Authentication authentication) {
+        return ResponseEntity.ok(
+                userService.getByEmail(authentication.getName())
+        );
     }
 }
