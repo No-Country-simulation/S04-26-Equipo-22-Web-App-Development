@@ -58,10 +58,6 @@ public class SecurityConfig {
                         "/swagger-ui.html",
                         "/error"
                 ).permitAll()
-                .requestMatchers("/error").permitAll()
-                .requestMatchers("/api/communities/**")
-                .authenticated()
-
                 .anyRequest().authenticated()
                 )
 

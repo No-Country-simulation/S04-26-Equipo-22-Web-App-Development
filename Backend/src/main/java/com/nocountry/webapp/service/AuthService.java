@@ -38,8 +38,7 @@ public class AuthService {
      */
     public AuthResponseDTO register(
             String email,
-            String password,
-            Role role
+            String password
     ) {
 
         if (userRepository.existsByEmail(email)) {
@@ -52,7 +51,7 @@ public class AuthService {
         User user = User.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .role(role)
+                .role(Role.USER)
                 .build();
 
         userRepository.save(user);

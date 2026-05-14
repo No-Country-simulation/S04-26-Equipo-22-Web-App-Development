@@ -29,8 +29,7 @@ public class AuthController {
                 .body(
                         authService.register(
                                 request.getEmail(),
-                                request.getPassword(),
-                                request.getRole()
+                                request.getPassword()
                         )
                 );
     }
