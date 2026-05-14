@@ -1,109 +1,78 @@
-.preview-page {
-	padding: 2rem;
-	min-height: 100vh;
-	font-family: sans-serif;
+/* ===== TABLA DE BORRADORES ===== */
+.drafts-table-container {
+  overflow-x: auto;
+  margin-top: 20px;
 }
 
-/* HEADER */
-
-.preview-header {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	gap: 0.4rem;
-	margin-bottom: 2rem;
+.drafts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.back-button {
-	background: none;
-	border: none;
-	color: #6f46e8;
-	font-weight: 600;
-	cursor: pointer;
-	padding: 0;
-	font-size: 14px;
+.drafts-table th,
+.drafts-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
-.preview-title {
-	font-size: 25px;
-	font-weight: 700;
-	color: #1e1e1e;
+.drafts-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
 }
 
-/* TABS */
-
-.preview-tabs {
-	display: flex;
-	gap: 2rem;
-	margin-bottom: 2rem;
-	border-bottom: 1px solid #ececec;
+.content-cell {
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.preview-tabs button {
-	background: none;
-	border: none;
-	padding-bottom: 0.8rem;
-	font-weight: 600;
-	color: #666;
-	cursor: pointer;
-	position: relative;
+.channel-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-/* TAB ACTIVA */
+.channel-badge.newsletter { background: #28a745; color: white; }
+.channel-badge.linkedin { background: #0077b5; color: white; }
+.channel-badge.twitter { background: #1da1f2; color: white; }
 
-.preview-tabs .active-tab {
-	color: #6f46e8;
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.active-tab::after {
-	content: "";
-	position: absolute;
-	left: 0;
-	bottom: -1px;
-	width: 100%;
-	height: 2px;
-	background: #6f46e8;
-	border-radius: 10px;
+.status-badge.generated { background: #ffc107; color: #333; }
+.status-badge.approved { background: #28a745; color: white; }
+.status-badge.in_review { background: #17a2b8; color: white; }
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* GRID */
-
-.preview-grid {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: 1.5rem;
+.actions-cell button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: opacity 0.2s;
 }
 
-/* CARD */
-
-.preview-card {
-	background: white;
-	border: 1px solid #ececec;
-	border-radius: 16px;
-	display: flex;
-	flex-direction: column;
-	min-height: 320px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+.actions-cell button:hover {
+  opacity: 0.8;
 }
 
-/* TITULO */
-
-.preview-card-title {
-	font-size: 18px;
-	font-weight: 700;
-	line-height: 1.4;
-	color: #2f86e2;
-	text-align: justify;
-	margin-left: 1.125rem;
-}
-
-/* CONTENIDO */
-
-.preview-card p {
-	color: #666;
-	text-align: left;
-}
-
-.preview-card-content {
-	white-space: pre-line;
-}
+.btn-edit { background: #17a2b8; color: white; }
+.btn-approve { background: #28a745; color: white; }
+.btn-reject { background: #dc3545; color: white; }
