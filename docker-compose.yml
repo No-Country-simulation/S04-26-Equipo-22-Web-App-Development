@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:15-alpine
     container_name: postgres_talent
+    restart: unless-stopped
 
     environment:
       POSTGRES_DB: talent
@@ -11,18 +12,23 @@ services:
     ports:
       - '5433:5432'
 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+    networks:
+      - talent_network
+
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d talent']
       interval: 5s
       timeout: 5s
       retries: 5
 
-    networks:
-      - talent_network
-
-  app:
-    build: .
-    container_name: talent_circle_backend
+  backend:
+    build:
+      context: ./Backend
+    container_name: talent_backend
+    restart: unless-stopped
 
     ports:
       - '8080:8080'
@@ -35,7 +41,26 @@ services:
       DB_PASSWORD: postgres
 
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+    networks:
+      - talent_network
+
+  frontend:
+    build:
+      context: ./Frontend
+    container_name: talent_frontend
+    restart: unless-stopped
+
+    ports:
+      - '5173:5173'
+
+    environment:
+      VITE_API_URL: http://localhost:8080
+
+    depends_on:
+      - backend
 
     networks:
       - talent_network
@@ -43,3 +68,6 @@ services:
 networks:
   talent_network:
     driver: bridge
+
+volumes:
+  pgdata:
