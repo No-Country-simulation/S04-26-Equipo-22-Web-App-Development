@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.temporal.ChronoUnit;
 
 import java.time.LocalDateTime;
 
@@ -77,12 +78,7 @@ public class AuthService {
         RefreshToken refreshTokenEntity =
                 RefreshToken.builder()
                         .token(refreshToken)
-                        .expiryDate(
-                                LocalDateTime.now()
-                                        .plusSeconds(
-                                                jwtUtil.getRefreshExpirationMs() / 1000
-                                        )
-                        )
+                        .expiryDate(calculateRefreshTokenExpiry())
                         .revoked(false)
                         .user(user)
                         .build();
@@ -146,12 +142,7 @@ public class AuthService {
         RefreshToken refreshTokenEntity =
                 RefreshToken.builder()
                         .token(refreshToken)
-                        .expiryDate(
-                                LocalDateTime.now()
-                                        .plusSeconds(
-                                                jwtUtil.getRefreshExpirationMs() / 1000
-                                        )
-                        )
+                        .expiryDate(calculateRefreshTokenExpiry())
                         .revoked(false)
                         .user(user)
                         .build();
@@ -216,12 +207,7 @@ public class AuthService {
                 RefreshToken refreshTokenEntity =
                         RefreshToken.builder()
                                 .token(newRefreshToken)
-                                .expiryDate(
-                                        LocalDateTime.now()
-                                                .plusSeconds(
-                                                        jwtUtil.getRefreshExpirationMs() / 1000
-                                                )
-                                )
+                                .expiryDate(calculateRefreshTokenExpiry())
                                 .revoked(false)
                                 .user(user)
                                 .build();
@@ -264,6 +250,14 @@ public class AuthService {
 
                 refreshTokenRepository.saveAll(validTokens);
         }
+
+        private LocalDateTime calculateRefreshTokenExpiry() {
+                return LocalDateTime.now()
+                        .plus(
+                                jwtUtil.getRefreshExpirationMs(),
+                                ChronoUnit.MILLIS
+                        );
+                }
 
 
 }

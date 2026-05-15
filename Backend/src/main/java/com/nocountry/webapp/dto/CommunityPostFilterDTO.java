@@ -28,6 +28,6 @@ public class CommunityPostFilterDTO {
     @Schema(description = "Fecha de fin del rango (YYYY-MM-DDTHH:MM:SS)", example = "2024-01-21T23:59:59")
     private LocalDateTime endDate;
     
-    @Schema(description = "Límite de resultados (opcional, default 10)", example = "20")
+    @Schema(description = "Límite de resultados (opcional, default 100)", example = "100")
     private Integer limit;
 }

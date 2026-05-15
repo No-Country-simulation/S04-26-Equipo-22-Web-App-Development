@@ -392,5 +392,27 @@ public class CommunityPostService {
             );
         }
     }
-    
+
+    /**
+         * Obtener posts por rango de fechas
+         */
+        public List<CommunityPost> getPostsByDateRange(
+                LocalDateTime start,
+                LocalDateTime end
+        ) {
+
+        validateDateRange(start, end);
+
+        log.info(
+                "Obteniendo posts en rango de fechas: {} - {}",
+                start,
+                end
+        );
+
+                return communityPostRepository.findByCollectedAtBetween(
+                start,
+                end
+        );
+        }
+        
 }
