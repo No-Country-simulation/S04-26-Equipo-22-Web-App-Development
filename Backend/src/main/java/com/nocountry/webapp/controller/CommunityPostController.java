@@ -266,8 +266,7 @@ public class CommunityPostController {
         }
         // Si solo hay rango de fechas
         else if (filterDTO.getStartDate() != null && filterDTO.getEndDate() != null) {
-            posts = communityPostService.getPostsByCommunityAndDateRange(
-                    null,
+            posts = communityPostService.getPostsByDateRange(
                     filterDTO.getStartDate(),
                     filterDTO.getEndDate()
             );

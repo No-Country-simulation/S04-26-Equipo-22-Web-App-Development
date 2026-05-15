@@ -39,9 +39,14 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
         List<Community> communities = communityRepository.findAll();
 
         // Validación por si no existen comunidades
-        if (communities.isEmpty()) {
-            log.warn("No communities found. CommunityPost seeding skipped.");
-            return;
+        if (communities.size() < 4) {
+
+        log.warn(
+                "At least 4 communities are required for CommunityPost seeding. Found: {}",
+                communities.size()
+        );
+
+        return;
         }
 
         /*
