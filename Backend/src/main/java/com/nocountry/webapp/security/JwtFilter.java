@@ -18,8 +18,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
-
 import java.io.IOException;
 
 @Component
@@ -39,8 +37,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
         log.info("➡️ JWT FILTER HIT: {}", request.getRequestURI());
 
+            if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+                chain.doFilter(request, response);
+                return;
+        }
+
         String path = request.getRequestURI();
 
+        // Endpoints públicos
         if (isPublicEndpoint(path)) {
             chain.doFilter(request, response);
             return;
@@ -51,11 +55,11 @@ public class JwtFilter extends OncePerRequestFilter {
         
         log.debug("Authorization header received");
 
+          // Sin token -> dejar que Spring maneje el 401
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
 
-                throw new InsufficientAuthenticationException(
-                        "Token no proporcionado"
-                );
+                chain.doFilter(request, response);
+                return;
                 }
 
         final String jwt = authHeader.substring(7);
@@ -125,7 +129,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 e
         );
 
-        } catch (BadCredentialsException | InsufficientAuthenticationException e) {
+        } catch (BadCredentialsException e) {
 
         throw e;
 
@@ -133,9 +137,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         log.error("Error JWT", e);
 
-        throw new RuntimeException(
-                "Error autenticando usuario"
-        );
+        throw new BadCredentialsException(
+                 "Error autenticando usuario",
+                 e
+         );
         }
     }
 

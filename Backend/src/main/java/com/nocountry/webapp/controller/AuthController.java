@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,7 +23,7 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDTO> register(
-            @RequestBody RegisterRequestDTO request
+             @RequestBody @Valid RegisterRequestDTO request
     ) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -39,7 +40,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(
-            @RequestBody LoginRequestDTO request
+            @RequestBody @Valid LoginRequestDTO request
     ) {
 
         return ResponseEntity.ok(
