@@ -1,0 +1,200 @@
+.twitter-card {
+	background: #fff;
+	border: 1px solid #dfe3e8;
+	border-radius: 12px;
+
+	display: flex;
+	gap: 0.8rem;
+
+	padding: 1rem;
+
+	width: 100%;
+	max-width: 620px;
+
+	overflow: hidden;
+
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+
+	transition:
+		box-shadow 0.2s ease,
+		transform 0.2s ease;
+}
+
+.twitter-card:hover {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+	transform: translateY(-2px);
+}
+
+/* AVATAR */
+
+.twitter-avatar {
+	width: 48px;
+	height: 48px;
+
+	border-radius: 50%;
+	object-fit: cover;
+
+	flex-shrink: 0;
+
+	border: 1px solid #e5e7eb;
+}
+
+/* RIGHT SIDE */
+
+.twitter-body {
+	display: flex;
+	flex-direction: column;
+
+	width: 100%;
+	min-width: 0;
+}
+
+/* HEADER */
+
+.twitter-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	width: 100%;
+	min-width: 0;
+}
+
+.twitter-user-info {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+
+	flex-wrap: wrap;
+
+	min-width: 0;
+	width: 100%;
+}
+
+.twitter-user-info h3 {
+	margin: 0;
+
+	font-size: 15px;
+	font-weight: 700;
+	color: #0f1419;
+
+	line-height: 1.2;
+}
+
+.twitter-user-info h3:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.twitter-user-info h3,
+.twitter-username,
+.twitter-time {
+	min-width: 0;
+
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.twitter-verified {
+	color: #1d9bf0;
+
+	display: flex;
+	align-items: center;
+
+	font-size: 18px;
+}
+
+.twitter-username,
+.twitter-time {
+	font-size: 15px;
+	color: #536471;
+}
+
+.twitter-dot {
+	color: #536471;
+}
+
+.twitter-menu {
+	color: #536471;
+
+	cursor: pointer;
+
+	font-size: 18px;
+
+	flex-shrink: 0;
+}
+
+/* CONTENT */
+
+.twitter-content {
+	margin-top: 0.35rem;
+
+	font-size: 15px;
+	line-height: 1.5;
+	color: #1f1f1f;
+
+	white-space: pre-line;
+
+	word-break: break-word;
+	overflow-wrap: break-word;
+}
+
+/* IMAGE */
+
+.twitter-post-image {
+	margin-top: 0.8rem;
+
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+
+	max-height: 500px;
+
+	object-fit: cover;
+
+	border-radius: 18px;
+	border: 1px solid #cfd9de;
+}
+
+/* ACTIONS */
+
+.twitter-actions {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+
+	margin-top: 1rem;
+
+	width: 100%;
+}
+
+.twitter-action {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.45rem;
+
+	color: #536471;
+	font-size: 14px;
+
+	cursor: pointer;
+
+	padding: 0.5rem;
+
+	border-radius: 999px;
+
+	transition:
+		background 0.2s ease,
+		color 0.2s ease;
+}
+
+.twitter-action svg {
+	font-size: 18px;
+
+	flex-shrink: 0;
+}
+
+.twitter-action:hover {
+	background: rgba(29, 155, 240, 0.08);
+	color: #1d9bf0;
+}

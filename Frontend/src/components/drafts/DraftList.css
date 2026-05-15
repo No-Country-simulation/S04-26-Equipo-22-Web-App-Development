@@ -1,0 +1,98 @@
+.draft-list {
+  width: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-top: 8px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.draft-list__rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.draft-header {
+  display: grid;
+  grid-template-columns: 1.1fr 3fr 1.1fr 1.6fr 0.9fr;
+  gap: 12px;
+  padding: 8px 12px 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.draft-header p {
+  margin: 0;
+}
+
+.draft-header__actions {
+  text-align: right;
+}
+
+/* ============================================================ */
+/* EMPTY STATE                                                   */
+/* ============================================================ */
+
+.draft-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: white;
+  border: 1px dashed #e5e7eb;
+  border-radius: 14px;
+  padding: 48px 28px;
+  margin-top: 8px;
+  animation: emptyIn 0.45s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+
+@keyframes emptyIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.draft-empty__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #eff6ff, #dbeafe);
+  color: #2563eb;
+  font-size: 1.4rem;
+  margin-bottom: 14px;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.15);
+}
+
+.draft-empty__title {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+.draft-empty__text {
+  margin: 0;
+  max-width: 420px;
+  color: #6b7280;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 720px) {
+  .draft-list {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+  .draft-header { display: none; }
+}

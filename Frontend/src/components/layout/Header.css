@@ -1,0 +1,72 @@
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 24px;
+  background: #1f2937;
+  color: #f9fafb;
+  border-bottom: 1px solid #111827;
+}
+
+.app-header__brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.app-header__nav {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.app-header__link {
+  color: #d1d5db;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.app-header__link:hover {
+  background: #374151;
+}
+
+.app-header__link.is-active {
+  background: #2563eb;
+  color: white;
+}
+
+.app-header__user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+}
+
+.app-header__email {
+  color: #f9fafb;
+}
+
+.app-header__role {
+  background: #374151;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.app-header__logout {
+  background: transparent;
+  border: 1px solid #6b7280;
+  color: #f9fafb;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.app-header__logout:hover {
+  background: #374151;
+}
