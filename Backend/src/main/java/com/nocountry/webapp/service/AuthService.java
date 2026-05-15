@@ -16,11 +16,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -76,7 +78,10 @@ public class AuthService {
                 RefreshToken.builder()
                         .token(refreshToken)
                         .expiryDate(
-                                LocalDateTime.now().plusDays(7)
+                                LocalDateTime.now()
+                                        .plusSeconds(
+                                                jwtUtil.getRefreshExpirationMs() / 1000
+                                        )
                         )
                         .revoked(false)
                         .user(user)
@@ -142,7 +147,10 @@ public class AuthService {
                 RefreshToken.builder()
                         .token(refreshToken)
                         .expiryDate(
-                                LocalDateTime.now().plusDays(7)
+                                LocalDateTime.now()
+                                        .plusSeconds(
+                                                jwtUtil.getRefreshExpirationMs() / 1000
+                                        )
                         )
                         .revoked(false)
                         .user(user)
@@ -209,7 +217,10 @@ public class AuthService {
                         RefreshToken.builder()
                                 .token(newRefreshToken)
                                 .expiryDate(
-                                        LocalDateTime.now().plusDays(7)
+                                        LocalDateTime.now()
+                                                .plusSeconds(
+                                                        jwtUtil.getRefreshExpirationMs() / 1000
+                                                )
                                 )
                                 .revoked(false)
                                 .user(user)
@@ -253,4 +264,6 @@ public class AuthService {
 
                 refreshTokenRepository.saveAll(validTokens);
         }
+
+
 }
