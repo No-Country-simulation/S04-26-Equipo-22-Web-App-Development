@@ -14,8 +14,11 @@ export async function register({ email, password }) {
 }
 
 export async function logout() {
+  const refreshToken = tokenStorage.getRefresh();
   try {
-    await api.post("/api/auth/logout");
+    if (refreshToken) {
+      await api.post("/api/auth/logout", { refreshToken });
+    }
   } finally {
     tokenStorage.clear();
   }
