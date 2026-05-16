@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Profile("!test")   // Evitar ejecutar en perfil de test
-public class DataSeeder implements ApplicationRunner {
+public class CommunityDataSeeder implements ApplicationRunner {
 
     private final CommunityService communityService;
 

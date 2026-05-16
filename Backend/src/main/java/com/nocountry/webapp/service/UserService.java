@@ -1,27 +1,33 @@
 package com.nocountry.webapp.service;
 
+import com.nocountry.webapp.dto.UserResponseDTO;
 import com.nocountry.webapp.entity.User;
-import com.nocountry.webapp.entity.enums.Role; 
+import com.nocountry.webapp.exception.base.NotFoundException;
 import com.nocountry.webapp.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public List<User> listarUsuarios() {
-        return userRepository.findAll();
-    }
+    public UserResponseDTO getByEmail(String email) {
 
-    public User guardarUsuario(User user) {
-    
-        if (user.getRole() == null) {
-            user.setRole(Role.ROLE_USER);
-        }
-        return userRepository.save(user);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                String.format("Usuario con email %s no encontrado", email)
+                        )
+                );
+
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
     }
 }
