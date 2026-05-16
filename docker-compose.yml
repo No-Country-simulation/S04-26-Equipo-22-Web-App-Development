@@ -58,6 +58,11 @@ services:
 
     environment:
       VITE_API_URL: http://localhost:8080
+      CHOKIDAR_USEPOLLING: 'true'
+
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
 
     depends_on:
       - backend
