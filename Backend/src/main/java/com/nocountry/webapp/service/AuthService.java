@@ -16,11 +16,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.temporal.ChronoUnit;
 
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -75,9 +78,7 @@ public class AuthService {
         RefreshToken refreshTokenEntity =
                 RefreshToken.builder()
                         .token(refreshToken)
-                        .expiryDate(
-                                LocalDateTime.now().plusDays(7)
-                        )
+                        .expiryDate(calculateRefreshTokenExpiry())
                         .revoked(false)
                         .user(user)
                         .build();
@@ -141,9 +142,7 @@ public class AuthService {
         RefreshToken refreshTokenEntity =
                 RefreshToken.builder()
                         .token(refreshToken)
-                        .expiryDate(
-                                LocalDateTime.now().plusDays(7)
-                        )
+                        .expiryDate(calculateRefreshTokenExpiry())
                         .revoked(false)
                         .user(user)
                         .build();
@@ -208,9 +207,7 @@ public class AuthService {
                 RefreshToken refreshTokenEntity =
                         RefreshToken.builder()
                                 .token(newRefreshToken)
-                                .expiryDate(
-                                        LocalDateTime.now().plusDays(7)
-                                )
+                                .expiryDate(calculateRefreshTokenExpiry())
                                 .revoked(false)
                                 .user(user)
                                 .build();
@@ -230,16 +227,16 @@ public class AuthService {
         public void logout(String refreshToken) {
 
 
-        RefreshToken token = refreshTokenRepository
-                .findByToken(refreshToken)
-                .orElseThrow(() ->
-                        new UnauthorizedException(
-                                "Refresh token inválido"
-                        ));
+                RefreshToken token = refreshTokenRepository
+                        .findByToken(refreshToken)
+                        .orElseThrow(() ->
+                                new UnauthorizedException(
+                                        "Refresh token inválido"
+                                ));
 
-        token.setRevoked(true);
+                token.setRevoked(true);
 
-        refreshTokenRepository.save(token);
+                refreshTokenRepository.save(token);
         }
 
         private void revokeAllUserTokens(User user) {
@@ -253,4 +250,14 @@ public class AuthService {
 
                 refreshTokenRepository.saveAll(validTokens);
         }
+
+        private LocalDateTime calculateRefreshTokenExpiry() {
+                return LocalDateTime.now()
+                .plus(
+                        jwtUtil.getRefreshExpirationMs(),
+                        ChronoUnit.MILLIS
+                );
+        }
+
+
 }
