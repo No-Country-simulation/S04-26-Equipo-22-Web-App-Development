@@ -37,7 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         log.info("➡️ JWT FILTER HIT: {}", request.getRequestURI());
 
-            if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
                 chain.doFilter(request, response);
                 return;
         }
@@ -57,10 +57,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
           // Sin token -> dejar que Spring maneje el 401
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-
                 chain.doFilter(request, response);
                 return;
-                }
+        }
 
         final String jwt = authHeader.substring(7);
 
@@ -73,10 +72,8 @@ public class JwtFilter extends OncePerRequestFilter {
                 
                 log.info("Email from token: {}", email);
 
-                if (email != null &&
-                        SecurityContextHolder
-                                .getContext()
-                                .getAuthentication() == null) {
+                if (email != null 
+                        && SecurityContextHolder.getContext().getAuthentication() == null) {
 
                 UserDetails userDetails =
                         userDetailsService
@@ -117,30 +114,30 @@ public class JwtFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtException e) {
 
-    throw new BadCredentialsException(
-            "Token expirado",
-            e
-    );
+                throw new BadCredentialsException(
+                "Token expirado",
+                        e
+                );
 
         } catch (MalformedJwtException | SignatureException e) {
 
-        throw new BadCredentialsException(
+                throw new BadCredentialsException(
                 "Token inválido",
-                e
-        );
+                        e
+                );
 
         } catch (BadCredentialsException e) {
 
-        throw e;
+                throw e;
 
         } catch (Exception e) {
 
-        log.error("Error JWT", e);
+                log.error("Error JWT", e);
 
-        throw new BadCredentialsException(
+                throw new BadCredentialsException(
                  "Error autenticando usuario",
-                 e
-         );
+                        e
+                );
         }
     }
 

@@ -227,16 +227,16 @@ public class AuthService {
         public void logout(String refreshToken) {
 
 
-        RefreshToken token = refreshTokenRepository
-                .findByToken(refreshToken)
-                .orElseThrow(() ->
-                        new UnauthorizedException(
-                                "Refresh token inválido"
-                        ));
+                RefreshToken token = refreshTokenRepository
+                        .findByToken(refreshToken)
+                        .orElseThrow(() ->
+                                new UnauthorizedException(
+                                        "Refresh token inválido"
+                                ));
 
-        token.setRevoked(true);
+                token.setRevoked(true);
 
-        refreshTokenRepository.save(token);
+                refreshTokenRepository.save(token);
         }
 
         private void revokeAllUserTokens(User user) {
@@ -253,11 +253,11 @@ public class AuthService {
 
         private LocalDateTime calculateRefreshTokenExpiry() {
                 return LocalDateTime.now()
-                        .plus(
-                                jwtUtil.getRefreshExpirationMs(),
-                                ChronoUnit.MILLIS
-                        );
-                }
+                .plus(
+                        jwtUtil.getRefreshExpirationMs(),
+                        ChronoUnit.MILLIS
+                );
+        }
 
 
 }
