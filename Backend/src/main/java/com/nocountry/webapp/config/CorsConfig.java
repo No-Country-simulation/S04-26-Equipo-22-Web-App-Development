@@ -11,9 +11,9 @@ public class CorsConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOriginPatterns("*")  // Permitir cualquier origen
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                .allowedHeaders("*")
+                .allowedHeaders("*")  // Headers permitidos
                 .exposedHeaders("Authorization", "Content-Type") // Headers importantes
-                .allowCredentials(false)
-                .maxAge(3600);
+                .allowCredentials(false)   // JWT usa headers, no cookies
+                .maxAge(3600);   // Cache del preflight
     }
 }
