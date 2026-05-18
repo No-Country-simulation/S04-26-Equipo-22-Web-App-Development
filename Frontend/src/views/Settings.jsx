@@ -1,0 +1,177 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Settings.css";
+
+function Settings() {
+  const navigate = useNavigate();
+
+  // Estados para cada sección
+  const [communities, setCommunities] = useState([
+    "Frontend Argentina",
+    "Backend Devs",
+    "DevOps Latam"
+  ]);
+  const [newCommunity, setNewCommunity] = useState("");
+
+  const [channels, setChannels] = useState({
+    newsletter: { connected: true, email: "hola@talentcircle.es" },
+    linkedin: { connected: true, account: "TalentCircle ES" },
+    twitter: { connected: true, account: "@talentcircle_es" },
+    feed: { connected: true, api: "api nativa" },
+    slack: { connected: false, webhook: "" }
+  });
+
+  const [aiModel, setAiModel] = useState("gemini-2.5-flash-lite");
+  const [schedule, setSchedule] = useState("Friday 18:00");
+  const [team, setTeam] = useState([
+    { name: "Rider", role: "PM" },
+    { name: "Anthony", role: "Backend" },
+    { name: "Alejandro", role: "Frontend" }
+  ]);
+
+  const addCommunity = () => {
+    if (newCommunity.trim()) {
+      setCommunities([...communities, newCommunity]);
+      setNewCommunity("");
+    }
+  };
+
+  const removeCommunity = (index) => {
+    const newList = communities.filter((_, i) => i !== index);
+    setCommunities(newList);
+  };
+
+  const handleSave = () => {
+    alert("✅ Configuración guardada correctamente");
+  };
+
+  return (
+    <div className="settings-container">
+      <header className="settings-header">
+        <button className="back-button" onClick={() => navigate(-1)}>
+          ← Volver
+        </button>
+        <h1 className="settings-title">Configuración</h1>
+        <p className="settings-subtitle">Comunidades vigiladas, canales de salida, modelo, equipo y schedule</p>
+      </header>
+
+      <div className="settings-sections">
+        {/* SECCIÓN 1: Comunidades vigiladas */}
+        <section className="settings-section">
+          <h2>🌐 Comunidades vigiladas</h2>
+          <div className="community-list">
+            {communities.map((community, index) => (
+              <div key={index} className="community-item">
+                <span>{community}</span>
+                <button className="remove-btn" onClick={() => removeCommunity(index)}>✖</button>
+              </div>
+            ))}
+          </div>
+          <div className="add-community">
+            <input
+              type="text"
+              placeholder="Nueva comunidad..."
+              value={newCommunity}
+              onChange={(e) => setNewCommunity(e.target.value)}
+            />
+            <button onClick={addCommunity}>+ Agregar</button>
+          </div>
+        </section>
+
+        {/* SECCIÓN 2: Canales de salida */}
+        <section className="settings-section">
+          <h2>📢 Canales de salida</h2>
+          <p className="section-desc">Conecta cuentas para que el editor pueda publicar con un clic.</p>
+          
+          <div className="channels-list">
+            <div className="channel-item">
+              <div className="channel-info">
+                <span className="channel-icon">📧</span>
+                <span><strong>Newsletter (Mailchimp)</strong><br />{channels.newsletter.email}</span>
+              </div>
+              <button className="connect-btn connected">
+                ✓ Conectado
+              </button>
+            </div>
+
+            <div className="channel-item">
+              <div className="channel-info">
+                <span className="channel-icon">💼</span>
+                <span><strong>LinkedIn — página</strong><br />{channels.linkedin.account}</span>
+              </div>
+              <button className="connect-btn connected">
+                ✓ Conectado
+              </button>
+            </div>
+
+            <div className="channel-item">
+              <div className="channel-info">
+                <span className="channel-icon">🐦</span>
+                <span><strong>Twitter / X</strong><br />{channels.twitter.account}</span>
+              </div>
+              <button className="connect-btn connected">
+                ✓ Conectado
+              </button>
+            </div>
+
+            <div className="channel-item">
+              <div className="channel-info">
+                <span className="channel-icon">📡</span>
+                <span><strong>Feed interno</strong><br />{channels.feed.api}</span>
+              </div>
+              <button className="connect-btn connected">
+                ✓ Conectado
+              </button>
+            </div>
+
+            <div className="channel-item">
+              <div className="channel-info">
+                <span className="channel-icon">💬</span>
+                <span><strong>Slack/Discord</strong></span>
+              </div>
+              <button className="connect-btn">Configurar</button>
+            </div>
+          </div>
+        </section>
+
+        {/* SECCIÓN 3: Modelo IA */}
+        <section className="settings-section">
+          <h2>🤖 Modelo de IA</h2>
+          <select value={aiModel} onChange={(e) => setAiModel(e.target.value)}>
+            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash-Lite</option>
+            <option value="gpt-4">GPT-4</option>
+            <option value="claude-3">Claude 3</option>
+          </select>
+        </section>
+
+        {/* SECCIÓN 4: Equipo */}
+        <section className="settings-section">
+          <h2>👥 Equipo</h2>
+          <div className="team-list">
+            {team.map((member, index) => (
+              <div key={index} className="team-member">
+                <span><strong>{member.name}</strong> - {member.role}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* SECCIÓN 5: Schedule */}
+        <section className="settings-section">
+          <h2>⏰ Schedule</h2>
+          <select value={schedule} onChange={(e) => setSchedule(e.target.value)}>
+            <option value="Friday 18:00">Viernes 18:00 (recomendado)</option>
+            <option value="Friday 20:00">Viernes 20:00</option>
+            <option value="Saturday 09:00">Sábado 09:00</option>
+          </select>
+        </section>
+      </div>
+
+      <div className="settings-actions">
+        <button className="save-btn" onClick={handleSave}>💾 Guardar configuración</button>
+      </div>
+    </div>
+  );
+}
+
+export default Settings;
