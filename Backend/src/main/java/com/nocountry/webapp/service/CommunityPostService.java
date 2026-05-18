@@ -173,14 +173,21 @@ public class CommunityPostService {
     /**
      * 9. Posts por comunidad en rango de fechas
      */
-    public List<CommunityPost> getPostsByCommunityAndDateRange(Long communityId, LocalDateTime start, LocalDateTime end) {
+    public List<CommunityPost> getPostsByCommunityAndDateRange(Long communityId, LocalDateTime start, LocalDateTime end, int limit) {
         
         validateCommunityId(communityId);
         validateDateRange(start, end);
+        validateLimit(limit);
         
         log.info("Obteniendo posts de la comunidad ID: {} en rango de fechas: {} - {}", communityId, start, end);
         
-        return communityPostRepository.findByCommunityIdAndCollectedAtBetween(communityId, start, end);
+        return communityPostRepository
+        .findByCommunityIdAndCollectedAtBetweenOrderByCollectedAtDesc(
+                communityId,
+                start,
+                end,
+                PageRequest.of(0, limit)
+        );
     }
 
     /**
@@ -277,15 +284,41 @@ public class CommunityPostService {
         return communityPostRepository.findByTypeAndCollectedAtBetween(type, start, end, PageRequest.of(0, limit));
     }
 
+     /**
+      * 12. Obtener posts por rango de fechas
+      */
+        public List<CommunityPost> getPostsByDateRange(
+                LocalDateTime start,
+                LocalDateTime end,
+                int limit
+        ) {
+
+        validateDateRange(start, end);
+        validateLimit(limit);
+
+        log.info(
+                "Obteniendo posts en rango de fechas: {} - {}",
+                start,
+                end
+        );
+
+        return communityPostRepository
+            .findByCollectedAtBetweenOrderByCollectedAtDesc(
+                    start,
+                    end,
+                    PageRequest.of(0, limit)
+            );
+        }
+
     /**
-     * 12. Verificar si hay actividad en la semana
+     * 13. Verificar si hay actividad en la semana
      */
     public boolean hasWeeklyActivity() {
         return !getWeeklyPosts().isEmpty();
     }
 
     /**
-     * 13. Obtener estadísticas resumidas para el editor
+     * 14. Obtener estadísticas resumidas para el editor
      */
     public WeeklyStatistics getWeeklyStatistics() {
 
@@ -393,26 +426,6 @@ public class CommunityPostService {
         }
     }
 
-    /**
-         * Obtener posts por rango de fechas
-         */
-        public List<CommunityPost> getPostsByDateRange(
-                LocalDateTime start,
-                LocalDateTime end
-        ) {
-
-        validateDateRange(start, end);
-
-        log.info(
-                "Obteniendo posts en rango de fechas: {} - {}",
-                start,
-                end
-        );
-
-                return communityPostRepository.findByCollectedAtBetween(
-                start,
-                end
-        );
-        }
+   
         
 }

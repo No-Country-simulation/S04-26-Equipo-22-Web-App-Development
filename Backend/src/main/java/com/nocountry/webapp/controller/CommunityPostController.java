@@ -1,6 +1,11 @@
 package com.nocountry.webapp.controller;
 
-import com.nocountry.webapp.dto.*;
+import com.nocountry.webapp.dto.CommunityPostFilterDTO;
+import com.nocountry.webapp.dto.CommunityPostResponseDTO;
+import com.nocountry.webapp.dto.WeeklyDigestDataResponseDTO;
+import com.nocountry.webapp.dto.WeeklyStatisticsResponseDTO;
+import com.nocountry.webapp.analytics.WeeklyDigestData;
+import com.nocountry.webapp.analytics.WeeklyStatistics;
 import com.nocountry.webapp.entity.CommunityPost;
 import com.nocountry.webapp.entity.enums.CommunityPostType;
 import com.nocountry.webapp.service.CommunityPostService;
@@ -245,18 +250,23 @@ public class CommunityPostController {
             @Valid @RequestBody CommunityPostFilterDTO filterDTO) {
         
         List<CommunityPost> posts;
-        
+
+        int limit = filterDTO.getLimit() != null
+            ? filterDTO.getLimit()
+            : 100;
+
         // Si hay comunidad específica
         if (filterDTO.getCommunityId() != null) {
+            
             posts = communityPostService.getPostsByCommunityAndDateRange(
                     filterDTO.getCommunityId(),
                     filterDTO.getStartDate(),
-                    filterDTO.getEndDate()
+                    filterDTO.getEndDate(),
+                    limit
             );
         } 
         // Si hay tipo específico
         else if (filterDTO.getType() != null) {
-            int limit = filterDTO.getLimit() != null ? filterDTO.getLimit() : 100;
             posts = communityPostService.getPostsByTypeAndDateRange(
                     filterDTO.getType(),
                     filterDTO.getStartDate(),
@@ -266,9 +276,11 @@ public class CommunityPostController {
         }
         // Si solo hay rango de fechas
         else if (filterDTO.getStartDate() != null && filterDTO.getEndDate() != null) {
+
             posts = communityPostService.getPostsByDateRange(
                     filterDTO.getStartDate(),
-                    filterDTO.getEndDate()
+                    filterDTO.getEndDate(),
+                    limit
             );
         }
         // Default: todos los posts de la semana
@@ -336,7 +348,7 @@ public class CommunityPostController {
                 .build();
     }
 
-    private WeeklyDigestDataResponseDTO convertToDigestDTO(com.nocountry.webapp.analytics.WeeklyDigestData digestData) {
+    private WeeklyDigestDataResponseDTO convertToDigestDTO(WeeklyDigestData digestData) {
         return WeeklyDigestDataResponseDTO.builder()
                 .topReactedPosts(digestData.getTopReactedPosts().stream()
                         .map(this::convertToDTO)
@@ -362,7 +374,7 @@ public class CommunityPostController {
                 .build();
     }
 
-    private WeeklyStatisticsResponseDTO convertToStatisticsDTO(com.nocountry.webapp.analytics.WeeklyStatistics statistics) {
+    private WeeklyStatisticsResponseDTO convertToStatisticsDTO(WeeklyStatistics statistics) {
         return WeeklyStatisticsResponseDTO.builder()
                 .totalPosts(statistics.getTotalPosts())
                 .totalQuestions(statistics.getTotalQuestions())
