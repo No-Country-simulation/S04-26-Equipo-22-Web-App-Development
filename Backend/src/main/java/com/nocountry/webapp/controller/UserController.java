@@ -4,7 +4,6 @@ import com.nocountry.webapp.dto.UpdatePasswordRequestDTO;
 import com.nocountry.webapp.dto.UserResponseDTO;
 import com.nocountry.webapp.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
