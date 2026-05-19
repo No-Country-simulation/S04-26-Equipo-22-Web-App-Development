@@ -233,6 +233,10 @@ public class AuthService {
                                 new UnauthorizedException(
                                         "Refresh token inválido"
                                 ));
+                
+                if (token.isRevoked()) {
+                        return;
+                }
 
                 token.setRevoked(true);
 
@@ -242,7 +246,10 @@ public class AuthService {
         private void revokeAllUserTokens(User user) {
 
                 var validTokens =
-                        refreshTokenRepository.findByUser(user);
+                        refreshTokenRepository.findByUser(user)
+                        .stream()
+                        .filter(token -> !token.isRevoked())
+                        .toList();
 
                 validTokens.forEach(token ->
                         token.setRevoked(true)

@@ -13,4 +13,6 @@ public interface RefreshTokenRepository
     Optional<RefreshToken> findByToken(String token);
 
     List<RefreshToken> findByUser(User user);
+
+    void deleteByUser(User user);
 }

@@ -5,6 +5,7 @@ import com.nocountry.webapp.dto.UserResponseDTO;
 import com.nocountry.webapp.entity.User;
 import com.nocountry.webapp.exception.base.BusinessException;
 import com.nocountry.webapp.exception.base.NotFoundException;
+import com.nocountry.webapp.repository.RefreshTokenRepository;
 import com.nocountry.webapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
 
     public UserResponseDTO getByEmail(String email) {
@@ -65,6 +67,8 @@ public class UserService {
         );
 
         userRepository.save(user);
+        // Revocar refresh tokens existentes
+        refreshTokenRepository.deleteByUser(user);
 
         return mapToDTO(user);
     }
@@ -73,6 +77,9 @@ public class UserService {
     public void deleteUser(String email) {
 
         User user = findUserByEmail(email);
+
+        // Eliminar refresh tokens asociados
+        refreshTokenRepository.deleteByUser(user);
 
         userRepository.delete(user);
     }

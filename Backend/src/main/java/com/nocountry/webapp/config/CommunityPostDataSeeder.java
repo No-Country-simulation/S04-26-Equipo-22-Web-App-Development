@@ -19,7 +19,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!test") // Evita ejecutar el seeder en tests
+@Profile("dev") // Solo se ejecuta en el perfil de desarrollo
 public class CommunityPostDataSeeder implements ApplicationRunner {
 
     private final CommunityPostRepository communityPostRepository;
