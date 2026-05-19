@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -72,9 +73,10 @@ public class WeeklyDigestService {
             log.info("Digest generado exitosamente con ID: {}", saved.getId());
             return saved;
 
-        } catch (Exception e) {
-            log.error("Error generando digest: {}", e.getMessage(), e);
-            throw new BusinessException("Error al generar el digest semanal: " + e.getMessage());
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException(
+                    "Ya existe un digest para esa comunidad y semana"
+            );
         }
     }
 

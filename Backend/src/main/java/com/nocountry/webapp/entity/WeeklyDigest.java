@@ -13,8 +13,7 @@ import com.nocountry.webapp.entity.enums.WeeklyDigestStatus;
         @UniqueConstraint(
             columnNames = {
                 "community_id",
-                "week_start",
-                "week_end"
+                "week_start"
             }
         )
     }
