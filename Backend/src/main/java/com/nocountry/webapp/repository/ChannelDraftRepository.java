@@ -1,7 +1,7 @@
 package com.nocountry.webapp.repository;
 
 import com.nocountry.webapp.entity.ChannelDraft;
-import com.nocountry.webapp.entity.enums.DraftStatus;
+import com.nocountry.webapp.entity.enums.ChannelDraftStatus;
 import com.nocountry.webapp.entity.enums.TargetPlatform;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,7 +25,7 @@ public interface ChannelDraftRepository extends JpaRepository<ChannelDraft, Long
     /**
      * Busca borradores por estado (con paginación)
      */
-    List<ChannelDraft> findByStatus(DraftStatus status, Pageable pageable);
+    List<ChannelDraft> findByStatus(ChannelDraftStatus status, Pageable pageable);
 
     /**
      * Busca borrador específico por digest y plataforma
@@ -35,18 +35,18 @@ public interface ChannelDraftRepository extends JpaRepository<ChannelDraft, Long
     /**
      * Cuenta borradores por estado
      */
-    long countByStatus(DraftStatus status);
+    long countByStatus(ChannelDraftStatus status);
 
     /**
      * Busca borradores pendientes de aprobación (GENERATED o IN_REVIEW)
      */
     @Query("SELECT c FROM ChannelDraft c WHERE c.status IN :statuses ORDER BY c.createdAt ASC")
-    List<ChannelDraft> findPendingDrafts(@Param("statuses") List<DraftStatus> statuses, Pageable pageable);
+    List<ChannelDraft> findPendingDrafts(@Param("statuses") List<ChannelDraftStatus> statuses, Pageable pageable);
 
     /**
      * Busca borradores aprobados pero no publicados
      */
-    List<ChannelDraft> findByStatus(DraftStatus status);
+    List<ChannelDraft> findByStatus(ChannelDraftStatus status);
 
     /**
      * Actualiza el estado de todos los borradores de un digest
@@ -54,11 +54,11 @@ public interface ChannelDraftRepository extends JpaRepository<ChannelDraft, Long
     @Modifying
     @Transactional
     @Query("UPDATE ChannelDraft c SET c.status = :newStatus WHERE c.weeklyDigest.id = :digestId")
-    void updateStatusByDigestId(@Param("digestId") Long digestId, @Param("newStatus") DraftStatus newStatus);
+    void updateStatusByDigestId(@Param("digestId") Long digestId, @Param("newStatus") ChannelDraftStatus newStatus);
 
     /**
      * Verifica si un digest tiene todos sus borradores aprobados
      */
     @Query("SELECT COUNT(c) = 0 FROM ChannelDraft c WHERE c.weeklyDigest.id = :digestId AND c.status != :approvedStatus")
-    boolean areAllDraftsApproved(@Param("digestId") Long digestId, @Param("approvedStatus") DraftStatus approvedStatus);
+    boolean areAllDraftsApproved(@Param("digestId") Long digestId, @Param("approvedStatus") ChannelDraftStatus approvedStatus);
 }

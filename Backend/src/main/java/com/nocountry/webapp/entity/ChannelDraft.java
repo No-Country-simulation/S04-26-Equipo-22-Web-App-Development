@@ -1,6 +1,6 @@
 package com.nocountry.webapp.entity;
 
-import com.nocountry.webapp.entity.enums.DraftStatus;
+import com.nocountry.webapp.entity.enums.ChannelDraftStatus;
 import com.nocountry.webapp.entity.enums.TargetPlatform;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,12 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "channel_drafts",
-    indexes = {
-        @Index(name = "idx_weekly_digest_id", columnList = "weeklyDigestId"),
-        @Index(name = "idx_status", columnList = "status"),
-        @Index(name = "idx_editor_id", columnList = "editorId")
-    }
+    name = "channel_drafts"
 )
 @Getter
 @Setter
@@ -36,7 +31,7 @@ public class ChannelDraft {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default
-    private DraftStatus status = DraftStatus.GENERATED;
+    private ChannelDraftStatus status = ChannelDraftStatus.GENERATED;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
