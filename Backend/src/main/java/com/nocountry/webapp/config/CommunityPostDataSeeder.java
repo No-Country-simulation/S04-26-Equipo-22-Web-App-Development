@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Component
@@ -28,15 +29,25 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
     public void run(ApplicationArguments args) {
 
         LocalDateTime now = LocalDateTime.now();
+
         LocalDateTime weekStart = now
                 .with(java.time.DayOfWeek.MONDAY)
                 .toLocalDate()
                 .atStartOfDay();
 
-        // Evitar duplicar datos si ya existen posts
-        if (communityPostRepository.count() > 0) {
-            log.info("Community posts already seeded");
-            return;
+        LocalDateTime weekEnd = weekStart
+                .plusDays(6)
+                .with(LocalTime.MAX);
+
+        // Evitar duplicar datos de la semana actual
+        if (
+        communityPostRepository.existsByCollectedAtBetween(
+                weekStart,
+                weekEnd
+        )
+        ) {
+        log.info("Current week already seeded");
+        return;
         }
 
         log.info("Starting community post seeding...");
