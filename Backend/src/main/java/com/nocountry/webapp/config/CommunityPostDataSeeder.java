@@ -27,6 +27,12 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
 
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime weekStart = now
+                .with(java.time.DayOfWeek.MONDAY)
+                .toLocalDate()
+                .atStartOfDay();
+
         // Evitar duplicar datos si ya existen posts
         if (communityPostRepository.count() > 0) {
             log.info("Community posts already seeded");
@@ -72,7 +78,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                     32,
                     "reddit_1001",
                     "https://www.reddit.com/r/SpringBoot/comments/1q3tjbh/jwt_auth_refresh_token/",
-                    LocalDateTime.now().minusDays(2),
+                    weekStart.plusDays(1),
                     javaCommunity
             ),
 
@@ -84,7 +90,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                     41,
                     "reddit_1002",
                     "https://www.reddit.com/r/SpringBoot/comments/1p32mxf/n1_query_problem/",
-                    LocalDateTime.now().minusDays(3),
+                    weekStart.plusDays(3),
                     backendCommunity
             ),
 
@@ -98,7 +104,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                     11,
                     "reddit_2001",
                     "https://www.reddit.com/r/SpringBoot/comments/1tbsvwu/beginner_to_intermediate_sprint_boot_course/",
-                    LocalDateTime.now().minusDays(1),
+                    weekStart.plusDays(1),
                     javaCommunity
             ),
 
@@ -112,7 +118,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                     9,
                     "reddit_3001",
                     "https://www.reddit.com/r/SpringBoot/comments/1f2ef0f/video_conference_in_spring_boot/",
-                    LocalDateTime.now().minusDays(4),
+                    weekStart.plusDays(4),
                     backendCommunity
             ),
 
@@ -126,7 +132,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                     57,
                     "reddit_4001",
                     "https://www.reddit.com/r/SpringBoot/comments/1lbal4n/is_it_better_to_use_spring_boot_directly_on_linux/",
-                    LocalDateTime.now().minusDays(2),
+                    weekStart.plusDays(2),
                     backendCommunity
             ),
 
@@ -138,7 +144,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                     48,
                     "reddit_4002",
                     "https://www.reddit.com/r/reactjs/comments/1mqvj2k/best_way_to_organize_react_query_for_a_team/",
-                    LocalDateTime.now().minusDays(1),
+                    weekStart.plusDays(1),
                     frontendCommunity
             ),
 
@@ -150,7 +156,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                     48,
                     "reddit_5001",
                     "https://www.reddit.com/r/Python/comments/1m5m3l8/using_ai_with_python_to_automate_content_creation/",
-                    LocalDateTime.now().minusDays(1),
+                    weekStart.plusDays(1),
                     pythonCommunity
             )
                 

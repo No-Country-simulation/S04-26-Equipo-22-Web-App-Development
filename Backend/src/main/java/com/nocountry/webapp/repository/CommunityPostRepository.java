@@ -86,4 +86,10 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
         LocalDateTime end,
         Pageable pageable
     );
+
+    // Verifica si existen posts en un rango de fechas
+        boolean existsByCollectedAtBetween(
+                LocalDateTime start,
+                LocalDateTime end
+        );
 }
