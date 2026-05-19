@@ -56,6 +56,14 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
             Pageable pageable
     );
 
+    // Posts recientes por comunidad en rango de fechas
+        List<CommunityPost> findByCommunityIdAndCollectedAtBetweenOrderByCollectedAtDesc(
+                Long communityId,
+                LocalDateTime start,
+                LocalDateTime end,
+                Pageable pageable
+        );
+
     // 6. ⭐ NUEVO para MVP: preguntas más respondidas (las que tienen más comentarios)
     List<CommunityPost> findByTypeAndCollectedAtBetweenOrderByCommentsCountDesc(
             CommunityPostType type,
@@ -63,4 +71,25 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
             LocalDateTime end,
             Pageable pageable
     );
+
+        // Recursos/posts ordenados por reacciones
+    List<CommunityPost> findByTypeAndCollectedAtBetweenOrderByReactionsCountDesc(
+                CommunityPostType type,
+                LocalDateTime start,
+                LocalDateTime end,
+                Pageable pageable
+        );
+
+        // 7. Posts más recientes en un rango de fechas
+    List<CommunityPost> findByCollectedAtBetweenOrderByCollectedAtDesc(
+        LocalDateTime start,
+        LocalDateTime end,
+        Pageable pageable
+    );
+
+    // Verifica si existen posts en un rango de fechas
+        boolean existsByCollectedAtBetween(
+                LocalDateTime start,
+                LocalDateTime end
+        );
 }

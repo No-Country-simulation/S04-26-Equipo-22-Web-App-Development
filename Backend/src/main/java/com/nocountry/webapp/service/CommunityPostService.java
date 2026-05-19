@@ -125,7 +125,7 @@ public class CommunityPostService {
 
         log.info("Obteniendo top {} recursos compartidos de la semana", limit);
         
-        return communityPostRepository.findByTypeAndCollectedAtBetween(
+        return communityPostRepository.findByTypeAndCollectedAtBetweenOrderByReactionsCountDesc(
                 CommunityPostType.RESOURCE, start, end, PageRequest.of(0, limit)
         );
     }
@@ -173,14 +173,21 @@ public class CommunityPostService {
     /**
      * 9. Posts por comunidad en rango de fechas
      */
-    public List<CommunityPost> getPostsByCommunityAndDateRange(Long communityId, LocalDateTime start, LocalDateTime end) {
+    public List<CommunityPost> getPostsByCommunityAndDateRange(Long communityId, LocalDateTime start, LocalDateTime end, int limit) {
         
         validateCommunityId(communityId);
         validateDateRange(start, end);
+        validateLimit(limit);
         
         log.info("Obteniendo posts de la comunidad ID: {} en rango de fechas: {} - {}", communityId, start, end);
         
-        return communityPostRepository.findByCommunityIdAndCollectedAtBetween(communityId, start, end);
+        return communityPostRepository
+        .findByCommunityIdAndCollectedAtBetweenOrderByCollectedAtDesc(
+                communityId,
+                start,
+                end,
+                PageRequest.of(0, limit)
+        );
     }
 
     /**
@@ -189,85 +196,177 @@ public class CommunityPostService {
      */
     public WeeklyDigestData getWeeklyDigestData(int topLimit) {
 
-        validateLimit(topLimit);
+            validateLimit(topLimit);
 
-        log.info("Generando WeeklyDigestData para alimentar al LLM (top {})", topLimit);
-        
-        return WeeklyDigestData.builder()
-                .topReactedPosts(getTopReactedPostsOfWeek(topLimit))
-                .topCommentedPosts(getTopCommentedPostsOfWeek(topLimit))
-                .mostAnsweredQuestions(getMostAnsweredQuestionsOfWeek(topLimit))
-                .topResources(getTopResourcesOfWeek(topLimit))
-                .weeklySessions(getWeeklySessions())
-                .weeklyDiscussions(getWeeklyDiscussions())
-                .totalPosts(getWeeklyPosts().size())
-                .weekStart(getStartOfCurrentWeek())
-                .weekEnd(getEndOfCurrentWeek())
-                .build();
-    }
+            LocalDateTime weekStart = getStartOfCurrentWeek();
+            LocalDateTime weekEnd = getEndOfCurrentWeek();
+
+            log.info(
+                "Generando WeeklyDigestData para alimentar al LLM (top {})",
+                topLimit
+            );
+
+            List<CommunityPost> weeklyPosts =
+                    communityPostRepository.findByCollectedAtBetween(
+                            weekStart,
+                            weekEnd
+                    );
+
+            return WeeklyDigestData.builder()
+                    .topReactedPosts(
+                            communityPostRepository
+                                    .findByCollectedAtBetweenOrderByReactionsCountDesc(
+                                            weekStart,
+                                            weekEnd,
+                                            PageRequest.of(0, topLimit)
+                                    )
+                    )
+                    .topCommentedPosts(
+                            communityPostRepository
+                                    .findByCollectedAtBetweenOrderByCommentsCountDesc(
+                                            weekStart,
+                                            weekEnd,
+                                            PageRequest.of(0, topLimit)
+                                    )
+                    )
+                    .mostAnsweredQuestions(
+                            communityPostRepository
+                                    .findByTypeAndCollectedAtBetweenOrderByCommentsCountDesc(
+                                            CommunityPostType.QUESTION,
+                                            weekStart,
+                                            weekEnd,
+                                            PageRequest.of(0, topLimit)
+                                    )
+                    )
+                    .topResources(
+                            communityPostRepository
+                                    .findByTypeAndCollectedAtBetweenOrderByReactionsCountDesc(
+                                            CommunityPostType.RESOURCE,
+                                            weekStart,
+                                            weekEnd,
+                                            PageRequest.of(0, topLimit)
+                                    )
+                    )
+                    .weeklySessions(
+                            communityPostRepository.findByTypeAndCollectedAtBetween(
+                                    CommunityPostType.SESSION,
+                                    weekStart,
+                                    weekEnd,
+                                    PageRequest.of(0, 100)
+                            )
+                    )
+                    .weeklyDiscussions(
+                            communityPostRepository.findByTypeAndCollectedAtBetween(
+                                    CommunityPostType.DISCUSSION,
+                                    weekStart,
+                                    weekEnd,
+                                    PageRequest.of(0, 100)
+                            )
+                    )
+                    .totalPosts(weeklyPosts.size())
+                    .weekStart(weekStart)
+                    .weekEnd(weekEnd)
+                    .build();
+        }
 
     /**
      * 11. Filtrar posts por tipo y fecha (genérico)
      */
     public List<CommunityPost> getPostsByTypeAndDateRange(CommunityPostType type, LocalDateTime start, LocalDateTime end, int limit) {
         
+        validatePostType(type);
         validateLimit(limit);
         validateDateRange(start, end);
+        
 
         log.info("Obteniendo posts de tipo {} en rango de fechas: {} - {}", type, start, end);
 
         return communityPostRepository.findByTypeAndCollectedAtBetween(type, start, end, PageRequest.of(0, limit));
     }
 
+     /**
+      * 12. Obtener posts por rango de fechas
+      */
+        public List<CommunityPost> getPostsByDateRange(
+                LocalDateTime start,
+                LocalDateTime end,
+                int limit
+        ) {
+
+        validateDateRange(start, end);
+        validateLimit(limit);
+
+        log.info(
+                "Obteniendo posts en rango de fechas: {} - {}",
+                start,
+                end
+        );
+
+        return communityPostRepository
+            .findByCollectedAtBetweenOrderByCollectedAtDesc(
+                    start,
+                    end,
+                    PageRequest.of(0, limit)
+            );
+        }
+
     /**
-     * 12. Verificar si hay actividad en la semana
+     * 13. Verificar si hay actividad en la semana
      */
     public boolean hasWeeklyActivity() {
         return !getWeeklyPosts().isEmpty();
     }
 
     /**
-     * 13. Obtener estadísticas resumidas para el editor
+     * 14. Obtener estadísticas resumidas para el editor
      */
     public WeeklyStatistics getWeeklyStatistics() {
-        List<CommunityPost> allPosts = getWeeklyPosts();
-        
-        long totalQuestions = allPosts.stream()
-                .filter(p -> p.getType() == CommunityPostType.QUESTION)
-                .count();
-        
-        long totalResources = allPosts.stream()
-                .filter(p -> p.getType() == CommunityPostType.RESOURCE)
-                .count();
-        
-        long totalSessions = allPosts.stream()
-                .filter(p -> p.getType() == CommunityPostType.SESSION)
-                .count();
-        
-        long totalDiscussions = allPosts.stream()
-                .filter(p -> p.getType() == CommunityPostType.DISCUSSION)
-                .count();
-        
-        int totalReactions = allPosts.stream()
-                .mapToInt(CommunityPost::getReactionsCount)
-                .sum();
-        
-        int totalComments = allPosts.stream()
-                .mapToInt(CommunityPost::getCommentsCount)
-                .sum();
-        
-        return WeeklyStatistics.builder()
-                .totalPosts(allPosts.size())
-                .totalQuestions(totalQuestions)
-                .totalResources(totalResources)
-                .totalSessions(totalSessions)
-                .totalDiscussions(totalDiscussions)
-                .totalReactions(totalReactions)
-                .totalComments(totalComments)
-                .weekStart(getStartOfCurrentWeek())
-                .weekEnd(getEndOfCurrentWeek())
-                .build();
-    }
+
+            LocalDateTime weekStart = getStartOfCurrentWeek();
+            LocalDateTime weekEnd = getEndOfCurrentWeek();
+
+            List<CommunityPost> allPosts =
+                    communityPostRepository.findByCollectedAtBetween(
+                            weekStart,
+                            weekEnd
+                    );
+
+            long totalQuestions = allPosts.stream()
+                    .filter(p -> p.getType() == CommunityPostType.QUESTION)
+                    .count();
+
+            long totalResources = allPosts.stream()
+                    .filter(p -> p.getType() == CommunityPostType.RESOURCE)
+                    .count();
+
+            long totalSessions = allPosts.stream()
+                    .filter(p -> p.getType() == CommunityPostType.SESSION)
+                    .count();
+
+            long totalDiscussions = allPosts.stream()
+                    .filter(p -> p.getType() == CommunityPostType.DISCUSSION)
+                    .count();
+
+            int totalReactions = allPosts.stream()
+                    .mapToInt(CommunityPost::getReactionsCount)
+                    .sum();
+
+            int totalComments = allPosts.stream()
+                    .mapToInt(CommunityPost::getCommentsCount)
+                    .sum();
+
+            return WeeklyStatistics.builder()
+                    .totalPosts(allPosts.size())
+                    .totalQuestions(totalQuestions)
+                    .totalResources(totalResources)
+                    .totalSessions(totalSessions)
+                    .totalDiscussions(totalDiscussions)
+                    .totalReactions(totalReactions)
+                    .totalComments(totalComments)
+                    .weekStart(weekStart)
+                    .weekEnd(weekEnd)
+                    .build();
+        }
 
     
     // ==================== VALIDATIONS ====================
@@ -314,4 +413,19 @@ public class CommunityPostService {
                 );
             }
         }
+    
+    /**
+     * Valida que el tipo de post sea válido
+     */
+    private void validatePostType(CommunityPostType type) {
+
+        if (type == null) {
+            throw new BusinessException(
+                    "El tipo de post es obligatorio"
+            );
+        }
+    }
+
+   
+        
 }
