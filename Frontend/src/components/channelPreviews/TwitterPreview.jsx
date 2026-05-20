@@ -3,13 +3,12 @@ import "./TwitterPreview.css";
 
 
 import {
-	FaRegComment,
-	FaRetweet,
-	FaRegHeart,
-	FaChartBar
-} from "react-icons/fa";
-
-import { MdVerified } from "react-icons/md";
+	MessageCircle,
+	Repeat2,
+	Heart,
+	ChartBar,
+	BadgeCheck
+} from "lucide-react";
 
 function TwitterPreview({ data }) {
 	return (
@@ -32,7 +31,7 @@ function TwitterPreview({ data }) {
 
 						{
 							data.verified && (
-								<MdVerified className="twitter-verified" />
+								<BadgeCheck className="twitter-verified" />
 							)
 						}
 
@@ -72,22 +71,22 @@ function TwitterPreview({ data }) {
 				<div className="twitter-actions">
 
 					<div className="twitter-action">
-						<FaRegComment />
+						<MessageCircle />
 						<span>12</span>
 					</div>
 
 					<div className="twitter-action">
-						<FaRetweet />
+						<Repeat2 />
 						<span>34</span>
 					</div>
 
 					<div className="twitter-action">
-						<FaRegHeart />
+						<Heart />
 						<span>281</span>
 					</div>
 
 					<div className="twitter-action">
-						<FaChartBar />
+						<ChartBar />
 						<span>8.2k</span>
 					</div>
 

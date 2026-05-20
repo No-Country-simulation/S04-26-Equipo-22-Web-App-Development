@@ -1,109 +1,120 @@
-
-import { useState } from "react";
-import "./ChannelPreview.css";
-import { useNavigate } from "react-router-dom";
-import { channelDraftsMock } from "../data/channelDraftsMock";
-import { channelDraftAdapter } from "../adapters/channelDraftAdapter";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import * as draftsApi from "../api/drafts";
+import { CHANNEL_LABELS, CHANNELS, getChannelView } from "../data/draftSelectors";
 import LinkedinPreview from "../components/channelPreviews/LinkedinPreview";
 import TwitterPreview from "../components/channelPreviews/TwitterPreview";
 import NewsletterPreview from "../components/channelPreviews/NewsletterPreview";
+import ChannelIcon from "../components/ChannelIcon";
+import "./ChannelPreview.css";
+
+function renderPreview(view) {
+  switch (view.channel) {
+    case "linkedin":
+      return <LinkedinPreview data={{ ...view, channel: "LinkedIn" }} />;
+    case "twitter":
+      return <TwitterPreview data={{ ...view, channel: "X" }} />;
+    case "newsletter":
+      return <NewsletterPreview data={{ ...view, channel: "Newsletter" }} />;
+    default:
+      return null;
+  }
+}
 
 function ChannelPreview() {
   const navigate = useNavigate();
-  const adaptedData = channelDraftsMock.map(channelDraftAdapter);
+  const [params, setParams] = useSearchParams();
+  const draftId = params.get("draftId");
+  const channelParam = params.get("channel");
 
-  const [activeTab, setActiveTab] = useState("All");
+  const [drafts, setDrafts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const renderPreview = (preview) => {
+  useEffect(() => {
+    draftsApi
+      .listDrafts()
+      .then(setDrafts)
+      .catch((err) => setError(err?.message || "No se pudo cargar"))
+      .finally(() => setLoading(false));
+  }, []);
 
-    switch (preview.channel) {
+  const selectedDraft = useMemo(
+    () => drafts.find((d) => d.id === draftId) || drafts[0],
+    [drafts, draftId]
+  );
 
-      case "LinkedIn":
-        return <LinkedinPreview data={preview} />;
+  const channels = channelParam ? [channelParam] : CHANNELS;
 
-      case "Twitter":
-        return <TwitterPreview data={preview} />;
+  if (loading) return <div className="preview-page">Cargando…</div>;
+  if (error) return <div className="preview-page">{error}</div>;
+  if (!selectedDraft) return <div className="preview-page">No hay borradores disponibles.</div>;
 
-      case "Newsletter":
-        return <NewsletterPreview data={preview} />;
+  const views = channels
+    .map((c) => getChannelView(selectedDraft, c))
+    .filter(Boolean);
 
-      default:
-        return null;
-    }
+  const setChannel = (c) => {
+    const next = new URLSearchParams(params);
+    next.set("draftId", selectedDraft.id);
+    if (c === "all") next.delete("channel");
+    else next.set("channel", c);
+    setParams(next);
   };
 
   return (
-
     <div className="preview-page">
-
       <header className="preview-header">
-
-        <button className="back-button"  onClick={() => navigate(-1)} >
-          ← Volver
-        </button>
-
-        <h1 className="preview-title">
-          Vista previa del borrador
-        </h1>
-
+        <button className="back-button" onClick={() => navigate(-1)}>← Volver</button>
+        <h1 className="preview-title">Vista previa: {selectedDraft.topicTitle}</h1>
       </header>
 
-      <nav className="preview-tabs">
+      {drafts.length > 1 && (
+        <div className="preview-draft-selector">
+          <label>Borrador:&nbsp;</label>
+          <select
+            value={selectedDraft.id}
+            onChange={(e) => {
+              const next = new URLSearchParams(params);
+              next.set("draftId", e.target.value);
+              setParams(next);
+            }}
+          >
+            {drafts.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.topicTitle} — {d.weekOf}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
-        <button
-          className={activeTab === "All" ? "active-tab" : ""}
-          onClick={() => setActiveTab("All")}
-        >
+      <nav className="preview-tabs">
+        <button className={!channelParam ? "active-tab" : ""} onClick={() => setChannel("all")}>
           Todos
         </button>
-
-        <button
-          className={activeTab === "Newsletter" ? "active-tab" : ""}
-          onClick={() => setActiveTab("Newsletter")}
-        >
-          Newsletter
-        </button>
-
-        <button
-          className={activeTab === "LinkedIn" ? "active-tab" : ""}
-          onClick={() => setActiveTab("LinkedIn")}
-        >
-          LinkedIn
-        </button>
-
-        <button
-          className={activeTab === "Twitter" ? "active-tab" : ""}
-          onClick={() => setActiveTab("Twitter")}
-        >
-          Twitter
-        </button>
-
+        {CHANNELS.map((c) => (
+          <button
+            key={c}
+            className={channelParam === c ? "active-tab" : ""}
+            onClick={() => setChannel(c)}
+          >
+            {CHANNEL_LABELS[c]}
+          </button>
+        ))}
       </nav>
 
       <section className="preview-grid">
-
-        {adaptedData
-          .filter(
-            (preview) =>
-              activeTab === "All" ||
-              preview.channel === activeTab
-          )
-          .map((preview) => (
-
-            <div className="preview-card" key={preview.id}>
-
-              <h3 className="preview-card-title">
-                {preview.channel}
-              </h3>
-
-              {renderPreview(preview)}
-
-            </div>
-
-          ))}
-
+        {views.map((view) => (
+          <div className="preview-card" key={view.id}>
+            <h3 className="preview-card-title" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#2563eb" }}>
+              <ChannelIcon channel={view.channel} size={18} />
+              <span style={{ color: "#111827" }}>{CHANNEL_LABELS[view.channel]}</span>
+            </h3>
+            {renderPreview(view)}
+          </div>
+        ))}
       </section>
-
     </div>
   );
 }
