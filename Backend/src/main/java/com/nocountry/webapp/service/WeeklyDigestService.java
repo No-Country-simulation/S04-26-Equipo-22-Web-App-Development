@@ -18,7 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
-
+import java.time.Clock;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -33,6 +34,7 @@ public class WeeklyDigestService {
 
     @Value("${weekly-digest.page-size:20}")
     private int defaultPageSize;
+    private final Clock clock;
 
     /**
      * Genera un nuevo digest semanal para una comunidad
@@ -51,6 +53,18 @@ public class WeeklyDigestService {
         // Validar que weekEnd sea después de weekStart
         if (weekEnd.isBefore(weekStart)) {
             throw new BusinessException("La fecha de fin de semana no puede ser anterior a la fecha de inicio");
+        }
+
+        if (weekStart.getDayOfWeek() != DayOfWeek.MONDAY) {
+            throw new BusinessException(
+                    "weekStart debe ser lunes"
+            );
+        }
+
+        if (weekEnd.getDayOfWeek() != DayOfWeek.SUNDAY) {
+            throw new BusinessException(
+                    "weekEnd debe ser domingo"
+            );
         }
 
         // Verificar duplicado por comunidad y semana
@@ -121,11 +135,11 @@ public class WeeklyDigestService {
     }
 
     /**
-     * Aprueba un digest (cambia estado a PROCESSED)
+     * Marca un digest como procesado
      */
     @Transactional
-    public WeeklyDigest approveDigest(Long digestId) {
-        log.info("Aprobando digest ID: {}", digestId);
+    public WeeklyDigest processDigest(Long digestId) {
+        log.info("Procesando digest ID: {}", digestId);
 
         WeeklyDigest digest = weeklyDigestRepository.findById(digestId)
                 .orElseThrow(() -> new NotFoundException("Digest no encontrado con ID: " + digestId));
@@ -137,7 +151,7 @@ public class WeeklyDigestService {
         digest.setStatus(WeeklyDigestStatus.PROCESSED);
         WeeklyDigest saved = weeklyDigestRepository.save(digest);
         
-        log.info("Digest {} aprobado exitosamente", digestId);
+        log.info("Digest {} procesado exitosamente", digestId);
         return saved;
     }
 
@@ -259,7 +273,7 @@ public class WeeklyDigestService {
      * Calcula inicio de semana (lunes)
      */
     private LocalDate calculateWeekStart() {
-        return LocalDate.now().with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+        return LocalDate.now(clock).with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
     }
 
     /**

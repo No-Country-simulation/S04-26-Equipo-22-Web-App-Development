@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Clock;
+
 import com.nocountry.webapp.entity.enums.WeeklyDigestStatus;
 
 @Entity
@@ -15,6 +17,12 @@ import com.nocountry.webapp.entity.enums.WeeklyDigestStatus;
                 "community_id",
                 "week_start"
             }
+        )
+    },
+    indexes = {
+        @Index(
+            name = "idx_digest_status",
+            columnList = "status"
         )
     }
 )
@@ -52,6 +60,6 @@ public class WeeklyDigest {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(Clock.systemUTC());
     }
 }
