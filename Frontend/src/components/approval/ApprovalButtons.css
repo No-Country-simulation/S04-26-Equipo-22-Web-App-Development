@@ -1,0 +1,82 @@
+.approval-buttons {
+	display: flex;
+	gap: 25px;
+	flex-wrap: wrap;
+	margin-top: 2rem;
+}
+
+.approval-buttons button {
+	border-radius: 8px;
+	padding: 10px 15px;
+	min-width: 210px;
+	height: 48px;
+
+	font-size: 14px;
+	font-weight: 600;
+
+	cursor: pointer;
+	transition: 0.2s ease;
+}
+
+/* REVIEW */
+.review-btn {
+	background: #3b82f6;
+	color: white;
+	border: none;
+}
+
+.review-btn:hover {
+	background: #2563eb;
+}
+
+/* APPROVE */
+.approve-btn {
+	background: #22c55e;
+	color: white;
+	border: none;
+}
+
+.approve-btn:hover {
+	background: #20994c;
+}
+
+/* CHANGES */
+.changes-btn {
+	background: #f4b400;
+	color: white;
+	border: none;
+}
+
+.changes-btn:hover {
+	background: #e0a300;
+}
+
+/* REJECT */
+.reject-btn {
+	background: white;
+	color: #ef4444;
+	border: 1.5px solid #f5b5b5;
+}
+
+.reject-btn:hover {
+	background: #fff5f5;
+}
+
+/* PUBLISH */
+.publish-btn {
+	background: #7c3aed;
+	color: white;
+	border: none;
+}
+
+.publish-btn:hover {
+	background: #6d28d9;
+}
+
+/* PUBLISHED */
+.published-btn {
+	background: #e5e7eb;
+	color: #666;
+	border: none;
+	cursor: default;
+}
