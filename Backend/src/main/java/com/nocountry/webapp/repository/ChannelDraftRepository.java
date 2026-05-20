@@ -44,11 +44,6 @@ public interface ChannelDraftRepository extends JpaRepository<ChannelDraft, Long
     List<ChannelDraft> findPendingDrafts(@Param("statuses") List<ChannelDraftStatus> statuses, Pageable pageable);
 
     /**
-     * Busca borradores aprobados pero no publicados
-     */
-    List<ChannelDraft> findByStatus(ChannelDraftStatus status);
-
-    /**
      * Actualiza el estado de todos los borradores de un digest
      */
     @Modifying
@@ -56,9 +51,4 @@ public interface ChannelDraftRepository extends JpaRepository<ChannelDraft, Long
     @Query("UPDATE ChannelDraft c SET c.status = :newStatus WHERE c.weeklyDigest.id = :digestId")
     void updateStatusByDigestId(@Param("digestId") Long digestId, @Param("newStatus") ChannelDraftStatus newStatus);
 
-    /**
-     * Verifica si un digest tiene todos sus borradores aprobados
-     */
-    @Query("SELECT COUNT(c) = 0 FROM ChannelDraft c WHERE c.weeklyDigest.id = :digestId AND c.status != :approvedStatus")
-    boolean areAllDraftsApproved(@Param("digestId") Long digestId, @Param("approvedStatus") ChannelDraftStatus approvedStatus);
 }

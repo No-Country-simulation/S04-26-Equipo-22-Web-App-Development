@@ -5,6 +5,7 @@ import com.nocountry.webapp.entity.User;
 import com.nocountry.webapp.entity.WeeklyDigest;
 import com.nocountry.webapp.entity.enums.ChannelDraftStatus;
 import com.nocountry.webapp.entity.enums.TargetPlatform;
+import com.nocountry.webapp.entity.enums.Role;
 import com.nocountry.webapp.exception.base.BusinessException;
 import com.nocountry.webapp.exception.base.InvalidStateException;
 import com.nocountry.webapp.exception.base.NotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.time.Clock;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class ChannelDraftService {
 
     @Value("${channel-draft.page-size:20}")
     private int defaultPageSize;
-
+    private final Clock clock;
     /**
      * Crea un borrador para un digest semanal
      */
@@ -47,6 +49,11 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
+        if (editor.getRole() != Role.USER) {
+            throw new BusinessException(
+                    "El usuario asignado no tiene rol EDITOR"
+            );
+        }
         // Verificar si ya existe borrador para esta plataforma
         if (channelDraftRepository.findByWeeklyDigestIdAndTargetPlatform(weeklyDigestId, platform).isPresent()) {
             throw new BusinessException("Ya existe un borrador para el digest " + weeklyDigestId + " en la plataforma " + platform);
@@ -64,7 +71,7 @@ public class ChannelDraftService {
     }
 
     /**
-     * Crea los 3 borradores completos (NEWSLETTER, LINKEDIN, TWITTER) para un digest
+     * Crea los 3 borradores completos (NEWSLETTER, LINKEDIN, X) para un digest
      */
     @Transactional
     public List<ChannelDraft> createCompleteDrafts(Long weeklyDigestId, String newsletterContent, String linkedinContent, String twitterContent, Long editorId) {
@@ -75,6 +82,12 @@ public class ChannelDraftService {
 
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
+
+        if (editor.getRole() != Role.USER) {
+            throw new BusinessException(
+                    "El usuario asignado no tiene rol EDITOR"
+            );
+        }
 
         List<ChannelDraft> drafts = List.of(
                 ChannelDraft.builder()
@@ -93,7 +106,7 @@ public class ChannelDraftService {
                         .weeklyDigest(digest)
                         .editor(editor)
                         .content(twitterContent)
-                        .targetPlatform(TargetPlatform.TWITTER)
+                        .targetPlatform(TargetPlatform.X)
                         .build()
         );
 
@@ -156,12 +169,18 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
+        if (editor.getRole() != Role.USER) {
+            throw new BusinessException(
+                    "El usuario asignado no tiene rol EDITOR"
+            );
+        }
+
         if (draft.getStatus() == ChannelDraftStatus.PUBLISHED) {
             throw new InvalidStateException("No se puede aprobar un borrador ya publicado");
         }
 
         draft.setStatus(ChannelDraftStatus.APPROVED);
-        draft.setApprovedAt(LocalDateTime.now());
+        draft.setApprovedAt(LocalDateTime.now(clock));
         draft.setEditor(editor);
 
         return channelDraftRepository.save(draft);
@@ -270,6 +289,12 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
+        if (editor.getRole() != Role.USER) {
+            throw new BusinessException(
+                    "El usuario asignado no tiene rol EDITOR"
+            );
+        }
+
         List<ChannelDraft> drafts = channelDraftRepository.findByWeeklyDigestId(weeklyDigestId);
 
         if (drafts.isEmpty()) {
@@ -279,7 +304,7 @@ public class ChannelDraftService {
         drafts.forEach(draft -> {
             if (draft.getStatus() != ChannelDraftStatus.PUBLISHED) {
                 draft.setStatus(ChannelDraftStatus.APPROVED);
-                draft.setApprovedAt(LocalDateTime.now());
+                draft.setApprovedAt(LocalDateTime.now(clock));
                 draft.setEditor(editor);
             }
         });
@@ -291,6 +316,19 @@ public class ChannelDraftService {
      * Verifica si un digest tiene todos sus borradores aprobados
      */
     public boolean areAllDraftsApproved(Long weeklyDigestId) {
-        return channelDraftRepository.areAllDraftsApproved(weeklyDigestId, ChannelDraftStatus.APPROVED);
+
+        List<ChannelDraft> drafts =
+                channelDraftRepository.findByWeeklyDigestId(
+                        weeklyDigestId
+                );
+
+        if (drafts.isEmpty()) {
+            return false;
+        }
+
+        return drafts.stream()
+                .allMatch(draft ->
+                        draft.getStatus() == ChannelDraftStatus.APPROVED
+                );
     }
 }

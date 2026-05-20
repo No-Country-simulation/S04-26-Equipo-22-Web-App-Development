@@ -5,6 +5,7 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Clock;
+import java.util.List;
 
 import com.nocountry.webapp.entity.enums.WeeklyDigestStatus;
 
@@ -57,6 +58,13 @@ public class WeeklyDigest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Community community;
+
+    @OneToMany(
+        mappedBy = "weeklyDigest",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<ChannelDraft> drafts;
 
     @PrePersist
     protected void onCreate() {

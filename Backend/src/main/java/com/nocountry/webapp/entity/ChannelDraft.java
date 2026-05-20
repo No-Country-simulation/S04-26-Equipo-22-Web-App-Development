@@ -5,10 +5,23 @@ import com.nocountry.webapp.entity.enums.TargetPlatform;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.time.Clock;
 
 @Entity
 @Table(
-    name = "channel_drafts"
+    name = "channel_drafts",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            columnNames = {
+                "weeklyDigestId",
+                "targetPlatform"
+            }
+        )
+    },
+    indexes = {
+        @Index(name = "idx_draft_status", columnList = "status"),
+        @Index(name = "idx_draft_digest", columnList = "weeklyDigestId")
+    }
 )
 @Getter
 @Setter
@@ -48,6 +61,6 @@ public class ChannelDraft {
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(Clock.systemUTC());
     }
 }
