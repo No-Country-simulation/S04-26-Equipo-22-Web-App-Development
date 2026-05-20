@@ -1,12 +1,9 @@
 package com.nocountry.webapp.exception.handler;
 
 /**
- * 
- * Manejador global de excepciones para la aplicación. 
+ * * Manejador global de excepciones para la aplicación. 
  * Intercepta las excepciones lanzadas por los controladores
- * 
- */
-
+ * */
 
 import com.nocountry.webapp.exception.base.AppException;
 import com.nocountry.webapp.exception.dto.ErrorResponse;
@@ -16,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException; // Importado para Security
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -101,6 +99,44 @@ public class GlobalExceptionHandler {
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .errorCode(ErrorCode.MALFORMED_JSON.name())
                 .message("JSON mal formado o estructura inválida")
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(
+            BadCredentialsException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Intento de login o validación fallido en la ruta: {}", request.getRequestURI());
+
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .errorCode(ErrorCode.INTERNAL_SERVER_ERROR.name()) 
+                .message("La contraseña ingresada es incorrecta.")
+                .path(request.getRequestURI())
+                .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request
+    ) {
+        log.warn("Argumento inválido detectado en la ruta: {}, mensaje: {}", request.getRequestURI(), ex.getMessage());
+
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .errorCode(ErrorCode.VALIDATION_ERROR.name()) 
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
 

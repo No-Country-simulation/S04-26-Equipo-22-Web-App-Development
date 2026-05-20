@@ -105,4 +105,29 @@ public class SecurityConfig {
 
         return config.getAuthenticationManager();
     }
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = 
+                new org.springframework.web.cors.CorsConfiguration();
+        
+        // 1. Permitimos el localhost del Front y el futuro dominio de Vercel
+        configuration.setAllowedOrigins(java.util.List.of(
+                "http://localhost:5173", 
+                "https://tu-proyecto-front.vercel.app" // <- Acá cambian por su URL real de Vercel
+        ));
+        
+        // 2. Permitimos los métodos HTTP que usa el CRUD
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        
+        // 3. Permitimos los Headers necesarios (como el Authorization para el JWT)
+        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "Cache-Control"));
+        
+        // 4. Permitimos que viajen las credenciales si el Front las necesita
+        configuration.setAllowCredentials(true);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = 
+                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }
