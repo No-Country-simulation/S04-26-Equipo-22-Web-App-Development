@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Inbox, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
+import { Inbox, ArrowLeft, ArrowRight, AlertCircle, Bot, Sparkles, Eye, CheckCircle2, Send } from "lucide-react";
 import * as draftsApi from "../api/drafts";
 import * as draftExport from "../api/draftExport";
 import { CHANNEL_LABELS, STATUS_LABELS, CHANNELS } from "../data/draftSelectors";
@@ -94,6 +94,98 @@ function ApprovalList() {
   );
 }
 
+function AIReasoningCard({ draft }) {
+  const contributions = draft.sourceContributions;
+  if (!contributions || contributions.length === 0) return null;
+
+  const topSignals = [...contributions]
+    .sort((a, b) => (b.reactionsCount + b.commentsCount) - (a.reactionsCount + a.commentsCount))
+    .slice(0, 3);
+
+  return (
+    <section className="approval-ai-card">
+      <header className="approval-ai-card__header">
+        <Bot size={15} aria-hidden="true" />
+        <span>La IA seleccionó este tema porque…</span>
+      </header>
+      <ul className="approval-ai-card__signals">
+        {topSignals.map((c) => {
+          const score = c.reactionsCount + c.commentsCount;
+          const excerpt = c.excerpt.length > 88 ? c.excerpt.slice(0, 88) + "…" : c.excerpt;
+          return (
+            <li key={c.id} className="approval-ai-card__signal">
+              <div className="approval-ai-card__signal-text">
+                <span className="approval-ai-card__excerpt">"{excerpt}"</span>
+                <span className="approval-ai-card__meta">{c.authorName} · {c.communityName}</span>
+              </div>
+              <span className="approval-ai-card__score">{score} pts</span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="approval-ai-card__footer">
+        Basado en {contributions.length} contribuciones de la semana
+      </p>
+    </section>
+  );
+}
+
+const TIMELINE_STEPS = [
+  { key: "GENERATED", label: "Generado",    Icon: Sparkles,     hint: "Viernes 18:00", dateKey: "createdAt"   },
+  { key: "IN_REVIEW", label: "En revisión", Icon: Eye,          hint: "Lunes",         dateKey: null          },
+  { key: "APPROVED",  label: "Aprobado",    Icon: CheckCircle2, hint: null,            dateKey: "approvedAt"  },
+  { key: "PUBLISHED", label: "Publicado",   Icon: Send,         hint: null,            dateKey: "publishedAt" },
+];
+
+const STEP_ORDER = { GENERATED: 0, IN_REVIEW: 1, APPROVED: 2, PUBLISHED: 3, REJECTED: 1 };
+
+function DraftTimeline({ draft }) {
+  const activeIdx = STEP_ORDER[draft.status] ?? 0;
+  const isRejected = draft.status === "REJECTED";
+
+  return (
+    <section className="approval-timeline-wrap">
+      <h2>Ciclo de publicación</h2>
+      <div className="approval-timeline">
+        {TIMELINE_STEPS.map((step, idx) => {
+          const isDone = idx < activeIdx;
+          const isActive = idx === activeIdx && !isRejected;
+          const isRej = isRejected && idx === 1;
+          const date = step.dateKey ? draft[step.dateKey] : null;
+
+          let mod = "pending";
+          if (isRej) mod = "rejected";
+          else if (isDone) mod = "done";
+          else if (isActive) mod = "active";
+
+          return (
+            <Fragment key={step.key}>
+              {idx > 0 && (
+                <div className={`approval-timeline__bar${isDone || isActive ? " approval-timeline__bar--filled" : ""}`} />
+              )}
+              <div className="approval-timeline__step">
+                <div className={`approval-timeline__dot approval-timeline__dot--${mod}`}>
+                  <step.Icon size={14} />
+                </div>
+                <div className="approval-timeline__text">
+                  <span className={`approval-timeline__label${isActive ? " is-active" : ""}`}>
+                    {step.label}
+                  </span>
+                  {date ? (
+                    <span className="approval-timeline__date">{formatDate(date)}</span>
+                  ) : step.hint ? (
+                    <span className="approval-timeline__hint">{step.hint}</span>
+                  ) : null}
+                </div>
+              </div>
+            </Fragment>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function ApprovalDetail({ id }) {
   const navigate = useNavigate();
   const [draft, setDraft] = useState(null);
@@ -157,6 +249,8 @@ function ApprovalDetail({ id }) {
         </small>
       </header>
 
+      <AIReasoningCard draft={draft} />
+
       <section className="approval-sources">
         <h2>Contribuciones que originaron este borrador</h2>
         <p className="approval-sources__hint">
@@ -196,6 +290,8 @@ function ApprovalDetail({ id }) {
         <h2>Estado del flujo</h2>
         <ApprovalFlow draft={draft} />
       </section>
+
+      <DraftTimeline draft={draft} />
 
       <section className="approval-channels">
         <h2>Versiones por canal</h2>

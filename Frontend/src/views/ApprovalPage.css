@@ -424,3 +424,221 @@
 	font-weight: 500;
 }
 .approval-sources__item footer a:hover { text-decoration: underline; }
+
+/* ============================================================ */
+/* AI REASONING CARD                                             */
+/* ============================================================ */
+
+.approval-ai-card {
+	margin: 20px 40px 0;
+	padding: 16px 20px 14px;
+	border-radius: 12px;
+	border: 1px solid rgba(124, 58, 237, 0.18);
+	border-left: 3px solid #7c3aed;
+	background: rgba(124, 58, 237, 0.03);
+}
+
+.approval-ai-card__header {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 0.82rem;
+	font-weight: 700;
+	color: #5b21b6;
+	margin-bottom: 12px;
+	letter-spacing: -0.1px;
+}
+
+.approval-ai-card__signals {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.approval-ai-card__signal {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.approval-ai-card__signal-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+	min-width: 0;
+}
+
+.approval-ai-card__excerpt {
+	font-size: 0.88rem;
+	color: #1f2937;
+	line-height: 1.4;
+}
+
+.approval-ai-card__meta {
+	font-size: 0.75rem;
+	color: #9ca3af;
+}
+
+.approval-ai-card__score {
+	flex-shrink: 0;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: #ede9fe;
+	color: #5b21b6;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	white-space: nowrap;
+}
+
+.approval-ai-card__footer {
+	margin: 0;
+	font-size: 0.75rem;
+	color: #9ca3af;
+	border-top: 1px solid rgba(124, 58, 237, 0.1);
+	padding-top: 8px;
+}
+
+/* ============================================================ */
+/* DRAFT TIMELINE                                                */
+/* ============================================================ */
+
+.approval-timeline-wrap {
+	padding: 24px 40px 0;
+}
+
+.approval-timeline-wrap h2 {
+	margin: 0 0 20px;
+}
+
+.approval-timeline {
+	display: flex;
+	align-items: flex-start;
+	padding-bottom: 32px;
+	overflow-x: auto;
+}
+
+.approval-timeline__step {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+	width: 100px;
+}
+
+.approval-timeline__bar {
+	flex: 1;
+	height: 2px;
+	background: #e5e7eb;
+	margin-top: 19px;
+	align-self: flex-start;
+	min-width: 20px;
+}
+
+.approval-timeline__bar--filled {
+	background: linear-gradient(90deg, #2563eb, #7c3aed);
+}
+
+.approval-timeline__dot {
+	position: relative;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	border-radius: 50%;
+	z-index: 1;
+	flex-shrink: 0;
+}
+
+.approval-timeline__dot--pending {
+	background: #f3f4f6;
+	color: #9ca3af;
+	border: 2px solid #e5e7eb;
+}
+
+.approval-timeline__dot--done {
+	background: linear-gradient(135deg, #2563eb, #1d4ed8);
+	color: #fff;
+	box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.approval-timeline__dot--active {
+	background: linear-gradient(135deg, #2563eb, #7c3aed);
+	color: #fff;
+	box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+}
+
+.approval-timeline__dot--active::after {
+	content: "";
+	position: absolute;
+	inset: -5px;
+	border-radius: 50%;
+	border: 2px solid rgba(124, 58, 237, 0.35);
+	animation: timelinePulse 2s ease-in-out infinite;
+}
+
+@keyframes timelinePulse {
+	0%, 100% { opacity: 1; transform: scale(1); }
+	50%       { opacity: 0; transform: scale(1.3); }
+}
+
+.approval-timeline__dot--rejected {
+	background: #fee2e2;
+	color: #991b1b;
+	border: 2px solid rgba(220, 38, 38, 0.25);
+}
+
+.approval-timeline__text {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	text-align: center;
+}
+
+.approval-timeline__label {
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: #374151;
+}
+
+.approval-timeline__label.is-active {
+	color: #2563eb;
+}
+
+.approval-timeline__date {
+	font-size: 0.68rem;
+	color: #6b7280;
+	line-height: 1.3;
+	text-align: center;
+}
+
+.approval-timeline__hint {
+	font-size: 0.68rem;
+	color: #9ca3af;
+	font-style: italic;
+}
+
+@media (max-width: 640px) {
+	.approval-ai-card {
+		margin-left: 20px;
+		margin-right: 20px;
+	}
+	.approval-timeline-wrap {
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+	.approval-timeline__step {
+		width: 72px;
+	}
+	.approval-timeline__date {
+		display: none;
+	}
+}
