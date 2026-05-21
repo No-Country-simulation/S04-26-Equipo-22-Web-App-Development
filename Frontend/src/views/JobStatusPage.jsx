@@ -22,15 +22,7 @@ function JobStatusPage() {
           getWeeklyDigest(),
         ]);
 
-        console.log(
-          "STATISTICS:",
-          JSON.stringify(statisticsData, null, 2)
-        );
-
-        console.log(
-          "DIGEST:",
-          JSON.stringify(digestData, null, 2)
-        );
+       
 
         setStatistics(statisticsData);
         setDigest(digestData);
