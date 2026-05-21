@@ -32,7 +32,7 @@ function AppRouter() {
           <Route path="/approval" element={<ApprovalPage />} />
           <Route path="/approval/:id" element={<ApprovalPage />} />
         </Route>
-      </Routes>
+      </Routes> 
     </BrowserRouter>
   );
 }
