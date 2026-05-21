@@ -1,11 +1,11 @@
 import "./LinkedinPreview.css";
 import {
-	FaRegThumbsUp,
-	FaRegCommentDots,
-	FaRetweet,
-	FaPaperPlane,
-	FaGlobeAmericas
-} from "react-icons/fa";
+	ThumbsUp,
+	MessageCircle,
+	Repeat2,
+	Send,
+	Globe
+} from "lucide-react";
 function LinkedinPreview({ data }) {
 	return (
 		<article className="linkedin-card">
@@ -30,7 +30,7 @@ function LinkedinPreview({ data }) {
 						</span>
 
 						<p className="linkedin-time">
-							{data.time} · <FaGlobeAmericas />	
+							{data.time} · <Globe />
 						</p>
 
 					</div>
@@ -64,9 +64,9 @@ function LinkedinPreview({ data }) {
 
 					<div className="linkedin-reaction-icons">
 
-						<span className="like"><FaRegThumbsUp /></span>
-						<span className="retweet"><FaRetweet /></span>
-						<span className="send"><FaPaperPlane /></span>
+						<span className="like"><ThumbsUp /></span>
+						<span className="retweet"><Repeat2 /></span>
+						<span className="send"><Send /></span>
 
 					</div>
 
@@ -84,17 +84,17 @@ function LinkedinPreview({ data }) {
 			<div className="linkedin-actions">
 
 				<button className="linkedin-action-btn">
-					<FaRegThumbsUp />
+					<ThumbsUp />
 	<span>Recomendar</span>
 				</button>
 
 				<button className="linkedin-action-btn">
-					<FaRegCommentDots />
+					<MessageCircle />
 	<span>Comentar</span>
 				</button>
 
 				<button className="linkedin-action-btn">
-				<FaRetweet />
+				<Repeat2 />
 	<span>Compartir</span>
 				</button>
 
