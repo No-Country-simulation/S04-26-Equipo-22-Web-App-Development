@@ -31,7 +31,6 @@ public class CommunityDataSeeder implements ApplicationRunner {
         log.info("Starting community seeding...");
 
         List<Community> communities = List.of(
-
                 createCommunity("Java Developers Argentina", "Discord", true),
                 createCommunity("Backend Masters", "Slack", true),
                 createCommunity("Frontend Latam", "Discord", true),
@@ -42,10 +41,13 @@ public class CommunityDataSeeder implements ApplicationRunner {
                 createCommunity("Cloud Computing Latam", "Discord", true),
                 createCommunity("Mobile Developers", "Telegram", true),
                 createCommunity("Cybersecurity Experts", "Slack", false)
-
         );
 
-        communities.forEach(communityService::createCommunity);
+        // MODIFICACIÓN ACÁ: Cambiamos el método de referencia por una lambda 
+        // para pasarle la comunidad y un email de creador por defecto para las pruebas.
+        communities.forEach(community -> 
+            communityService.createCommunity(community, "admin@admin.com")
+        );
 
         log.info("Community seeding completed successfully");
     }

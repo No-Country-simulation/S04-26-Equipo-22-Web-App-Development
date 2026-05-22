@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import java.security.Principal;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,9 +94,17 @@ public class CommunityController {
         @ApiResponse(responseCode = "500", description = "Error interno del servidor", content = @Content)
     })
     public ResponseEntity<CommunityResponseDTO> createCommunity(
-            @Valid @RequestBody CommunityRequestDTO requestDTO) {
+            @Valid @RequestBody CommunityRequestDTO requestDTO,
+            Principal principal) { 
+        
+        
+        String creatorEmail = principal.getName(); 
+        
         Community community = convertToEntity(requestDTO);
-        Community created = communityService.createCommunity(community);
+        
+       
+        Community created = communityService.createCommunity(community, creatorEmail); 
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(created));
     }
 
@@ -115,7 +124,7 @@ public class CommunityController {
             @Parameter(description = "ID de la comunidad", example = "1", required = true)
             @PathVariable Long id,
             @Valid @RequestBody CommunityUpdateDTO requestDTO) {
-        // Convertir DTO a Entity para la actualización
+      
         Community updatedData = new Community();
         updatedData.setName(requestDTO.getName());
         updatedData.setPlatform(requestDTO.getPlatform());
