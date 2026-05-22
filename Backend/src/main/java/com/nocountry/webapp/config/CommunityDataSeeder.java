@@ -31,7 +31,6 @@ public class CommunityDataSeeder implements ApplicationRunner {
         log.info("Starting community seeding...");
 
         List<Community> communities = List.of(
-
                 createCommunity("Java Developers Argentina", "Discord", true),
                 createCommunity("Backend Masters", "Slack", true),
                 createCommunity("Frontend Latam", "Discord", true),
@@ -42,7 +41,6 @@ public class CommunityDataSeeder implements ApplicationRunner {
                 createCommunity("Cloud Computing Latam", "Discord", true),
                 createCommunity("Mobile Developers", "Telegram", true),
                 createCommunity("Cybersecurity Experts", "Slack", false)
-
         );
 
         communities.forEach(communityService::createCommunity);
