@@ -43,11 +43,7 @@ public class CommunityDataSeeder implements ApplicationRunner {
                 createCommunity("Cybersecurity Experts", "Slack", false)
         );
 
-        // MODIFICACIÓN ACÁ: Cambiamos el método de referencia por una lambda 
-        // para pasarle la comunidad y un email de creador por defecto para las pruebas.
-        communities.forEach(community -> 
-            communityService.createCommunity(community, "admin@admin.com")
-        );
+        communities.forEach(communityService::createCommunity);
 
         log.info("Community seeding completed successfully");
     }

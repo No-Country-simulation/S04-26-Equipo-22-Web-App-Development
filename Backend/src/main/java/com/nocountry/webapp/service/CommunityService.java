@@ -1,11 +1,9 @@
 package com.nocountry.webapp.service;
 
 import com.nocountry.webapp.entity.Community;
-import com.nocountry.webapp.entity.User;
 import com.nocountry.webapp.exception.base.ConflictException;
 import com.nocountry.webapp.exception.base.NotFoundException;
 import com.nocountry.webapp.repository.CommunityRepository;
-import com.nocountry.webapp.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +19,6 @@ import java.util.List;
 public class CommunityService {
 
     private final CommunityRepository communityRepository;
-    private final UserRepository userRepository;
 
     /**
      * Obtener todas las comunidades activas
@@ -50,7 +47,7 @@ public class CommunityService {
      */
    @Transactional
     // 1. CAMBIÁ ESTA LÍNEA (agregando el String creatorEmail al final):
-    public Community createCommunity(Community community, String creatorEmail) { 
+    public Community createCommunity(Community community) { 
         // Validar nombre
         if (community.getName() == null || community.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la comunidad es obligatorio");
@@ -63,13 +60,7 @@ public class CommunityService {
             throw new ConflictException("Ya existe una comunidad con el nombre: " + normalizedName);
         }
 
-        // 2. AGREGÁ ESTAS 3 LÍNEAS JUSTO ACÁ:
-        User creator = userRepository.findByEmail(creatorEmail)
-                .orElseThrow(() -> new NotFoundException("Usuario creador no encontrado con email: " + creatorEmail));
-
         community.setName(normalizedName);
-        community.setUser(creator);
-        // -------------------------------------------------------------
 
         // Si platform es null, guardar como null (no obligatorio)
         if (community.getPlatform() != null) {

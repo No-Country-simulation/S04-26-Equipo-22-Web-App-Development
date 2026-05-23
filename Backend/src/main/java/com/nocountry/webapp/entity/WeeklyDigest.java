@@ -2,12 +2,31 @@ package com.nocountry.webapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Clock;
 import java.util.List;
-import com.nocountry.webapp.entity.enums.DigestStatus;
+
+import com.nocountry.webapp.entity.enums.WeeklyDigestStatus;
 
 @Entity
-@Table(name = "weekly_digests")
+@Table(
+    name = "weekly_digests",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            columnNames = {
+                "community_id",
+                "week_start"
+            }
+        )
+    },
+    indexes = {
+        @Index(
+            name = "idx_digest_status",
+            columnList = "status"
+        )
+    }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,35 +38,36 @@ public class WeeklyDigest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    @Column(nullable = false)
+    private LocalDate weekStart;
+
+    @Column(nullable = false)
+    private LocalDate weekEnd;
 
     @Column(columnDefinition = "TEXT")
     private String summary;
 
-    @Column(name = "ai_reason", columnDefinition = "TEXT")
-    private String aiReason;
-
     @Enumerated(EnumType.STRING)
-    private DigestStatus status;
+    @Column(nullable = false)
+    @Builder.Default
+    private WeeklyDigestStatus status = WeeklyDigestStatus.PENDING;
 
-    // Relación con los borradores de canales (reclamados en las líneas 81 y 82 del servicio)
-    @OneToMany(mappedBy = "weeklyDigest", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChannelDraft> channelDrafts;
-
-    @Column(name = "created_at")
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private Community community;
+
+    @OneToMany(
+        mappedBy = "weeklyDigest",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
+    private List<ChannelDraft> drafts;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(Clock.systemUTC());
     }
 }

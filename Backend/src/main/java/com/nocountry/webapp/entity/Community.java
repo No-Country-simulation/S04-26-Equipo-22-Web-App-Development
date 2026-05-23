@@ -23,8 +23,4 @@ public class Community {
 
     @Column(nullable = false)
     private boolean active = true;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 }
