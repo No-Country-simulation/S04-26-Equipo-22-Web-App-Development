@@ -58,7 +58,7 @@ function Settings() {
           <h2>🌐 Comunidades vigiladas</h2>
           <div className="community-list">
             {communities.map((community, index) => (
-              <div key={index} className="community-item">
+              <div key={community} className="community-item">
                 <span>{community}</span>
                 <button className="remove-btn" onClick={() => removeCommunity(index)}>✖</button>
               </div>
