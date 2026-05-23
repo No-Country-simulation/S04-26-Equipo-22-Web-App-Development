@@ -21,7 +21,7 @@ import java.util.List;
 @DependsOn("communityDataSeeder")
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!test")
+@Profile("dev")
 public class WeeklyDigestDataSeeder implements ApplicationRunner {
 
     private final WeeklyDigestRepository weeklyDigestRepository;

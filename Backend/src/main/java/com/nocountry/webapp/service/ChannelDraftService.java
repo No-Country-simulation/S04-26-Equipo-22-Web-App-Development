@@ -51,7 +51,7 @@ public class ChannelDraftService {
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
         }
         // Verificar si ya existe borrador para esta plataforma
@@ -85,8 +85,26 @@ public class ChannelDraftService {
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
+        }
+
+        for (TargetPlatform platform : TargetPlatform.values()) {
+
+            if (channelDraftRepository
+                    .findByWeeklyDigestIdAndTargetPlatform(
+                            weeklyDigestId,
+                            platform
+                    )
+                    .isPresent()) {
+
+                throw new BusinessException(
+                        "Ya existe un borrador para el digest "
+                                + weeklyDigestId
+                                + " en la plataforma "
+                                + platform
+                );
+            }
         }
 
         List<ChannelDraft> drafts = List.of(
@@ -171,7 +189,7 @@ public class ChannelDraftService {
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
         }
 
@@ -291,7 +309,7 @@ public class ChannelDraftService {
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
         }
 
@@ -325,10 +343,11 @@ public class ChannelDraftService {
         if (drafts.isEmpty()) {
             return false;
         }
-
+        // Verificar que todos los borradores estén en estado APPROVED o PUBLISHED
         return drafts.stream()
                 .allMatch(draft ->
                         draft.getStatus() == ChannelDraftStatus.APPROVED
+                                || draft.getStatus() == ChannelDraftStatus.PUBLISHED
                 );
     }
 }

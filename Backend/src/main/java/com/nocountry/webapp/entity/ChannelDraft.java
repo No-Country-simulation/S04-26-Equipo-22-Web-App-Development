@@ -13,14 +13,14 @@ import java.time.Clock;
     uniqueConstraints = {
         @UniqueConstraint(
             columnNames = {
-                "weeklyDigestId",
-                "targetPlatform"
+                "weekly_digest_id",
+                "target_platform"
             }
         )
     },
     indexes = {
         @Index(name = "idx_draft_status", columnList = "status"),
-        @Index(name = "idx_draft_digest", columnList = "weeklyDigestId")
+        @Index(name = "idx_draft_digest", columnList = "weekly_digest_id")
     }
 )
 @Getter
