@@ -52,11 +52,11 @@ public class ChannelDraft {
     private LocalDateTime approvedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "editorId", nullable = false)
+    @JoinColumn(nullable = false)
     private User editor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "weeklyDigestId", nullable = false)
+    @JoinColumn(nullable = false)
     private WeeklyDigest weeklyDigest;
 
     @PrePersist
