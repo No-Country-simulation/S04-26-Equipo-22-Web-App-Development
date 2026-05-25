@@ -1,0 +1,298 @@
+.settings-container {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+  animation: settingsIn 0.55s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+}
+
+@keyframes settingsIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* HEADER */
+.settings-header {
+  margin-bottom: 32px;
+  max-width: 640px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.back-button:hover {
+  background: rgba(37, 99, 235, 0.15);
+  transform: translateX(-2px);
+}
+
+.settings-title {
+  margin: 0 0 12px;
+  font-size: 2.1rem;
+  color: #0f172a;
+  font-weight: 700;
+  letter-spacing: -0.6px;
+  line-height: 1.15;
+}
+
+.settings-subtitle {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* SECCIONES */
+.settings-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+
+.settings-section:hover {
+  border-color: rgba(37, 99, 235, 0.4);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.settings-section h2 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.section-desc {
+  font-size: 0.78rem;
+  color: #475569;
+  font-weight: 500;
+  margin-bottom: 18px;
+}
+
+/* COMUNIDADES */
+.community-list {
+  margin-bottom: 16px;
+}
+
+.community-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.community-item span {
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.18s;
+}
+
+.remove-btn:hover {
+  background: #fee2e2;
+}
+
+.add-community {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.add-community input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  transition: border-color 0.18s;
+}
+
+.add-community input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.add-community button {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  padding: 0 18px;
+  border-radius: 12px;
+  color: #1f2937;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.add-community button:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+/* CANALES */
+.channels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.channel-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.18s;
+}
+
+.channel-item:hover {
+  border-color: rgba(37, 99, 235, 0.4);
+}
+
+.channel-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.channel-icon {
+  font-size: 24px;
+}
+
+.channel-info strong {
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+.channel-info br {
+  display: none;
+}
+
+.channel-info span span {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.connect-btn {
+  background: none;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: #f3f4f6;
+  color: #475569;
+}
+
+.connect-btn.connected {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.connect-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.96);
+}
+
+/* SELECTS */
+.settings-section select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.18s;
+}
+
+.settings-section select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* EQUIPO */
+.team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.team-member {
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+/* ACCIONES */
+.settings-actions {
+  margin-top: 8px;
+  text-align: right;
+}
+
+.save-btn {
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.28);
+}
+
+/* RESPONSIVE */
+@media (max-width: 720px) {
+  .settings-container {
+    padding: 32px 18px 48px;
+  }
+  .settings-title {
+    font-size: 1.65rem;
+  }
+  .channel-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .connect-btn {
+    align-self: flex-end;
+  }
+}

@@ -4,6 +4,7 @@ import com.nocountry.webapp.entity.Community;
 import com.nocountry.webapp.exception.base.ConflictException;
 import com.nocountry.webapp.exception.base.NotFoundException;
 import com.nocountry.webapp.repository.CommunityRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,9 @@ public class CommunityService {
     /**
      * Crear nueva comunidad
      */
-    @Transactional
-    public Community createCommunity(Community community) {
+   @Transactional
+    // 1. CAMBIÁ ESTA LÍNEA (agregando el String creatorEmail al final):
+    public Community createCommunity(Community community) { 
         // Validar nombre
         if (community.getName() == null || community.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre de la comunidad es obligatorio");
@@ -59,7 +61,7 @@ public class CommunityService {
         }
 
         community.setName(normalizedName);
-        
+
         // Si platform es null, guardar como null (no obligatorio)
         if (community.getPlatform() != null) {
             community.setPlatform(community.getPlatform().trim());

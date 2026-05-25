@@ -7,6 +7,7 @@ import LoginPage from "../views/LoginPage";
 import RegisterPage from "../views/RegisterPage";
 import HomePage from "../views/HomePage";
 import CommunitiesPage from "../views/CommunitiesPage";
+import Settings from "../views/Settings";
 import { ProtectedRoute } from "./ProtectedRoute";
 import AppLayout from "../components/layout/AppLayout";
 import JobStatusPage from "../views/JobStatusPage";
@@ -33,6 +34,8 @@ function AppRouter() {
           <Route path="/approval" element={<ApprovalPage />} />
           <Route path="/approval/:id" element={<ApprovalPage />} />
           <Route path="/job-status" element={<JobStatusPage />} />
+          <Route path="/settings" element={<Settings />} />
+
         </Route>
       </Routes> 
     </BrowserRouter>

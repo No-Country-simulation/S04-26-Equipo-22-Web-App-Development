@@ -41,13 +41,15 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
 
         // Evitar duplicar datos de la semana actual
         if (
-        communityPostRepository.existsByCollectedAtBetween(
-                weekStart,
-                weekEnd
-        )
+
+                communityPostRepository.existsByCollectedAtBetween(
+                        weekStart,
+                        weekEnd
+                )
         ) {
-        log.info("Current week already seeded");
-        return;
+                log.info("Current week already seeded");
+                return;
+
         }
 
         log.info("Starting community post seeding...");
@@ -58,12 +60,13 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
         // Validación por si no existen comunidades
         if (communities.size() < 4) {
 
-        log.warn(
-                "At least 4 communities are required for CommunityPost seeding. Found: {}",
-                communities.size()
-        );
+                log.warn(
+                        "At least 4 communities are required for CommunityPost seeding. Found: {}",
+                        communities.size()
+                );
 
-        return;
+                return;
+
         }
 
         /*
