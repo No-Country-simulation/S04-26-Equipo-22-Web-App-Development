@@ -1,0 +1,249 @@
+.job-status-page {
+	min-height: 100vh;
+	background: #f4f5f7;
+	padding: 32px 40px;
+	font-family: var(--font-sans);
+}
+
+/* HEADER */
+
+.job-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 28px;
+}
+
+.section-label {
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #9ca3af;
+	margin-bottom: 10px;
+}
+
+.job-header h1 {
+	font-size: 28px;
+	font-weight: 700;
+	color: #111827;
+	margin: 0 0 14px;
+}
+
+/* STATUS BADGE */
+
+.job-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 14px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.job-status::before {
+	content: "";
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.job-status.processed {
+	background: #d1fae5;
+	color: #065f46;
+}
+
+.job-status.processed::before {
+	background: #10b981;
+}
+
+/* EMPTY STATE */
+
+.empty-state {
+	background: #fff7ed;
+	color: #c2410c;
+	border: 1px solid #fdba74;
+	padding: 14px 18px;
+	border-radius: 12px;
+	font-size: 14px;
+	font-weight: 500;
+	margin-bottom: 24px;
+}
+
+/* KPI GRID */
+
+.metrics-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+	gap: 18px;
+	margin-bottom: 24px;
+}
+
+.metric-card {
+	background: #ffffff;
+	border-radius: 16px;
+	padding: 24px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+	border: 1px solid #ececec;
+
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease;
+}
+
+.metric-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+.metric-card span {
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #9ca3af;
+}
+
+.metric-card strong {
+	font-size: 40px;
+	line-height: 1;
+	font-weight: 700;
+	color: #111827;
+}
+
+.metric-card small {
+	font-size: 13px;
+	color: #6b7280;
+}
+
+/* STATUS GRID */
+
+.status-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+.status-card {
+	background: #ffffff;
+	border-radius: 16px;
+	padding: 28px;
+	border: 1px solid #ececec;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.status-card h3 {
+	font-size: 16px;
+	font-weight: 700;
+	color: #111827;
+	margin: 0 0 18px;
+}
+
+.status-card p {
+	font-size: 28px;
+	font-weight: 700;
+	color: #111827;
+	margin: 0 0 10px;
+}
+
+.status-card span {
+	font-size: 14px;
+	color: #6b7280;
+}
+
+/* PIPELINE */
+
+.pipeline-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	padding: 14px 0;
+	border-bottom: 1px solid #f3f4f6;
+}
+
+.pipeline-row:last-child {
+	border-bottom: none;
+}
+
+.pipeline-row span:first-child {
+	font-size: 14px;
+	font-weight: 500;
+	color: #374151;
+}
+
+/* BADGES */
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	min-width: 90px;
+
+	padding: 6px 12px;
+	border-radius: 999px;
+
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.badge.success {
+	background: #d1fae5;
+	color: #065f46;
+}
+
+.badge.warning {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+.badge.neutral {
+	background: #e5e7eb;
+	color: #4b5563;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 960px) {
+	.job-status-page {
+		padding: 24px;
+	}
+
+	.status-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.job-header h1 {
+		font-size: 24px;
+	}
+
+	.metric-card strong {
+		font-size: 32px;
+	}
+}
+
+@media (max-width: 640px) {
+	.metrics-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.status-card {
+		padding: 22px;
+	}
+
+	.metric-card {
+		padding: 20px;
+	}
+}
