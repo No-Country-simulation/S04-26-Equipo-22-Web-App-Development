@@ -1,15 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import * as communitiesApi from "../api/communities";
 import "./Settings.css";
 
 function Settings() {
   const navigate = useNavigate();
 
-  const [communities, setCommunities] = useState([
-    "Frontend Argentina",
-    "Backend Devs",
-    "DevOps Latam"
-  ]);
+  const [communities, setCommunities] = useState([]);
   const [newCommunity, setNewCommunity] = useState("");
 
   const [channels] = useState({
@@ -27,16 +24,30 @@ function Settings() {
     { name: "Alejandro", role: "Frontend" }
   ]);
 
-  const addCommunity = () => {
-    if (newCommunity.trim()) {
-      setCommunities([...communities, newCommunity]);
+  useEffect(() => {
+    communitiesApi.listCommunities({ onlyActive: true })
+      .then(data => setCommunities(data))
+      .catch(() => setCommunities([]));
+  }, []);
+
+  const addCommunity = async () => {
+    if (!newCommunity.trim()) return;
+    try {
+      const created = await communitiesApi.createCommunity({ name: newCommunity, platform: "general", active: true });
+      setCommunities([...communities, created]);
       setNewCommunity("");
+    } catch (e) {
+      console.error("Error al crear comunidad", e);
     }
   };
 
-  const removeCommunity = (index) => {
-    const newList = communities.filter((_, i) => i !== index);
-    setCommunities(newList);
+  const removeCommunity = async (id) => {
+    try {
+      await communitiesApi.deactivateCommunity(id);
+      setCommunities(communities.filter(c => c.id !== id));
+    } catch (e) {
+      console.error("Error al eliminar comunidad", e);
+    }
   };
 
   const handleSave = () => {
@@ -57,10 +68,10 @@ function Settings() {
         <section className="settings-section">
           <h2>🌐 Comunidades vigiladas</h2>
           <div className="community-list">
-            {communities.map((community, index) => (
-              <div key={community} className="community-item">
-                <span>{community}</span>
-                <button className="remove-btn" onClick={() => removeCommunity(index)}>✖</button>
+            {communities.map((community) => (
+              <div key={community.id} className="community-item">
+                <span>{community.name}</span>
+                <button className="remove-btn" onClick={() => removeCommunity(community.id)}>✖</button>
               </div>
             ))}
           </div>
