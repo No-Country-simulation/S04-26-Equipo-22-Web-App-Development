@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!test")
+@Profile("dev")
 @DependsOn({
         "userDataSeeder",
         "weeklyDigestDataSeeder"
