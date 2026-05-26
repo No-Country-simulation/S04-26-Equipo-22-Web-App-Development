@@ -38,7 +38,9 @@ public class SecurityConfig {
             throws Exception {
 
         http
+
                 .cors(withDefaults())
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
@@ -52,6 +54,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
                         // Preflight CORS
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
@@ -65,6 +68,7 @@ public class SecurityConfig {
                                 "/error/**"
                         ).permitAll()
                         .anyRequest().authenticated()
+
                 )
 
                 .authenticationProvider(authenticationProvider())

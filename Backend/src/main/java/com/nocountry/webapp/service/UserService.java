@@ -67,7 +67,9 @@ public class UserService {
         );
 
         userRepository.save(user);
+
         // Eliminar refresh tokens existentes
+
         refreshTokenRepository.deleteByUser(user);
 
         return mapToDTO(user);
