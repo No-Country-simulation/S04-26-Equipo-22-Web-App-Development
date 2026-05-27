@@ -17,7 +17,6 @@ public interface CommunityPostRepository extends JpaRepository<CommunityPost, Lo
             LocalDateTime end
     );
 
-     boolean existsByCommunityId(Long communityId);
 
     // 4. Filtrar por tipo (QUESTION, RESOURCE, SESSION, DISCUSSION)
     List<CommunityPost> findByTypeAndCollectedAtBetween(

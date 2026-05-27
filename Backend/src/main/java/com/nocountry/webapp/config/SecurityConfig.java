@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -38,12 +37,16 @@ public class SecurityConfig {
             throws Exception {
 
         http
+                // MEJORA: Le inyectamos explícitamente tu configuración de CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 .cors(withDefaults())
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
-                        )
+                            )
                 )
 
                 .exceptionHandling(ex -> ex
@@ -52,6 +55,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
                         // Preflight CORS
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
@@ -65,6 +69,7 @@ public class SecurityConfig {
                                 "/error/**"
                         ).permitAll()
                         .anyRequest().authenticated()
+
                 )
 
                 .authenticationProvider(authenticationProvider())
@@ -103,7 +108,6 @@ public class SecurityConfig {
         org.springframework.web.cors.CorsConfiguration configuration = 
                 new org.springframework.web.cors.CorsConfiguration();
         
-        // CORRECCIÓN: Agregamos el puerto 5175 que es el que estás usando en Docker Windows
         configuration.setAllowedOrigins(java.util.List.of(
                 "http://localhost:5173", 
                 "http://localhost:5175", 
@@ -112,7 +116,8 @@ public class SecurityConfig {
         ));
         
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "Cache-Control"));
+        // MEJORA: Aseguramos que acepte cualquier header común si el Front manda algo extra
+        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "Cache-Control", "x-requested-with"));
         configuration.setAllowCredentials(true);
 
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source = 
