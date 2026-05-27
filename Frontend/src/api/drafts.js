@@ -8,13 +8,15 @@ const CHANNEL_MAP = { NEWSLETTER: "newsletter", LINKEDIN: "linkedin", X: "twitte
 function mapChannelDraft(d) {
   return {
     channel: CHANNEL_MAP[d.targetPlatform] || d.targetPlatform,
-    title: "",
+    // FIX COPILOT: Evita que el título se renderice vacío en el editor/tarjetas
+    title: d.title || `Borrador ${CHANNEL_MAP[d.targetPlatform] || d.targetPlatform}`,
     body: d.content || "",
+    // FIX COPILOT: Mapeo de estados compatible con los estilos/badges del CSS del Frontend
     status: d.status === "GENERATED" ? "pending"
-          : d.status === "IN_REVIEW" ? "in_review"
+          : d.status === "IN_REVIEW" ? "edited"
           : d.status === "APPROVED" ? "approved"
           : d.status === "REJECTED" ? "rejected"
-          : d.status === "PUBLISHED" ? "published"
+          : d.status === "PUBLISHED" ? "approved"
           : "pending",
     editedAt: d.approvedAt || d.createdAt,
   };
@@ -41,9 +43,9 @@ async function assembleDraft(digest) {
     const ch = mapChannelDraft(cd);
     channels[ch.channel] = ch;
   }
-  if (!channels.newsletter) channels.newsletter = { channel: "newsletter", title: "", body: "", status: "pending" };
-  if (!channels.linkedin) channels.linkedin = { channel: "linkedin", title: "", body: "", status: "pending" };
-  if (!channels.twitter) channels.twitter = { channel: "twitter", title: "", body: "", status: "pending" };
+  if (!channels.newsletter) channels.newsletter = { channel: "newsletter", title: "Borrador newsletter", body: "", status: "pending" };
+  if (!channels.linkedin) channels.linkedin = { channel: "linkedin", title: "Borrador linkedin", body: "", status: "pending" };
+  if (!channels.twitter) channels.twitter = { channel: "twitter", title: "Borrador twitter", body: "", status: "pending" };
 
   return {
     id: String(digest.id),
@@ -52,7 +54,8 @@ async function assembleDraft(digest) {
     topicSummary: digest.summary || "",
     sourceContributions: [],
     channels,
-    status: digest.summary ? "GENERATED" : "GENERATED",
+    // FIX COPILOT: Mapea el estado real del backend para desongelar los botones de aprobación
+    status: digest.status || "GENERATED",
     createdAt: digest.createdAt || "",
     updatedAt: digest.createdAt || "",
   };
@@ -99,6 +102,7 @@ export async function transitionDraft(draftId, nextStatus) {
         await api.patch(`${DRAFT_BASE}/${draft.id}/start-review`);
         break;
       case "APPROVED":
+        // NOTA: editorId: 1 asume el ID del administrador generado por tus seeders del backend
         await api.patch(`${DRAFT_BASE}/${draft.id}/approve`, { editorId: 1 });
         break;
       case "REJECTED":
