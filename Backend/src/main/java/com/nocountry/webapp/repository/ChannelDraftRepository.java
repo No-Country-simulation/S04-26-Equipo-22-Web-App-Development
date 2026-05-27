@@ -51,14 +51,4 @@ public interface ChannelDraftRepository extends JpaRepository<ChannelDraft, Long
     @Query("UPDATE ChannelDraft c SET c.status = :newStatus WHERE c.weeklyDigest.id = :digestId")
     void updateStatusByDigestId(@Param("digestId") Long digestId, @Param("newStatus") ChannelDraftStatus newStatus);
 
-    /*
-     *  Elimina todos los borradores asociados a un digest 
-     * (usado para regenerar borradores completos)
-    */
-    @Modifying
-    @Query("""
-        delete from ChannelDraft d
-        where d.weeklyDigest.id = :digestId
-    """)
-    void deleteByWeeklyDigestId(Long digestId);
 }

@@ -26,6 +26,20 @@ public class CommunityPostService {
     private final CommunityPostRepository communityPostRepository;
 
     /**
+     * Obtener el inicio de la semana actual (lunes 00:00:00)
+     */
+    public LocalDateTime getStartOfCurrentWeek() {
+        return LocalDateTime.now().with(DayOfWeek.MONDAY).toLocalDate().atStartOfDay();
+    }
+
+    /**
+     * Obtener el fin de la semana actual (domingo 23:59:59)
+     */
+    public LocalDateTime getEndOfCurrentWeek() {
+        return LocalDateTime.now().with(DayOfWeek.SUNDAY).toLocalDate().atTime(LocalTime.MAX);
+    }
+
+    /**
      * Obtener el inicio de una semana específica (lunes 00:00:00)
      */
     public LocalDateTime getStartOfWeek(LocalDateTime date) {
@@ -43,9 +57,8 @@ public class CommunityPostService {
      * 1. Todos los posts de la semana
      */
     public List<CommunityPost> getWeeklyPosts() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
         return communityPostRepository.findByCollectedAtBetween(start, end);
     }
 
@@ -56,9 +69,8 @@ public class CommunityPostService {
 
         validateLimit(limit);
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
 
         log.info("Obteniendo top {} posts más reaccionados de la semana ({})", limit, start);
         
@@ -74,9 +86,8 @@ public class CommunityPostService {
 
          validateLimit(limit);
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
 
         log.info("Obteniendo top {} posts más comentados de la semana", limit);
         
@@ -92,9 +103,8 @@ public class CommunityPostService {
 
         validateLimit(limit);
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
 
         log.info("Obteniendo top {} preguntas más respondidas de la semana", limit);
         
@@ -110,9 +120,8 @@ public class CommunityPostService {
 
         validateLimit(limit);  
 
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
 
         log.info("Obteniendo top {} recursos compartidos de la semana", limit);
         
@@ -125,9 +134,8 @@ public class CommunityPostService {
      * 6. Sesiones realizadas en la semana
      */
     public List<CommunityPost> getWeeklySessions() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
         return communityPostRepository.findByTypeAndCollectedAtBetween(
                 CommunityPostType.SESSION, start, end, PageRequest.of(0, 100)
         );
@@ -137,9 +145,8 @@ public class CommunityPostService {
      * 7. Discusiones activas de la semana
      */
     public List<CommunityPost> getWeeklyDiscussions() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
         return communityPostRepository.findByTypeAndCollectedAtBetween(
                 CommunityPostType.DISCUSSION, start, end, PageRequest.of(0, 100)
         );
@@ -153,9 +160,8 @@ public class CommunityPostService {
         validateCommunityId(communityId);
         validateLimit(limit);
         
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = getStartOfWeek(now);
-        LocalDateTime end = getEndOfWeek(now);
+        LocalDateTime start = getStartOfCurrentWeek();
+        LocalDateTime end = getEndOfCurrentWeek();
 
         log.info("Obteniendo top {} posts de la comunidad ID: {}", limit, communityId);
         
@@ -191,9 +197,9 @@ public class CommunityPostService {
     public WeeklyDigestData getWeeklyDigestData(int topLimit) {
 
             validateLimit(topLimit);
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime weekStart = getStartOfWeek(now);
-            LocalDateTime weekEnd = getEndOfWeek(now);
+
+            LocalDateTime weekStart = getStartOfCurrentWeek();
+            LocalDateTime weekEnd = getEndOfCurrentWeek();
 
             log.info(
                 "Generando WeeklyDigestData para alimentar al LLM (top {})",
@@ -315,9 +321,9 @@ public class CommunityPostService {
      * 14. Obtener estadísticas resumidas para el editor
      */
     public WeeklyStatistics getWeeklyStatistics() {
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime weekStart = getStartOfWeek(now);
-            LocalDateTime weekEnd = getEndOfWeek(now);
+
+            LocalDateTime weekStart = getStartOfCurrentWeek();
+            LocalDateTime weekEnd = getEndOfCurrentWeek();
 
             List<CommunityPost> allPosts =
                     communityPostRepository.findByCollectedAtBetween(

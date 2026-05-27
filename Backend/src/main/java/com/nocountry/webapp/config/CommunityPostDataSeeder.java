@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -33,13 +32,14 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
 
         LocalDateTime now = LocalDateTime.now();
 
-        LocalDateTime weekStart = now.with(DayOfWeek.MONDAY)
+        LocalDateTime weekStart = now
+                .with(java.time.DayOfWeek.MONDAY)
                 .toLocalDate()
                 .atStartOfDay();
 
-        LocalDateTime weekEnd = now.with(DayOfWeek.SUNDAY)
-                .toLocalDate()
-                .atTime(LocalTime.MAX);
+        LocalDateTime weekEnd = weekStart
+                .plusDays(6)
+                .with(LocalTime.MAX);
 
         // Evitar duplicar datos de la semana actual
         if (
