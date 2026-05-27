@@ -1,179 +1,155 @@
-# TalentCircle — Frontend
+# TalentCircle — Backend API
 
-Panel editorial del pipeline semanal de contenido de TalentCircle.
+Servicio centralizado (Core API) para la gestión de comunidades, análisis de datos semanales y procesamiento del pipeline de contenido de TalentCircle. Desarrollado con arquitectura REST limpia, Spring Boot 3 y persistencia relacional.
 
-## Stack
+---
 
-- **React 19** + **Vite 8**
-- **React Router 7** (`react-router-dom`)
-- **axios** para HTTP (con interceptores para JWT + refresh)
-- **lucide-react** para iconografía UI (uniforme y con buen tree-shaking)
-- Componente compartido `ChannelIcon` para los logos de canal (Newsletter, LinkedIn, Twitter/X) — SVGs inline propios para mantener consistencia visual
-- **CSS vanilla** por componente (sin Tailwind, sin CSS-in-JS, sin preprocesadores)
+##  Prerrequisitos del Sistema
 
-## Quick start
+Antes de iniciar la aplicación, asegúrate de contar con:
+- **Java SE Development Kit (JDK) 17** o superior instalado localmente.
+- **Docker Desktop** (Obligatorio para la orquestación de servicios y contenedores).
+- **Maven 3.8+** (Opcional, se incluye el *wrapper* `./mvnw` en el proyecto).
+
+---
+
+##  Clonación y Configuración del Repositorio
+
+Para descargar el proyecto y posicionarte en la rama estable de producción/entrega, ejecuta en tu terminal:
 
 ```bash
-npm install
-cp .env.example .env
-npm run dev
-```
+# 1. Clonar el repositorio unificado de la simulación
+git clone [https://github.com/No-Country-simulation/S04-26-Equipo-22-Web-App-Development.git](https://github.com/No-Country-simulation/S04-26-Equipo-22-Web-App-Development.git)
 
-El dev server arranca en `http://localhost:5173` (o el siguiente puerto libre si está ocupado).
+# 2. Ingresar al directorio del Backend
+cd S04-26-Equipo-22-Web-App-Development
 
-Scripts disponibles:
+# 3. Cambiar a la rama de integración final
+git checkout develop
+ Guía de Despliegue (Cómo Correr el Proyecto)
+Método 1: Orquestación Completa (Frontend + Backend + DB) via Docker 🐋
+Este es el método oficial y recomendado para la evaluación en el Demo Day. Construye las imágenes desde los Dockerfile correspondientes y levanta la red interna de intercomunicación.
 
-| Script           | Acción                              |
-| ---------------- | ----------------------------------- |
-| `npm run dev`    | Dev server con HMR                  |
-| `npm run build`  | Build de producción a `dist/`       |
-| `npm run preview`| Sirve el build localmente           |
-| `npm run lint`   | ESLint sobre el repo                |
+Asegúrate de tener Docker Desktop abierto.
 
-## Variables de entorno
+Posiciónate en la raíz principal del proyecto (donde se encuentra el archivo docker-compose.yml).
 
-Todas las variables expuestas al cliente deben empezar con `VITE_`.
+Ejecuta el comando de inicialización limpia:
 
-| Variable                 | Default                  | Descripción |
-| ------------------------ | ------------------------ | ----------- |
-| `VITE_API_URL`           | `http://localhost:8080`  | Base URL del backend. Usado por `axios` en `src/api/client.js`. |
-| `VITE_DRAFTS_USE_MOCK`   | `true`                   | Cuando es `"false"`, el frontend consume `/api/drafts/*` real. Cuando es `"true"` (default) usa los mocks en memoria de `src/data/draftsMock.js` con ~200ms de latencia simulada. |
+Bash
+docker compose down
+docker compose up --build -d
+Mapeo de Servicios Disponibles:
 
-> Nota: `VITE_DRAFTS_USE_MOCK` se evalúa una sola vez al cargar el módulo `api/drafts.js`. Cambiar el valor requiere reiniciar el dev server.
+ Backend REST API: http://localhost:8080
 
-## Arquitectura
+ Documentación Interactiva Swagger UI: http://localhost:8080/swagger-ui/index.html
 
-```
-src/
-├── api/               # Capa de servicios (toda llamada axios vive aquí)
-│   ├── client.js      # Instancia axios + interceptores JWT/refresh
-│   ├── auth.js        # login, register, logout, getCurrentUser
-│   ├── communities.js # CRUD de comunidades
-│   ├── drafts.js      # list/get/update/transition + switch mock↔real
-│   └── draftExport.js # Export a Markdown/JSON (clipboard y descarga)
-├── auth/
-│   └── tokenStorage.js  # Wrapper localStorage para access/refresh tokens
-├── context/
-│   └── AuthContext.jsx  # Estado global de auth, carga /me al boot, useAuth()
-├── data/
-│   ├── draftsMock.js     # Seed de drafts (la "fuente" en modo mock)
-│   └── draftSelectors.js # Funciones puras: flatten, conteos, vista por canal
-├── routes/
-│   ├── AppRouter.jsx     # Mapa de rutas (públicas vs. protegidas)
-│   └── ProtectedRoute.jsx# Gate de auth con soporte de roles
-├── components/
-│   ├── layout/           # Chrome compartido (Header, AppLayout)
-│   ├── drafts/           # Lista, filtros, card, sidebar de drafts
-│   ├── approval/         # Botones y flujo de aprobación
-│   └── channelPreviews/  # Previews visuales por canal (LinkedIn, Twitter, Newsletter)
-└── views/             # Componentes de ruta (uno por path)
-```
+ Frontend UI Web: http://localhost:5175
 
-Reglas implícitas:
+Método 2: Ejecución Local Nativa (Spring Boot)
+Si deseas ejecutar la API de forma aislada sin contenerizar el servicio de Java:
 
-- Toda llamada HTTP vive en `src/api/`. Las views/componentes nunca importan `axios` directo.
-- Los selectores de `src/data/draftSelectors.js` son funciones puras y no tocan red.
-- Los estilos viven junto al componente (`Foo.jsx` + `Foo.css`).
+Configurar Variables de Entorno:
+Crea una copia del archivo de configuración en src/main/resources/:
 
-## El contrato `Draft`
+Bash
+cp src/main/resources/application.properties.example src/main/resources/application.properties
+Nota: Asegúrate de configurar las credenciales correctas de tu instancia local de PostgreSQL en dicho archivo.
 
-Cada draft representa **un tema semanal con tres versiones de canal**. Este es el modelo canónico que el backend debe servir tal cual:
+Compilar y empaquetar la aplicación:
 
-```json
-{
-  "id": "draft-2026-W19",
-  "weekOf": "2026-05-08",
-  "topicTitle": "React performance e IA aplicada al contenido",
-  "topicSummary": "Resumen del tema semanal…",
-  "sourceContributions": [
-    {
-      "id": 101,
-      "type": "DISCUSSION",
-      "authorName": "María González",
-      "excerpt": "…",
-      "reactionsCount": 42,
-      "commentsCount": 18,
-      "sourceUrl": "https://example.com/discussion/101",
-      "communityName": "Frontend Devs"
-    }
-  ],
-  "channels": {
-    "newsletter": { "channel": "newsletter", "title": "…", "body": "…", "status": "pending" },
-    "linkedin":   { "channel": "linkedin",   "title": "…", "body": "…", "status": "pending" },
-    "twitter":    { "channel": "twitter",                "body": "…", "status": "pending" }
-  },
-  "status": "GENERATED",
-  "createdAt": "2026-05-08T20:00:00Z",
-  "updatedAt": "2026-05-08T20:00:00Z",
-  "approvedBy": { "id": 1, "email": "editor@talentcircle.dev" },
-  "approvedAt": "2026-04-27T11:30:00Z",
-  "publishedAt": "2026-04-27T12:00:00Z"
-}
-```
+Bash
+./mvnw clean package -DskipTests
+Iniciar el Servidor de Spring Boot:
 
-**Estados de `draft.status` (state machine):**
+Bash
+./mvnw spring-boot:run
+La API levantará de manera nativa en el puerto estándar: http://localhost:8080
 
-| Desde        | Transiciones permitidas        |
-| ------------ | ------------------------------ |
-| `GENERATED`  | `IN_REVIEW`, `REJECTED`        |
-| `IN_REVIEW`  | `APPROVED`, `GENERATED`, `REJECTED` |
-| `APPROVED`   | `PUBLISHED`, `IN_REVIEW`       |
-| `PUBLISHED`  | (terminal)                     |
-| `REJECTED`   | (terminal)                     |
+ Arquitectura del Backend (src/main/java/)
+El código sigue las convenciones de diseño modular impulsadas por DDD (Domain-Driven Design) y desacoplamiento por capas:
 
-**Estados de `channels[x].status`:** `pending` → `edited` → `approved` (a nivel canal, no afecta el `status` global del draft).
+com/nocountry/webapp/
+├── TalentCircleApplication.java # Clase principal de arranque de Spring Boot
+├── analytics/           # Modelos de procesamiento analítico y KPIs semanales
+│   ├── WeeklyDigestData.java
+│   └── WeeklyStatistics.java
+├── config/              # Configuraciones del framework (Seguridad JWT, CORS, Swagger)
+│   ├── ChannelDraftDataSeeder.java
+│   ├── CommunityDataSeeder.java
+│   ├── CommunityPostDataSeeder.java
+│   ├── CorsConfig.java
+│   ├── SecurityConfig.java
+│   ├── SwaggerConfig.java
+│   ├── TimeConfig.java
+│   ├── UserDataSeeder.java
+│   └── WeeklyDigestDataSeeder.java
+├── controller/          # Capa de Entrada REST (Endpoints expuestos al cliente)
+│   ├── AuthController.java          # Registro, Login y Refresh Tokens
+│   ├── ChannelDraftController.java   # Gestión de borradores por redes sociales
+│   ├── CommunityController.java      # CRUD de comunidades monitoreadas
+│   ├── CommunityPostController.java  # Extracción de posteos analizados
+│   └── WeeklyDigestController.java   # Orquestador del Job semanal
+├── dto/                 # Data Transfer Objects (Contratos de Request y Response)
+├── entity/              # Modelos de Persistencia (Mapeo de Tablas de Hibernate/JPA)
+│   └── User.java, Community.java, CommunityPost.java, RefreshToken.java, WeeklyDigest.java
+├── enums/               # Constantes de Estado del pipeline de negocio
+│   └── ChannelDraftStatus.java, CommunityPostType.java, Role.java, TargetPlatform.java, WeeklyDigestStatus.java
+├── exception/           # Gestión centralizada de errores HTTP semánticos
+└── repository/          # Capa de Acceso a Datos (Interfaces Spring Data JPA)
+## 🗺️ Matriz de Endpoints Principales (API Rest)
 
-Los tipos de contribución soportados son: `DISCUSSION`, `RESOURCE`, `QUESTION`, `SESSION`.
+### Módulo de Autenticación (Auth)
+```http
+POST    /api/auth/register                   --> Registro de nuevos usuarios al sistema (Público)
+POST    /api/auth/login                      --> Autenticación. Retorna Access/Refresh Tokens (Público)
+POST    /api/auth/refresh                    --> Renueva Access Token 
+usando el de refresco (Público)
 
-## Mecánicas clave
+Módulo de Comunidades (Communities)
+GET     /api/communities                     --> Obtiene el listado de comunidades (Autenticado)
+POST    /api/communities                     --> Registra una nueva comunidad para monitoreo (Rol EDITOR)
 
-### Autenticación
+Módulo de Borradores (Channel Drafts)
+GET     /api/channel-drafts                  --> Lista los borradores semanales para redes (Autenticado)
+PUT     /api/channel-drafts/{id}/content     --> Actualiza el contenido de un borrador (Rol EDITOR)
 
-- JWT en `localStorage` bajo las claves `talent_access_token` y `talent_refresh_token` (ver `auth/tokenStorage.js`).
-- El **request interceptor** de `api/client.js` agrega `Authorization: Bearer <accessToken>` a cada petición si hay token.
-- En respuesta **401**, el cliente intenta `POST /api/auth/refresh` con el refresh token y reintenta la petición original con el nuevo access token. Las llamadas a `/login` y `/refresh` están excluidas para evitar bucles.
-- Si el refresh falla: se limpian los tokens y se dispara un `CustomEvent("auth:logout")` en `window`, que `AuthContext` escucha para cerrar la sesión globalmente.
-- `AuthContext` carga el usuario actual desde `GET /api/users/me` al boot y expone `useAuth()` con `{ user, status, isAuthenticated, isLoading, login, register, logout }`.
+📊 Automatización de Datos (Seeders de Base de Datos)
+Para facilitar las pruebas de navegación de los evaluadores durante el Demo Day, la aplicación cuenta con Data Seeders automáticos independientes:
 
-### Rutas protegidas
+ChannelDraftDataSeeder
 
-`<ProtectedRoute>` envuelve `<AppLayout />` y:
+CommunityDataSeeder
 
-- Muestra un placeholder mientras `isLoading`.
-- Redirige a `/login` si el usuario no está autenticado (preserva `from` en `location.state` para volver tras login).
-- Acepta `roles={["EDITOR"]}` para gating por rol; si el usuario no tiene el rol, redirige a `/`.
+CommunityPostDataSeeder
 
-### Drafts: mock ↔ real
+UserDataSeeder
 
-`src/api/drafts.js` lee `VITE_DRAFTS_USE_MOCK` una vez al cargar el módulo y decide en cada función si:
+WeeklyDigestDataSeeder
 
-- **mock**: muta una copia en memoria de `draftsMock.js`, simula 200ms de latencia, y valida las transiciones de estado localmente.
-- **real**: hace `GET/PUT/POST` contra `/api/drafts/*` usando el cliente axios (auth automática vía interceptor).
+Al levantar el sistema, se inyectarán de manera automática en la base de datos relacional:
 
-Esto permite trabajar el frontend sin backend levantado y cambiar al endpoint real con una sola variable.
+Usuarios de prueba con roles diferenciados (USER, EDITOR).
 
-## Mapa de rutas
+Comunidades activas precargadas en el sistema.
 
-| Path                              | Componente         | Descripción                                           | Auth |
-| --------------------------------- | ------------------ | ----------------------------------------------------- | ---- |
-| `/login`                          | `LoginPage`        | Login con email + password                            | no   |
-| `/register`                       | `RegisterPage`     | Registro de cuenta                                    | no   |
-| `/`                               | `HomePage`         | Dashboard de entrada                                  | sí   |
-| `/communities`                    | `CommunitiesPage`  | Listado y administración de comunidades               | sí   |
-| `/drafts`                         | `Drafts`           | Lista de drafts semanales por canal                   | sí   |
-| `/editor/:draftId/:channel`       | `DraftEditor`      | Edición del contenido de un canal específico          | sí   |
-| `/preview`                        | `ChannelPreview`   | Previsualización visual por canal                     | sí   |
-| `/approval` · `/approval/:id`     | `ApprovalPage`     | Flujo de aprobación/publicación de un draft           | sí   |
+Historial de Community Posts y métricas simuladas de procesamiento.
 
-Las rutas autenticadas están envueltas en `<AppLayout>` (header + `<Outlet />`).
+Borradores de canales (Channel Drafts) listos para ser editados o aprobados desde la interfaz de usuario.
 
-## Próximos pasos
+🔑 Credenciales de Acceso Rápido para Pruebas:
+👤 Usuario Administrador: admin@talentcircle.com
 
-- Apuntar a backend real: setear `VITE_DRAFTS_USE_MOCK=false` y verificar que `/api/drafts/*` cumpla el contrato de arriba.
-- Implementar endpoint de publicación efectiva (hoy `publishDraft` solo transiciona el estado a `PUBLISHED`; falta el envío real al canal correspondiente).
-- Activar gating por rol `EDITOR` en las rutas de aprobación (`<ProtectedRoute roles={["EDITOR"]}>`).
-- Tests unitarios para `draftSelectors.js` y para las transiciones de `transitionDraft`.
+🔒 Contraseña: Admin123*
 
-## Referencia cruzada
+🧪 Suite de Pruebas (Testing)
+La aplicación cuenta con una suite completa de pruebas unitarias y de integración que garantizan la consistencia de las transiciones de estados del pipeline y la seguridad de los endpoints.
 
-- Contrato esperado del backend: [`../docs/backend-requirements.md`](../docs/backend-requirements.md).
+Para ejecutar la suite de test completa de Maven, corre:
+
+Bash
+./mvnw test
+Tests de Integración: Verifican los controladores reales y respuestas HTTP de seguridad mediante escenarios simulados (CommunityControllerIntegrationTest.java).
+
+Tests Unitarios: Validan las reglas de negocio aisladas de la lógica de servicios (CommunityServiceUnitTest.java).
