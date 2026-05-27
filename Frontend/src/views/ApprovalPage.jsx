@@ -8,6 +8,7 @@ import ApprovalFlow from "../components/approval/ApprovalFlow";
 import ApprovalButtons from "../components/approval/ApprovalButtons";
 import ExportModal from "../components/approval/ExportModal";
 import ChannelIcon from "../components/ChannelIcon";
+import { useAuth } from "../context/AuthContext";
 import { useFetch } from "../hooks/useFetch";
 import { useAsyncAction } from "../hooks/useAsyncAction";
 import { formatDateTime } from "../utils/formatDate";
@@ -173,6 +174,7 @@ function DraftTimeline({ draft }) {
 
 function ApprovalDetail({ id }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: draft, loading, error: loadError, setData: setDraft, refetch } = useFetch(() => draftsApi.getDraft(id), [id]);
   const { acting, error: actionError, run } = useAsyncAction();
   const [copied, setCopied] = useState(null);
@@ -192,7 +194,7 @@ function ApprovalDetail({ id }) {
 
   const onChangeStatus = async (next) => {
     try {
-      const updated = await run(() => draftsApi.transitionDraft(id, next));
+      const updated = await run(() => draftsApi.transitionDraft(id, next, { editorId: user?.id }));
       setDraft(updated);
     } catch {
       /* error is already captured in actionError */

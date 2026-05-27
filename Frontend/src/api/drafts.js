@@ -89,7 +89,7 @@ export async function updateChannelDraft(draftId, channel, payload) {
   return getDraft(draftId);
 }
 
-export async function transitionDraft(draftId, nextStatus) {
+export async function transitionDraft(draftId, nextStatus, { editorId } = {}) {
   const platformToChannel = { NEWSLETTER: "newsletter", LINKEDIN: "linkedin", X: "twitter" };
   const { data: drafts } = await api.get(`${DRAFT_BASE}/by-digest/${draftId}`);
   for (const draft of drafts) {
@@ -100,8 +100,7 @@ export async function transitionDraft(draftId, nextStatus) {
         await api.patch(`${DRAFT_BASE}/${draft.id}/start-review`);
         break;
       case "APPROVED":
-        // NOTA: editorId: 1 asume el ID del administrador generado por tus seeders del backend
-        await api.patch(`${DRAFT_BASE}/${draft.id}/approve`, { editorId: 1 });
+        await api.patch(`${DRAFT_BASE}/${draft.id}/approve`, { editorId });
         break;
       case "REJECTED":
         await api.patch(`${DRAFT_BASE}/${draft.id}/reject`);

@@ -1,68 +1,19 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Download } from "lucide-react";
-import { CHANNEL_LABELS } from "../data/draftSelectors";
+import { Download, AlertCircle, Inbox } from "lucide-react";
+import { CHANNEL_LABELS, CHANNELS } from "../data/draftSelectors";
+import * as draftsApi from "../api/drafts";
+import { useFetch } from "../hooks/useFetch";
 import { formatDateShort } from "../utils/formatDate";
 import "./HistoryPage.css";
 
-const MOCK_DATA = [
-  {
-    id: 1,
-    date: "2025-05-23",
-    channel: "newsletter",
-    title: "Edición #41 · el truco TQ",
-    status: "publicado",
-    metric: "opens 38% · clicks 6%",
-  },
-  {
-    id: 2,
-    date: "2025-05-23",
-    channel: "linkedin",
-    title: "El truco de TanStack Query…",
-    status: "publicado",
-    metric: "2.1k vistas · 47 reacc.",
-  },
-  {
-    id: 3,
-    date: "2025-05-23",
-    channel: "twitter",
-    title: "Hilo: 5 lecciones del AMA",
-    status: "publicado",
-    metric: "1.4k impr. · 28 RT",
-  },
-  {
-    id: 4,
-    date: "2025-05-16",
-    channel: "newsletter",
-    title: "Edición #40 · semana RAG",
-    status: "publicado",
-    metric: "opens 41% · clicks 8%",
-  },
-  {
-    id: 5,
-    date: "2025-05-16",
-    channel: "linkedin",
-    title: "3 patrones de RAG…",
-    status: "publicado",
-    metric: "3.1k vistas · 62 reacc.",
-  },
-  {
-    id: 6,
-    date: "2025-05-16",
-    channel: "twitter",
-    title: "Hilo: lecciones del live",
-    status: "rechazado",
-    metric: "editor descartó",
-  },
-  {
-    id: 7,
-    date: "2025-05-09",
-    channel: "newsletter",
-    title: "Edición #39",
-    status: "publicado",
-    metric: "opens 36%",
-  },
-];
+const STATUS_MAP = {
+  PUBLISHED: "publicado",
+  APPROVED: "aprobado",
+  REJECTED: "rechazado",
+  IN_REVIEW: "en revisión",
+  GENERATED: "generado",
+};
 
 const PERIOD_OPTIONS = [
   { value: "30", label: "últimos 30 días" },
@@ -70,11 +21,30 @@ const PERIOD_OPTIONS = [
   { value: "all", label: "todo" },
 ];
 
+function flattenDraftsToHistory(drafts) {
+  const rows = [];
+  for (const draft of drafts) {
+    for (const channel of CHANNELS) {
+      const ch = draft.channels[channel];
+      if (!ch) continue;
+      rows.push({
+        id: draft.id,
+        date: draft.weekOf || draft.createdAt || "",
+        channel,
+        title: ch.title || draft.topicTitle || "Sin título",
+        status: STATUS_MAP[draft.status] || draft.status,
+        rawStatus: draft.status,
+      });
+    }
+  }
+  return rows;
+}
+
 function exportCSV(rows) {
-  const header = "Fecha,Canal,Título,Estado,Métrica";
+  const header = "Fecha,Canal,Título,Estado";
   const lines = rows.map(
     (r) =>
-      `${r.date},"${CHANNEL_LABELS[r.channel]}","${r.title}",${r.status},"${r.metric}"`
+      `${r.date},"${CHANNEL_LABELS[r.channel]}","${r.title}",${r.status}`
   );
   const csv = [header, ...lines].join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -89,10 +59,14 @@ function exportCSV(rows) {
 export default function HistoryPage() {
   const navigate = useNavigate();
   const [channelFilter, setChannelFilter] = useState("all");
-  const [periodFilter, setPeriodFilter] = useState("30");
+  const [periodFilter, setPeriodFilter] = useState("all");
+
+  const { data: drafts = [], loading, error } = useFetch(() => draftsApi.listDrafts());
+
+  const allRows = useMemo(() => flattenDraftsToHistory(drafts), [drafts]);
 
   const filtered = useMemo(() => {
-    let rows = MOCK_DATA;
+    let rows = allRows;
 
     if (channelFilter !== "all") {
       rows = rows.filter((r) => r.channel === channelFilter);
@@ -102,17 +76,20 @@ export default function HistoryPage() {
       const days = parseInt(periodFilter, 10);
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
-      rows = rows.filter((r) => new Date(r.date + "T00:00:00") >= cutoff);
+      rows = rows.filter((r) => {
+        if (!r.date) return true;
+        return new Date(r.date + "T00:00:00") >= cutoff;
+      });
     }
 
     return rows;
-  }, [channelFilter, periodFilter]);
+  }, [allRows, channelFilter, periodFilter]);
 
   return (
     <div className="history-page">
       <div className="history-container">
         <header className="history-header">
-          <h1 className="history-title">Historial · tabla</h1>
+          <h1 className="history-title">Historial de publicaciones</h1>
           <div className="history-filters">
             <div className="history-filter-group">
               <button
@@ -145,6 +122,7 @@ export default function HistoryPage() {
             <button
               className="history-export-btn"
               onClick={() => exportCSV(filtered)}
+              disabled={filtered.length === 0}
             >
               <Download size={14} />
               exportar CSV
@@ -152,56 +130,74 @@ export default function HistoryPage() {
           </div>
         </header>
 
-        <div className="history-table">
-          <div className="history-table__head">
-            <span>FECHA</span>
-            <span>CANAL</span>
-            <span>TÍTULO</span>
-            <span>ESTADO</span>
-            <span>MÉTRICA</span>
-            <span>ACCIÓN</span>
+        {loading && (
+          <div className="history-table__empty">
+            Cargando historial…
           </div>
+        )}
 
-          <div className="history-table__body">
-            {filtered.length === 0 && (
-              <div className="history-table__empty">
-                No hay publicaciones en este período.
-              </div>
-            )}
-            {filtered.map((row) => (
-              <div className="history-row" key={row.id}>
-                <span className="history-row__date">
-                  {formatDateShort(row.date)}
-                </span>
-                <span className="history-row__channel">
-                  <span
-                    className={`history-channel-badge history-channel-badge--${row.channel}`}
-                  >
-                    {CHANNEL_LABELS[row.channel]}
-                  </span>
-                </span>
-                <span className="history-row__title" title={row.title}>
-                  {row.title}
-                </span>
-                <span className="history-row__status">
-                  <span
-                    className={`history-status-chip history-status-chip--${row.status}`}
-                  >
-                    <span
-                      className="history-status-chip__dot"
-                      aria-hidden="true"
-                    />
-                    {row.status}
-                  </span>
-                </span>
-                <span className="history-row__metric">{row.metric}</span>
-                <span className="history-row__action">
-                  <button className="history-open-btn" onClick={() => navigate(`/preview?draftId=${row.id}&channel=${row.channel}`)}>abrir</button>
-                </span>
-              </div>
-            ))}
+        {error && (
+          <div className="history-table__empty" style={{ color: "#991b1b" }}>
+            <AlertCircle size={16} style={{ display: "inline", verticalAlign: "middle" }} /> {error}
           </div>
-        </div>
+        )}
+
+        {!loading && !error && (
+          <div className="history-table">
+            <div className="history-table__head">
+              <span>FECHA</span>
+              <span>CANAL</span>
+              <span>TÍTULO</span>
+              <span>ESTADO</span>
+              <span>ACCIÓN</span>
+            </div>
+
+            <div className="history-table__body">
+              {filtered.length === 0 && (
+                <div className="history-table__empty">
+                  <Inbox size={20} style={{ display: "inline", verticalAlign: "middle", marginRight: 6 }} />
+                  No hay publicaciones en este período.
+                </div>
+              )}
+              {filtered.map((row, idx) => (
+                <div className="history-row" key={`${row.id}-${row.channel}-${idx}`}>
+                  <span className="history-row__date">
+                    {row.date ? formatDateShort(row.date) : "—"}
+                  </span>
+                  <span className="history-row__channel">
+                    <span
+                      className={`history-channel-badge history-channel-badge--${row.channel}`}
+                    >
+                      {CHANNEL_LABELS[row.channel]}
+                    </span>
+                  </span>
+                  <span className="history-row__title" title={row.title}>
+                    {row.title}
+                  </span>
+                  <span className="history-row__status">
+                    <span
+                      className={`history-status-chip history-status-chip--${row.status}`}
+                    >
+                      <span
+                        className="history-status-chip__dot"
+                        aria-hidden="true"
+                      />
+                      {row.status}
+                    </span>
+                  </span>
+                  <span className="history-row__action">
+                    <button
+                      className="history-open-btn"
+                      onClick={() => navigate(`/approval/${row.id}`)}
+                    >
+                      ver
+                    </button>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
