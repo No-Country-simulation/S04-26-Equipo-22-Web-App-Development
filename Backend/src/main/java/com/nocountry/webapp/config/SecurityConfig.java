@@ -37,9 +37,6 @@ public class SecurityConfig {
             throws Exception {
 
         http
-                // MEJORA: Le inyectamos explícitamente tu configuración de CORS
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 .cors(withDefaults())
 
                 .csrf(AbstractHttpConfigurer::disable)
