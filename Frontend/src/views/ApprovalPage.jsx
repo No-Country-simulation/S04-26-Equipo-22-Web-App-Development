@@ -189,8 +189,12 @@ function ApprovalDetail({ id }) {
   };
 
   const onChangeStatus = async (next) => {
-    const updated = await run(() => draftsApi.transitionDraft(id, next));
-    setDraft(updated);
+    try {
+      const updated = await run(() => draftsApi.transitionDraft(id, next));
+      setDraft(updated);
+    } catch {
+      /* error is already captured in actionError */
+    }
   };
 
   if (loading) return <p>Cargando…</p>;
@@ -307,7 +311,7 @@ function ApprovalDetail({ id }) {
 
       <section className="approval-actions">
         <h2>Acciones</h2>
-        {error && <p style={{ color: "crimson" }}>{error}</p>}
+        {error && <p className="approval-detail__error">{error}</p>}
         <ApprovalButtons
           status={draft.status}
           onChangeStatus={onChangeStatus}

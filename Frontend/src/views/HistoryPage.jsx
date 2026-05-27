@@ -69,18 +69,6 @@ const PERIOD_OPTIONS = [
   { value: "all", label: "todo" },
 ];
 
-function formatDate(iso) {
-  if (!iso) return "—";
-  try {
-    const d = new Date(iso + "T00:00:00");
-    const day = d.getDate().toString().padStart(2, "0");
-    const month = d.toLocaleString("es", { month: "short" }).replace(".", "");
-    return `${day} ${month}`;
-  } catch {
-    return iso;
-  }
-}
-
 function exportCSV(rows) {
   const header = "Fecha,Canal,Título,Estado,Métrica";
   const lines = rows.map(
@@ -181,7 +169,7 @@ export default function HistoryPage() {
             {filtered.map((row) => (
               <div className="history-row" key={row.id}>
                 <span className="history-row__date">
-                  {formatDate(row.date)}
+                  {formatDateShort(row.date)}
                 </span>
                 <span className="history-row__channel">
                   <span

@@ -1,6 +1,7 @@
 import "./JobStatusPage.css";
 
-import { useEffect, useState } from "react";
+import { useFetch } from "../hooks/useFetch";
+import { formatDateTime } from "../utils/formatDate";
 
 import {
   getWeeklyStatistics,
@@ -8,37 +9,16 @@ import {
 } from "../api/weeklyDigest";
 
 function JobStatusPage() {
-  const [statistics, setStatistics] = useState(null);
-  const [digest, setDigest] = useState(null);
+  const { data, loading, error } = useFetch(async () => {
+    const [statisticsData, digestData] = await Promise.all([
+      getWeeklyStatistics(),
+      getWeeklyDigest(),
+    ]);
+    return { statistics: statisticsData, digest: digestData };
+  });
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statisticsData, digestData] = await Promise.all([
-          getWeeklyStatistics(),
-          getWeeklyDigest(),
-        ]);
-
-       
-
-        setStatistics(statisticsData);
-        setDigest(digestData);
-
-      } catch (err) {
-        console.error(err);
-        console.error(err.response?.data);
-
-        setError("Error al cargar datos");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const statistics = data?.statistics;
+  const digest = data?.digest;
 
   if (loading) {
     return <p>Cargando...</p>;
@@ -95,12 +75,7 @@ function JobStatusPage() {
       : "Sin actividad";
 
   // FECHA
-  const lastRunDate = new Date(
-    digest.weekStart
-  ).toLocaleString("es-AR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  const lastRunDate = formatDateTime(digest.weekStart);
 
   // PIPELINE
   const pipeline = [
