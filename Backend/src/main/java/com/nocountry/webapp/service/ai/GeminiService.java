@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 public class GeminiService {
 
-    @Value("${gemini.api.key}")
+    @Value("${gemini.api.key:}")
     private String apiKey;
 
     private final PromptBuilderService promptBuilder;
@@ -114,6 +114,12 @@ public class GeminiService {
      * Llama a Gemini con el prompt dado y devuelve el texto generado
      */
     private String callGemini(String prompt) {
+
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new RuntimeException(
+                    "GEMINI_API_KEY no está configurada. Defina la variable de entorno para usar la generación con IA."
+            );
+        }
 
         Client client = Client.builder()
                 .apiKey(apiKey)

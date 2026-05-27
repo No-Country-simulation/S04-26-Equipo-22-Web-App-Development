@@ -1,12 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as communitiesApi from "../api/communities";
+import { useFetch } from "../hooks/useFetch";
 import "./Settings.css";
 
 function Settings() {
   const navigate = useNavigate();
 
-  const [communities, setCommunities] = useState([]);
+  const { data: communities = [], setData: setCommunities } = useFetch(
+    () => communitiesApi.listCommunities({ onlyActive: true })
+  );
+
   const [newCommunity, setNewCommunity] = useState("");
 
   const [channels] = useState({
@@ -24,20 +28,14 @@ function Settings() {
     { name: "Alejandro", role: "Frontend" }
   ]);
 
-  useEffect(() => {
-    communitiesApi.listCommunities({ onlyActive: true })
-      .then(data => setCommunities(data))
-      .catch(() => setCommunities([]));
-  }, []);
-
   const addCommunity = async () => {
     if (!newCommunity.trim()) return;
     try {
       const created = await communitiesApi.createCommunity({ name: newCommunity, platform: "general", active: true });
       setCommunities([...communities, created]);
       setNewCommunity("");
-    } catch (e) {
-      console.error("Error al crear comunidad", e);
+    } catch {
+      // silently handled
     }
   };
 
@@ -45,8 +43,8 @@ function Settings() {
     try {
       await communitiesApi.deactivateCommunity(id);
       setCommunities(communities.filter(c => c.id !== id));
-    } catch (e) {
-      console.error("Error al eliminar comunidad", e);
+    } catch {
+      // silently handled
     }
   };
 

@@ -8,10 +8,8 @@ const CHANNEL_MAP = { NEWSLETTER: "newsletter", LINKEDIN: "linkedin", X: "twitte
 function mapChannelDraft(d) {
   return {
     channel: CHANNEL_MAP[d.targetPlatform] || d.targetPlatform,
-    // FIX COPILOT: Evita que el título se renderice vacío en el editor/tarjetas
     title: d.title || `Borrador ${CHANNEL_MAP[d.targetPlatform] || d.targetPlatform}`,
     body: d.content || "",
-    // FIX COPILOT: Mapeo de estados compatible con los estilos/badges del CSS del Frontend
     status: d.status === "GENERATED" ? "pending"
           : d.status === "IN_REVIEW" ? "edited"
           : d.status === "APPROVED" ? "approved"
@@ -91,7 +89,7 @@ export async function updateChannelDraft(draftId, channel, payload) {
   return getDraft(draftId);
 }
 
-export async function transitionDraft(draftId, nextStatus) {
+export async function transitionDraft(draftId, nextStatus, { editorId } = {}) {
   const platformToChannel = { NEWSLETTER: "newsletter", LINKEDIN: "linkedin", X: "twitter" };
   const { data: drafts } = await api.get(`${DRAFT_BASE}/by-digest/${draftId}`);
   for (const draft of drafts) {
@@ -102,8 +100,7 @@ export async function transitionDraft(draftId, nextStatus) {
         await api.patch(`${DRAFT_BASE}/${draft.id}/start-review`);
         break;
       case "APPROVED":
-        // NOTA: editorId: 1 asume el ID del administrador generado por tus seeders del backend
-        await api.patch(`${DRAFT_BASE}/${draft.id}/approve`, { editorId: 1 });
+        await api.patch(`${DRAFT_BASE}/${draft.id}/approve`, { editorId });
         break;
       case "REJECTED":
         await api.patch(`${DRAFT_BASE}/${draft.id}/reject`);

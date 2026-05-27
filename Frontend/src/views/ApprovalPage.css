@@ -642,3 +642,16 @@
 		display: none;
 	}
 }
+
+.approval-channels__icon-wrap {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: #2563eb;
+}
+.approval-channels__label {
+	color: #111827;
+}
+.approval-detail__error {
+	color: crimson;
+}

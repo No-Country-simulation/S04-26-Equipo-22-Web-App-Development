@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
@@ -21,8 +22,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("dev") // Solo se ejecuta en el perfil de desarrollo
-@DependsOn("communityDataSeeder")
+@Profile("dev")
+@Order(2)
 public class CommunityPostDataSeeder implements ApplicationRunner {
 
     private final CommunityPostRepository communityPostRepository;

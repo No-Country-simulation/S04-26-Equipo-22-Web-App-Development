@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useCallback, useEffect } from "react";
+import DOMPurify from "dompurify";
 import * as draftsApi from "../api/drafts";
 import { CHANNEL_LABELS } from "../data/draftSelectors";
 import "./DraftEditor.css";
@@ -20,6 +21,7 @@ export function DraftEditor() {
   const { draftId, channel } = useParams();
   const navigate = useNavigate();
   const editorRef = useRef(null);
+  const savedTimerRef = useRef(null);
 
   const [draft, setDraft] = useState(null);
   const [title, setTitle] = useState("");
@@ -33,6 +35,10 @@ export function DraftEditor() {
   const TWITTER_LIMIT = 280;
   const isTwitter = channel === "twitter";
   const overLimit = isTwitter && charCount > TWITTER_LIMIT;
+
+  useEffect(() => {
+    return () => clearTimeout(savedTimerRef.current);
+  }, []);
 
   const recountChars = useCallback(() => {
     if (!editorRef.current) return;
@@ -55,7 +61,7 @@ export function DraftEditor() {
         }
         setTitle(ch.title || "");
         if (editorRef.current) {
-          editorRef.current.innerHTML = ch.body || "";
+          editorRef.current.innerHTML = DOMPurify.sanitize(ch.body || "");
           setCharCount((editorRef.current.textContent || "").length);
         }
       })
@@ -105,7 +111,8 @@ export function DraftEditor() {
       const updated = await draftsApi.updateChannelDraft(draftId, channel, payload);
       setDraft(updated);
       setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSaved(false), 2500);
 
       if (submitForReview && updated.status === "GENERATED") {
         await draftsApi.transitionDraft(draftId, "IN_REVIEW");
@@ -132,7 +139,7 @@ export function DraftEditor() {
         <div className="editor-meta-row">
           <div>
             <label className="editor-field-label">Tema semanal</label>
-            <p style={{ margin: "4px 0 0", color: "#6b7280" }}>{draft.topicTitle}</p>
+            <p className="editor-topic-hint">{draft.topicTitle}</p>
           </div>
           <div>
             <label className="editor-field-label">Canal</label>
@@ -196,7 +203,7 @@ export function DraftEditor() {
           </p>
         )}
 
-        {error && <p style={{ color: "crimson" }}>{error}</p>}
+        {error && <p className="editor-error">{error}</p>}
 
         <div className="editor-actions">
           <button className="editor-btn-save" onClick={() => handleSave()} disabled={saving}>
@@ -212,7 +219,7 @@ export function DraftEditor() {
           <button
             type="button"
             onClick={() => navigate(`/approval/${draftId}`)}
-            style={{ marginLeft: "auto" }}
+            className="editor-btn-approval"
           >
             Ir a aprobación →
           </button>

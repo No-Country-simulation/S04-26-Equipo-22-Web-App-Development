@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("dev")  // Solo se ejecuta en el perfil de desarrollo
+@Profile("dev")
+@Order(1)
 public class CommunityDataSeeder implements ApplicationRunner {
 
     private final CommunityService communityService;

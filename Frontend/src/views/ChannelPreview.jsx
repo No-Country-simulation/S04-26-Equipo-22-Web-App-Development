@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useFetch } from "../hooks/useFetch";
 import * as draftsApi from "../api/drafts";
 import { CHANNEL_LABELS, CHANNELS, getChannelView } from "../data/draftSelectors";
 import LinkedinPreview from "../components/channelPreviews/LinkedinPreview";
@@ -27,17 +28,7 @@ function ChannelPreview() {
   const draftId = params.get("draftId");
   const channelParam = params.get("channel");
 
-  const [drafts, setDrafts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    draftsApi
-      .listDrafts()
-      .then(setDrafts)
-      .catch((err) => setError(err?.message || "No se pudo cargar"))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: drafts = [], loading, error } = useFetch(() => draftsApi.listDrafts());
 
   const selectedDraft = useMemo(
     () => drafts.find((d) => d.id === draftId) || drafts[0],
@@ -107,9 +98,9 @@ function ChannelPreview() {
       <section className="preview-grid">
         {views.map((view) => (
           <div className="preview-card" key={view.id}>
-            <h3 className="preview-card-title" style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#2563eb" }}>
+            <h3 className="preview-card-title">
               <ChannelIcon channel={view.channel} size={18} />
-              <span style={{ color: "#111827" }}>{CHANNEL_LABELS[view.channel]}</span>
+              <span>{CHANNEL_LABELS[view.channel]}</span>
             </h3>
             {renderPreview(view)}
           </div>

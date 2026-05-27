@@ -80,3 +80,17 @@
 	border: none;
 	cursor: default;
 }
+
+/* EXPORT AGAIN */
+.export-again-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	background: #2563eb;
+	color: white;
+	border: none;
+}
+
+.export-again-btn:hover {
+	background: #1d4ed8;
+}

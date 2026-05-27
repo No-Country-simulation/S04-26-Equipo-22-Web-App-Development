@@ -1,35 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertCircle } from "lucide-react";
 import { DraftFilters } from "../components/drafts/DraftFilters";
 import { DraftList } from "../components/drafts/DraftList";
 import { flattenDraftsForList, countByChannel } from "../data/draftSelectors";
+import { useFetch } from "../hooks/useFetch";
 import * as draftsApi from "../api/drafts";
 import "./Drafts.css";
 
 export function Drafts() {
   const [filter, setFilter] = useState("all");
-  const [drafts, setDrafts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    draftsApi
-      .listDrafts()
-      .then((data) => {
-        if (!cancelled) setDrafts(data);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(err?.message || "No se pudieron cargar los borradores");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { data: drafts = [], loading, error } = useFetch(() => draftsApi.listDrafts());
 
   const rows = useMemo(() => flattenDraftsForList(drafts), [drafts]);
   const counts = useMemo(() => countByChannel(drafts), [drafts]);

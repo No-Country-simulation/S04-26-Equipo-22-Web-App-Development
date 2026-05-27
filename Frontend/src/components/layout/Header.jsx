@@ -9,6 +9,8 @@ const NAV_ITEMS = [
   { to: "/approval", label: "Aprobación" },
   { to: "/preview", label: "Preview" },
   { to: "/job-status", label: "Estado del trabajo" },
+  { to: "/history", label: "Historial" },
+  { to: "/settings", label: "Configuración" },
 ];
 
 export default function Header() {

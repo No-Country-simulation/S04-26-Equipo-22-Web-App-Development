@@ -301,4 +301,14 @@
   color: #b91c1c;
   font-weight: 600;
 }
+.editor-topic-hint {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+.editor-btn-approval {
+  margin-left: auto;
+}
+.editor-error {
+  color: crimson;
+}
 

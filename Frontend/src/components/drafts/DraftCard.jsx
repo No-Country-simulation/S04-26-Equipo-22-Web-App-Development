@@ -2,6 +2,7 @@ import "./DraftCard.css";
 import { Pencil, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import ChannelIcon from "../ChannelIcon";
+import { formatDateTime } from "../../utils/formatDate";
 
 const channelIcons = {
   newsletter: <ChannelIcon channel="newsletter" className="channel-icon channel-icon--newsletter" />,
@@ -15,21 +16,6 @@ const STATUS_LABEL = {
   approved: "Aprobado",
   rejected: "Rechazado",
 };
-
-function formatDate(iso) {
-  if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleString("es-AR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return iso;
-  }
-}
 
 export function DraftCard({ row }) {
   const icon = channelIcons[row.channel] ?? null;
@@ -49,7 +35,7 @@ export function DraftCard({ row }) {
         {STATUS_LABEL[statusKey] || row.channelStatus}
       </div>
 
-      <div className="draft-date">{formatDate(row.updatedAt)}</div>
+      <div className="draft-date">{formatDateTime(row.updatedAt)}</div>
 
       <div className="draft-actions">
         <Link to={`/editor/${row.draftId}/${row.channel}`}>

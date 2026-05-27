@@ -61,3 +61,26 @@ export function downloadMarkdown(draft, channel) {
   const filename = `${draft.id}-${channel}.md`;
   triggerDownload(filename, md, "text/markdown");
 }
+
+export function downloadTxt(draft, channel) {
+  const ch = draft.channels[channel];
+  if (!ch) return;
+  const title = ch.title ? `${ch.title}\n${"=".repeat(ch.title.length)}\n\n` : "";
+  const meta = `Canal: ${channel} | Semana: ${draft.weekOf} | Estado: ${ch.status}\n\n`;
+  const body = stripHtml(ch.body).trim();
+  const txt = `${title}${meta}${body}\n`;
+  const filename = `${draft.id}-${channel}.txt`;
+  triggerDownload(filename, txt, "text/plain");
+}
+
+export function getPlainText(draft, channel) {
+  const ch = draft.channels[channel];
+  if (!ch) return "";
+  return stripHtml(ch.body).trim();
+}
+
+export async function copyPlainText(draft, channel) {
+  const text = getPlainText(draft, channel);
+  await navigator.clipboard.writeText(text);
+  return text;
+}

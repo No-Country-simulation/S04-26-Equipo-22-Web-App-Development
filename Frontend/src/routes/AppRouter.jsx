@@ -11,6 +11,7 @@ import Settings from "../views/Settings";
 import { ProtectedRoute } from "./ProtectedRoute";
 import AppLayout from "../components/layout/AppLayout";
 import JobStatusPage from "../views/JobStatusPage";
+import HistoryPage from "../views/HistoryPage";
 
 function AppRouter() {
   return (
@@ -34,6 +35,7 @@ function AppRouter() {
           <Route path="/approval" element={<ApprovalPage />} />
           <Route path="/approval/:id" element={<ApprovalPage />} />
           <Route path="/job-status" element={<JobStatusPage />} />
+          <Route path="/history" element={<HistoryPage />} />
           <Route path="/settings" element={<Settings />} />
 
         </Route>
