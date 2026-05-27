@@ -4,27 +4,27 @@ export function useFetch(fetchFn, deps = []) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const cancelledRef = useRef(false);
+  const idRef = useRef(0);
 
   const execute = useCallback(async () => {
-    cancelledRef.current = false;
+    const id = ++idRef.current;
     setLoading(true);
     setError(null);
     try {
       const result = await fetchFn();
-      if (!cancelledRef.current) setData(result);
+      if (id === idRef.current) setData(result);
     } catch (err) {
-      if (!cancelledRef.current) {
+      if (id === idRef.current) {
         setError(err?.response?.data?.message || err?.message || "Error al cargar datos");
       }
     } finally {
-      if (!cancelledRef.current) setLoading(false);
+      if (id === idRef.current) setLoading(false);
     }
   }, deps); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     execute();
-    return () => { cancelledRef.current = true; };
+    return () => { idRef.current++; };
   }, [execute]);
 
   const refetch = useCallback(() => execute(), [execute]);
