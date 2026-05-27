@@ -133,7 +133,7 @@ export function DraftEditor() {
         <div className="editor-meta-row">
           <div>
             <label className="editor-field-label">Tema semanal</label>
-            <p style={{ margin: "4px 0 0", color: "#6b7280" }}>{draft.topicTitle}</p>
+            <p className="editor-topic-hint">{draft.topicTitle}</p>
           </div>
           <div>
             <label className="editor-field-label">Canal</label>
@@ -197,7 +197,7 @@ export function DraftEditor() {
           </p>
         )}
 
-        {error && <p style={{ color: "crimson" }}>{error}</p>}
+        {error && <p className="editor-error">{error}</p>}
 
         <div className="editor-actions">
           <button className="editor-btn-save" onClick={() => handleSave()} disabled={saving}>
@@ -213,7 +213,7 @@ export function DraftEditor() {
           <button
             type="button"
             onClick={() => navigate(`/approval/${draftId}`)}
-            style={{ marginLeft: "auto" }}
+            className="editor-btn-approval"
           >
             Ir a aprobación →
           </button>

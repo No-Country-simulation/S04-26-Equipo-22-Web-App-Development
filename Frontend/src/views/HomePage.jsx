@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   FileText,
@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { useFetch } from "../hooks/useFetch";
 import * as draftsApi from "../api/drafts";
 import * as communitiesApi from "../api/communities";
 import "./HomePage.css";
@@ -99,43 +100,29 @@ export default function HomePage() {
   const { user } = useAuth();
   const firstName = user?.email ? user.email.split("@")[0] : "";
 
-  const [drafts, setDrafts] = useState([]);
-  const [communities, setCommunities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-
-    Promise.allSettled([
+  const { data, loading, error } = useFetch(async () => {
+    const [draftsRes, communitiesRes] = await Promise.allSettled([
       draftsApi.listDrafts(),
       communitiesApi.listCommunities({ onlyActive: true }),
-    ]).then((results) => {
-      if (cancelled) return;
-      const [draftsRes, communitiesRes] = results;
-
-      if (draftsRes.status === "fulfilled") {
-        setDrafts(Array.isArray(draftsRes.value) ? draftsRes.value : []);
-      }
-      if (communitiesRes.status === "fulfilled") {
-        setCommunities(
-          Array.isArray(communitiesRes.value) ? communitiesRes.value : []
-        );
-      }
-
-      const failures = results.filter((r) => r.status === "rejected");
-      if (failures.length > 0) {
-        setError("No pudimos cargar parte de la información del pipeline.");
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      cancelled = true;
+    ]);
+    return {
+      drafts:
+        draftsRes.status === "fulfilled"
+          ? Array.isArray(draftsRes.value)
+            ? draftsRes.value
+            : []
+          : [],
+      communities:
+        communitiesRes.status === "fulfilled"
+          ? Array.isArray(communitiesRes.value)
+            ? communitiesRes.value
+            : []
+          : [],
     };
-  }, []);
+  });
+
+  const drafts = data?.drafts ?? [];
+  const communities = data?.communities ?? [];
 
   const metrics = useMemo(() => {
     const sortedByWeek = [...drafts].sort((a, b) =>

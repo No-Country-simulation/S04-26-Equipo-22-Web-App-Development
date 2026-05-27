@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Users,
   Plus,
@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import * as communitiesApi from "../api/communities";
 import { useAuth } from "../context/AuthContext";
+import { useFetch } from "../hooks/useFetch";
+import { useAsyncAction } from "../hooks/useAsyncAction";
 import "./CommunitiesPage.css";
 
 const INITIAL_FORM = { name: "", platform: "", active: true };
@@ -17,43 +19,24 @@ export default function CommunitiesPage() {
   const { user } = useAuth();
   const isAdmin = user?.role === "ADMIN";
 
-  const [communities, setCommunities] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showOnlyActive, setShowOnlyActive] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
-  const [submitting, setSubmitting] = useState(false);
 
-  const reload = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await communitiesApi.listCommunities({ onlyActive: showOnlyActive });
-      setCommunities(data);
-    } catch (err) {
-      setError(err?.response?.data?.message || "No se pudieron cargar las comunidades");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: communities = [], loading, error, setError, setData: setCommunities, refetch } = useFetch(
+    () => communitiesApi.listCommunities({ onlyActive: showOnlyActive }),
+    [showOnlyActive]
+  );
 
-  useEffect(() => {
-    reload();
-  }, [showOnlyActive]); // eslint-disable-line react-hooks/exhaustive-deps
+  const { acting: submitting, run } = useAsyncAction();
 
   const onCreate = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.platform.trim()) return;
-    setSubmitting(true);
-    try {
+    await run(async () => {
       await communitiesApi.createCommunity(form);
       setForm(INITIAL_FORM);
-      await reload();
-    } catch (err) {
-      setError(err?.response?.data?.message || "No se pudo crear la comunidad");
-    } finally {
-      setSubmitting(false);
-    }
+      await refetch();
+    });
   };
 
   const onToggleActive = async (community) => {
@@ -63,7 +46,7 @@ export default function CommunitiesPage() {
       } else {
         await communitiesApi.activateCommunity(community.id);
       }
-      await reload();
+      await refetch();
     } catch (err) {
       setError(err?.response?.data?.message || "No se pudo actualizar la comunidad");
     }
@@ -73,7 +56,7 @@ export default function CommunitiesPage() {
     if (!confirm(`¿Eliminar "${community.name}" definitivamente?`)) return;
     try {
       await communitiesApi.deleteCommunity(community.id);
-      await reload();
+      await refetch();
     } catch (err) {
       setError(err?.response?.data?.message || "No se pudo eliminar la comunidad");
     }

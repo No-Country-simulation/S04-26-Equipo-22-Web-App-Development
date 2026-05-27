@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as communitiesApi from "../api/communities";
+import { useFetch } from "../hooks/useFetch";
 import "./Settings.css";
 
 function Settings() {

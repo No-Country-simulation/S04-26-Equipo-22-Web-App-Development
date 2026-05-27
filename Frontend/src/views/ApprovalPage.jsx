@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Inbox, ArrowLeft, ArrowRight, AlertCircle, Bot, Sparkles, Eye, CheckCircle2, Send } from "lucide-react";
 import * as draftsApi from "../api/drafts";
@@ -7,29 +7,13 @@ import { CHANNEL_LABELS, STATUS_LABELS, CHANNELS } from "../data/draftSelectors"
 import ApprovalFlow from "../components/approval/ApprovalFlow";
 import ApprovalButtons from "../components/approval/ApprovalButtons";
 import ChannelIcon from "../components/ChannelIcon";
+import { useFetch } from "../hooks/useFetch";
+import { useAsyncAction } from "../hooks/useAsyncAction";
+import { formatDateTime } from "../utils/formatDate";
 import "./ApprovalPage.css";
 
-function formatDate(iso) {
-  if (!iso) return "—";
-  try {
-    return new Date(iso).toLocaleString("es-AR");
-  } catch {
-    return iso;
-  }
-}
-
 function ApprovalList() {
-  const [drafts, setDrafts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    draftsApi
-      .listDrafts()
-      .then(setDrafts)
-      .catch((err) => setError(err?.message || "No se pudo cargar"))
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: drafts = [], loading, error } = useFetch(() => draftsApi.listDrafts());
 
   if (loading) {
     return (
@@ -82,7 +66,7 @@ function ApprovalList() {
             <small>
               <span className="approval-list__week">Semana del {d.weekOf}</span>
               <span className="approval-list__sep" aria-hidden="true">·</span>
-              <span>actualizado {formatDate(d.updatedAt)}</span>
+              <span>actualizado {formatDateTime(d.updatedAt)}</span>
             </small>
           </div>
           <span className="approval-list__chevron" aria-hidden="true">
@@ -172,7 +156,7 @@ function DraftTimeline({ draft }) {
                     {step.label}
                   </span>
                   {date ? (
-                    <span className="approval-timeline__date">{formatDate(date)}</span>
+                    <span className="approval-timeline__date">{formatDateTime(date)}</span>
                   ) : step.hint ? (
                     <span className="approval-timeline__hint">{step.hint}</span>
                   ) : null}
@@ -188,11 +172,11 @@ function DraftTimeline({ draft }) {
 
 function ApprovalDetail({ id }) {
   const navigate = useNavigate();
-  const [draft, setDraft] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [acting, setActing] = useState(false);
+  const { data: draft, loading, error: loadError, setData: setDraft, refetch } = useFetch(() => draftsApi.getDraft(id), [id]);
+  const { acting, error: actionError, run } = useAsyncAction();
   const [copied, setCopied] = useState(null);
+
+  const error = actionError || loadError;
 
   const onCopyMarkdown = async (channel) => {
     try {
@@ -200,38 +184,17 @@ function ApprovalDetail({ id }) {
       setCopied(channel);
       setTimeout(() => setCopied(null), 1800);
     } catch {
-      setError("No se pudo copiar al portapapeles");
+      /* clipboard error – silent */
     }
   };
-
-  const load = () => {
-    setLoading(true);
-    return draftsApi
-      .getDraft(id)
-      .then(setDraft)
-      .catch((err) => setError(err?.message || "No se pudo cargar"))
-      .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    load();
-  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onChangeStatus = async (next) => {
-    setActing(true);
-    setError(null);
-    try {
-      const updated = await draftsApi.transitionDraft(id, next);
-      setDraft(updated);
-    } catch (err) {
-      setError(err?.message || "Transición no permitida");
-    } finally {
-      setActing(false);
-    }
+    const updated = await run(() => draftsApi.transitionDraft(id, next));
+    setDraft(updated);
   };
 
   if (loading) return <p>Cargando…</p>;
-  if (error && !draft) return <p style={{ color: "crimson" }}>{error}</p>;
+  if (error && !draft) return <p className="approval-detail__error">{error}</p>;
   if (!draft) return <p>Borrador no encontrado.</p>;
 
   return (
@@ -244,8 +207,8 @@ function ApprovalDetail({ id }) {
         <h2>{draft.topicTitle}</h2>
         <p className="approval-detail__summary">{draft.topicSummary}</p>
         <small>
-          Semana del {draft.weekOf} · creado {formatDate(draft.createdAt)} · actualizado{" "}
-          {formatDate(draft.updatedAt)}
+          Semana del {draft.weekOf} · creado {formatDateTime(draft.createdAt)} · actualizado{" "}
+          {formatDateTime(draft.updatedAt)}
         </small>
       </header>
 
@@ -302,9 +265,9 @@ function ApprovalDetail({ id }) {
             return (
               <article key={c} className="approval-channels__card">
                 <header>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#2563eb" }}>
+                  <span className="approval-channels__icon-wrap">
                     <ChannelIcon channel={c} size={16} />
-                    <strong style={{ color: "#111827" }}>{CHANNEL_LABELS[c]}</strong>
+                    <strong className="approval-channels__label">{CHANNEL_LABELS[c]}</strong>
                   </span>
                   <span className="approval-channels__chstatus">{ch.status}</span>
                 </header>

@@ -89,10 +89,13 @@
 /* TITULO */
 
 .preview-card-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
 	font-size: 18px;
 	font-weight: 700;
 	line-height: 1.4;
-	color: #2f86e2;
+	color: #111827;
 	text-align: justify;
 	margin-left: 1.125rem;
 }
