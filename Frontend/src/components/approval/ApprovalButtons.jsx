@@ -1,6 +1,7 @@
+import { Download } from "lucide-react";
 import "./ApprovalButtons.css";
 
-function ApprovalButtons({ status, onChangeStatus, disabled = false }) {
+function ApprovalButtons({ status, onChangeStatus, onPublish, onExport, disabled = false }) {
   return (
     <div className="approval-buttons">
       {status === "GENERATED" && (
@@ -52,16 +53,25 @@ function ApprovalButtons({ status, onChangeStatus, disabled = false }) {
         <button
           className="publish-btn"
           disabled={disabled}
-          onClick={() => onChangeStatus("PUBLISHED")}
+          onClick={onPublish}
         >
-          Publicar
+          Publicar y exportar
         </button>
       )}
 
       {status === "PUBLISHED" && (
-        <button className="published-btn" disabled>
-          Publicado
-        </button>
+        <>
+          <button className="published-btn" disabled>
+            Publicado
+          </button>
+          <button
+            className="export-again-btn"
+            onClick={onExport}
+          >
+            <Download size={15} />
+            Exportar de nuevo
+          </button>
+        </>
       )}
 
       {status === "REJECTED" && (

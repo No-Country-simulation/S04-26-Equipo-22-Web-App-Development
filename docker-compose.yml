@@ -40,6 +40,7 @@ services:
       DB_NAME: ${DB_NAME:-talent}
       DB_USER: ${DB_USER:-postgres}
       DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
 
     depends_on:
       db:

@@ -6,6 +6,7 @@ import * as draftExport from "../api/draftExport";
 import { CHANNEL_LABELS, STATUS_LABELS, CHANNELS } from "../data/draftSelectors";
 import ApprovalFlow from "../components/approval/ApprovalFlow";
 import ApprovalButtons from "../components/approval/ApprovalButtons";
+import ExportModal from "../components/approval/ExportModal";
 import ChannelIcon from "../components/ChannelIcon";
 import { useFetch } from "../hooks/useFetch";
 import { useAsyncAction } from "../hooks/useAsyncAction";
@@ -175,6 +176,7 @@ function ApprovalDetail({ id }) {
   const { data: draft, loading, error: loadError, setData: setDraft, refetch } = useFetch(() => draftsApi.getDraft(id), [id]);
   const { acting, error: actionError, run } = useAsyncAction();
   const [copied, setCopied] = useState(null);
+  const [exportModal, setExportModal] = useState(null);
 
   const error = actionError || loadError;
 
@@ -195,6 +197,21 @@ function ApprovalDetail({ id }) {
     } catch {
       /* error is already captured in actionError */
     }
+  };
+
+  const onOpenPublishModal = () => {
+    const firstChannel = CHANNELS.find((c) => draft.channels[c]);
+    if (firstChannel) setExportModal(firstChannel);
+  };
+
+  const onOpenExportModal = () => {
+    const firstChannel = CHANNELS.find((c) => draft.channels[c]);
+    if (firstChannel) setExportModal(firstChannel);
+  };
+
+  const onConfirmPublish = async () => {
+    await onChangeStatus("PUBLISHED");
+    setExportModal(null);
   };
 
   if (loading) return <p>Cargando…</p>;
@@ -315,9 +332,20 @@ function ApprovalDetail({ id }) {
         <ApprovalButtons
           status={draft.status}
           onChangeStatus={onChangeStatus}
+          onPublish={onOpenPublishModal}
+          onExport={onOpenExportModal}
           disabled={acting}
         />
       </section>
+
+      {exportModal && (
+        <ExportModal
+          draft={draft}
+          channel={exportModal}
+          onClose={() => setExportModal(null)}
+          onConfirmPublish={onConfirmPublish}
+        />
+      )}
     </div>
   );
 }
