@@ -9,9 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Profile("dev") // Solo se ejecuta en el perfil de desarrollo
+@DependsOn("communityDataSeeder")
 public class CommunityPostDataSeeder implements ApplicationRunner {
 
     private final CommunityPostRepository communityPostRepository;
@@ -30,14 +33,13 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
 
         LocalDateTime now = LocalDateTime.now();
 
-        LocalDateTime weekStart = now
-                .with(java.time.DayOfWeek.MONDAY)
+        LocalDateTime weekStart = now.with(DayOfWeek.MONDAY)
                 .toLocalDate()
                 .atStartOfDay();
 
-        LocalDateTime weekEnd = weekStart
-                .plusDays(6)
-                .with(LocalTime.MAX);
+        LocalDateTime weekEnd = now.with(DayOfWeek.SUNDAY)
+                .toLocalDate()
+                .atTime(LocalTime.MAX);
 
         // Evitar duplicar datos de la semana actual
         if (
