@@ -54,7 +54,7 @@ public class AuthService {
         User user = User.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .role(Role.EDITOR)
+                .role(Role.USER)
                 .build();
 
         userRepository.save(user);

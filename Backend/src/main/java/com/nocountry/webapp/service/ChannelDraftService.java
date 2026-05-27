@@ -49,9 +49,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.EDITOR) {
+        if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
         }
         // Verificar si ya existe borrador para esta plataforma
@@ -83,9 +83,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.EDITOR) {
+        if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
         }
 
@@ -187,9 +187,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.EDITOR) {
+        if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
         }
 
@@ -307,9 +307,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.EDITOR) {
+        if (editor.getRole() != Role.USER) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol EDITOR"
+                    "El usuario asignado no tiene rol USER"
             );
         }
 
