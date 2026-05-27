@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Download } from "lucide-react";
 import { CHANNEL_LABELS } from "../data/draftSelectors";
 import { formatDateShort } from "../utils/formatDate";
@@ -86,6 +87,7 @@ function exportCSV(rows) {
 }
 
 export default function HistoryPage() {
+  const navigate = useNavigate();
   const [channelFilter, setChannelFilter] = useState("all");
   const [periodFilter, setPeriodFilter] = useState("30");
 
@@ -194,7 +196,7 @@ export default function HistoryPage() {
                 </span>
                 <span className="history-row__metric">{row.metric}</span>
                 <span className="history-row__action">
-                  <button className="history-open-btn">abrir</button>
+                  <button className="history-open-btn" onClick={() => navigate(`/preview?draftId=${row.id}&channel=${row.channel}`)}>abrir</button>
                 </span>
               </div>
             ))}
