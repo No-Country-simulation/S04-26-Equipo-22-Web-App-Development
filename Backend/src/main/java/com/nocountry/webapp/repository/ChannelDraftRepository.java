@@ -55,10 +55,11 @@ public interface ChannelDraftRepository extends JpaRepository<ChannelDraft, Long
      *  Elimina todos los borradores asociados a un digest 
      * (usado para regenerar borradores completos)
     */
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Transactional
     @Query("""
         delete from ChannelDraft d
         where d.weeklyDigest.id = :digestId
     """)
-    void deleteByWeeklyDigestId(Long digestId);
+    void deleteByWeeklyDigestId(@Param("digestId") Long digestId);
 }

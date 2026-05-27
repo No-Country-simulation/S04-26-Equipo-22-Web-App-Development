@@ -60,7 +60,7 @@ public class WeeklyDigestService {
     @Transactional
     public WeeklyDigest generateCompleteDigestWithAI(
             Long communityId,
-            Long editorId
+            String editorEmail
     ) {
 
         log.info(
@@ -90,10 +90,10 @@ public class WeeklyDigestService {
 
         channelDraftService.createCompleteDrafts(
                 digest.getId(),
-                generatedContent.getWeeklySummary(),
+                generatedContent.getNewsletterContent(),
                 generatedContent.getLinkedinPost(),
                 generatedContent.getTwitterPost(),
-                editorId
+                editorEmail
         );
 
         digest.setStatus(
@@ -117,7 +117,7 @@ public class WeeklyDigestService {
     @Transactional
     public List<ChannelDraft> generateDraftsForDigest(
             Long digestId,
-            Long editorId
+            String editorEmail
     ) {
 
         WeeklyDigest digest =
@@ -133,10 +133,10 @@ public class WeeklyDigestService {
 
         return channelDraftService.regenerateCompleteDrafts(
                 digest.getId(),
-                generatedContent.getWeeklySummary(),
+                generatedContent.getNewsletterContent(),
                 generatedContent.getLinkedinPost(),
                 generatedContent.getTwitterPost(),
-                editorId
+                editorEmail     
         );
     }
 

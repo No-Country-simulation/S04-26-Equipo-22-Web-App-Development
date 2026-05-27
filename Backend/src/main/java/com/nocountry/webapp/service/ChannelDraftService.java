@@ -40,14 +40,14 @@ public class ChannelDraftService {
      * Crea un borrador para un digest semanal
      */
     @Transactional
-    public ChannelDraft createDraft(Long weeklyDigestId, String content, TargetPlatform platform, Long editorId) {
+    public ChannelDraft createDraft(Long weeklyDigestId, String content, TargetPlatform platform, String editorEmail) {
         log.info("Creando borrador para digest {} en plataforma {}", weeklyDigestId, platform);
 
         WeeklyDigest digest = weeklyDigestRepository.findById(weeklyDigestId)
                 .orElseThrow(() -> new NotFoundException("Digest no encontrado con ID: " + weeklyDigestId));
 
-        User editor = userRepository.findById(editorId)
-                .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
+        User editor = userRepository.findByEmail(editorEmail)
+                .orElseThrow(() -> new NotFoundException("Editor no encontrado con email: " + editorEmail));
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
@@ -74,14 +74,14 @@ public class ChannelDraftService {
      * Crea los 3 borradores completos (NEWSLETTER, LINKEDIN, X) para un digest
      */
     @Transactional
-    public List<ChannelDraft> createCompleteDrafts(Long weeklyDigestId, String newsletterContent, String linkedinContent, String twitterContent, Long editorId) {
+    public List<ChannelDraft> createCompleteDrafts(Long weeklyDigestId, String newsletterContent, String linkedinContent, String twitterContent, String editorEmail) {
         log.info("Creando borradores completos para digest {}", weeklyDigestId);
 
         WeeklyDigest digest = weeklyDigestRepository.findById(weeklyDigestId)
                 .orElseThrow(() -> new NotFoundException("Digest no encontrado con ID: " + weeklyDigestId));
 
-        User editor = userRepository.findById(editorId)
-                .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
+        User editor = userRepository.findByEmail(editorEmail)
+                .orElseThrow(() -> new NotFoundException("Editor no encontrado con email: " + editorEmail));
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
@@ -179,13 +179,13 @@ public class ChannelDraftService {
      * Aprueba un borrador
      */
     @Transactional
-    public ChannelDraft approveDraft(Long draftId, Long editorId) {
+    public ChannelDraft approveDraft(Long draftId, String editorEmail) {
         log.info("Aprobando borrador {}", draftId);
 
         ChannelDraft draft = getDraftById(draftId);
 
-        User editor = userRepository.findById(editorId)
-                .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
+        User editor = userRepository.findByEmail(editorEmail)
+                .orElseThrow(() -> new NotFoundException("Editor no encontrado con email: " + editorEmail));
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
@@ -301,11 +301,11 @@ public class ChannelDraftService {
      * Aprueba todos los borradores de un digest
      */
     @Transactional
-    public void approveAllDraftsByDigestId(Long weeklyDigestId, Long editorId) {
+    public void approveAllDraftsByDigestId(Long weeklyDigestId, String editorEmail) {
         log.info("Aprobando todos los borradores del digest {}", weeklyDigestId);
 
-        User editor = userRepository.findById(editorId)
-                .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
+        User editor = userRepository.findByEmail(editorEmail)
+                .orElseThrow(() -> new NotFoundException("Editor no encontrado con email: " + editorEmail));
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException(
@@ -361,15 +361,15 @@ public class ChannelDraftService {
             String newsletterContent,
             String linkedinContent,
             String twitterContent,
-            Long editorId
+            String editorEmail
     ) {
         log.info("Regenerando borradores para digest {}", weeklyDigestId);
 
         WeeklyDigest digest = weeklyDigestRepository.findById(weeklyDigestId)
                 .orElseThrow(() -> new NotFoundException("Digest no encontrado con ID: " + weeklyDigestId));
 
-        User editor = userRepository.findById(editorId)
-                .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
+        User editor = userRepository.findByEmail(editorEmail)
+                .orElseThrow(() -> new NotFoundException("Editor no encontrado con email: " + editorEmail));
 
         if (editor.getRole() != Role.USER) {
             throw new BusinessException("El usuario asignado no tiene rol USER");

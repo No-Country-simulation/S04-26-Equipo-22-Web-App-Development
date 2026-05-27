@@ -3,6 +3,7 @@ package com.nocountry.webapp.controller;
 import com.nocountry.webapp.dto.DigestGenerationResponseDTO;
 import com.nocountry.webapp.dto.WeeklyDigestResponseDTO;
 import com.nocountry.webapp.dto.WeeklyDigestUpdateRequestDTO;
+import com.nocountry.webapp.dto.ChannelDraftResponseDTO;
 import com.nocountry.webapp.entity.ChannelDraft;
 import com.nocountry.webapp.entity.WeeklyDigest;
 import com.nocountry.webapp.service.WeeklyDigestService;
@@ -18,6 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -235,9 +237,10 @@ public class WeeklyDigestController {
     })
     public ResponseEntity<WeeklyDigestResponseDTO> generateCompleteDigestWithAI(
             @Parameter(description = "ID de la comunidad") @RequestParam Long communityId,
-            @Parameter(description = "ID del editor") @RequestParam Long editorId) {
-        log.info("POST /api/weekly-digests/generate-with-ai - communityId={}, editorId={}", communityId, editorId);
-        WeeklyDigest digest = weeklyDigestService.generateCompleteDigestWithAI(communityId, editorId);
+            @Parameter(description = "ID del editor") Authentication authentication) {
+        String email = authentication.getName();
+        log.info("POST /api/weekly-digests/generate-with-ai - communityId={}, editorId={}", communityId, email);
+        WeeklyDigest digest = weeklyDigestService.generateCompleteDigestWithAI(communityId, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(digest));
     }
 
@@ -248,13 +251,14 @@ public class WeeklyDigestController {
             @ApiResponse(responseCode = "404", description = "Digest o Editor no encontrado"),
             @ApiResponse(responseCode = "400", description = "Error al generar contenido con IA")
     })
-    public ResponseEntity<List<com.nocountry.webapp.dto.ChannelDraftResponseDTO>> regenerateDrafts(
+    public ResponseEntity<List<ChannelDraftResponseDTO>> regenerateDrafts(
             @Parameter(description = "ID del digest") @PathVariable Long digestId,
-            @Parameter(description = "ID del editor") @RequestParam Long editorId) {
-        log.info("POST /api/weekly-digests/{}/regenerate-drafts - editorId={}", digestId, editorId);
-        List<ChannelDraft> drafts = weeklyDigestService.generateDraftsForDigest(digestId, editorId);
+            @Parameter(description = "ID del editor") Authentication authentication) {
+        String email = authentication.getName();
+        log.info("POST /api/weekly-digests/{}/regenerate-drafts - editorId={}", digestId, email);
+        List<ChannelDraft> drafts = weeklyDigestService.generateDraftsForDigest(digestId, email);
         
-        List<com.nocountry.webapp.dto.ChannelDraftResponseDTO> response = drafts.stream()
+        List<ChannelDraftResponseDTO> response = drafts.stream()
                 .map(this::toChannelDraftDTO)
                 .collect(Collectors.toList());
         
@@ -264,8 +268,8 @@ public class WeeklyDigestController {
     /**
      * Convierte ChannelDraft a DTO
      */
-    private com.nocountry.webapp.dto.ChannelDraftResponseDTO toChannelDraftDTO(ChannelDraft draft) {
-        return com.nocountry.webapp.dto.ChannelDraftResponseDTO.builder()
+    private ChannelDraftResponseDTO toChannelDraftDTO(ChannelDraft draft) {
+        return ChannelDraftResponseDTO.builder()
                 .id(draft.getId())
                 .content(draft.getContent())
                 .targetPlatform(draft.getTargetPlatform())
