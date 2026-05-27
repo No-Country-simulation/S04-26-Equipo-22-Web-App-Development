@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   FileText,
@@ -12,11 +12,17 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
 import { useAuth } from "../context/AuthContext";
 import { useFetch } from "../hooks/useFetch";
 import * as draftsApi from "../api/drafts";
 import * as communitiesApi from "../api/communities";
+import GenerateWithAI from "../components/GenerateWithAI";
 import "./HomePage.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const PENDING_STATUSES = new Set(["GENERATED", "IN_REVIEW"]);
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-AR", {
@@ -99,6 +105,7 @@ const SECTIONS = [
 export default function HomePage() {
   const { user } = useAuth();
   const firstName = user?.email ? user.email.split("@")[0] : "";
+  const containerRef = useRef(null);
 
   const { data, loading, error } = useFetch(async () => {
     const [draftsRes, communitiesRes] = await Promise.allSettled([
@@ -143,7 +150,7 @@ export default function HomePage() {
       activeCommunities: communities.length,
       postsAnalyzed,
       topicsGenerated: lastWeekDrafts.length,
-      channels: 3, // newsletter, linkedin, twitter
+      channels: 3,
       lastWeekOf,
     };
   }, [drafts, communities]);
@@ -157,8 +164,155 @@ export default function HomePage() {
 
   const showEmptyHint = !loading && drafts.length === 0;
 
+  useGSAP(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+    tl.from(".home-page__orb", {
+      scale: 0,
+      opacity: 0,
+      duration: 1.8,
+      stagger: 0.3,
+      ease: "elastic.out(1, 0.5)",
+    });
+
+    tl.from(".home-page__eyebrow", {
+      y: -20,
+      opacity: 0,
+      scale: 0.8,
+      duration: 0.6,
+    }, 0.1);
+
+    tl.from(".home-page__hero h1", {
+      y: 40,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power4.out",
+    }, 0.2);
+
+    tl.from(".home-page__hero p", {
+      y: 30,
+      opacity: 0,
+      duration: 0.7,
+    }, 0.4);
+
+    tl.from(".home-page__pipeline", {
+      clipPath: "inset(0 100% 0 0)",
+      opacity: 0,
+      duration: 1,
+      ease: "power4.inOut",
+    }, 0.5);
+
+    tl.from(".home-page__pipeline-cell", {
+      x: -30,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.15,
+    }, 0.8);
+
+    tl.from(".home-page__pipeline-badge", {
+      scale: 0,
+      opacity: 0,
+      duration: 0.5,
+      ease: "back.out(2)",
+    }, 1.0);
+
+    gsap.utils.toArray(".home-page__stat").forEach((stat, i) => {
+      gsap.from(stat, {
+        scrollTrigger: {
+          trigger: stat,
+          start: "top 90%",
+          toggleActions: "play none none none",
+        },
+        y: 60,
+        opacity: 0,
+        scale: 0.85,
+        duration: 0.7,
+        delay: i * 0.1,
+        ease: "back.out(1.7)",
+      });
+    });
+
+    if (!loading) {
+      container.querySelectorAll(".home-page__stat-value").forEach((el) => {
+        const target = parseInt(el.textContent, 10);
+        if (isNaN(target)) return;
+        const proxy = { val: 0 };
+        gsap.to(proxy, {
+          val: target,
+          duration: 1.5,
+          ease: "power2.out",
+          snap: { val: 1 },
+          scrollTrigger: {
+            trigger: el,
+            start: "top 90%",
+            toggleActions: "play none none none",
+          },
+          onUpdate: () => { el.textContent = Math.round(proxy.val); },
+        });
+      });
+    }
+
+    gsap.utils.toArray(".home-page__card").forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: {
+          trigger: card,
+          start: "top 92%",
+          toggleActions: "play none none none",
+        },
+        y: 80,
+        opacity: 0,
+        rotateX: 15,
+        scale: 0.9,
+        duration: 0.8,
+        delay: i * 0.12,
+        ease: "power3.out",
+      });
+    });
+
+    const generateSection = container.querySelector(".generate-ai");
+    if (generateSection) {
+      gsap.from(generateSection, {
+        scrollTrigger: {
+          trigger: generateSection,
+          start: "top 90%",
+          toggleActions: "play none none none",
+        },
+        y: 50,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+      });
+    }
+
+    gsap.utils.toArray(".home-page__orb").forEach((orb) => {
+      gsap.to(orb, {
+        y: "random(-40, 40)",
+        x: "random(-30, 30)",
+        duration: "random(4, 7)",
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    });
+
+    gsap.to(".home-page__hero-accent", {
+      backgroundPosition: "200% center",
+      duration: 3,
+      repeat: -1,
+      ease: "none",
+    });
+
+  }, { scope: containerRef, dependencies: [loading] });
+
   return (
-    <div className="home-page">
+    <div className="home-page" ref={containerRef}>
+      <div className="home-page__orb home-page__orb--1" aria-hidden="true" />
+      <div className="home-page__orb home-page__orb--2" aria-hidden="true" />
+      <div className="home-page__orb home-page__orb--3" aria-hidden="true" />
+
       <header className="home-page__hero">
         <span className="home-page__eyebrow">
           <span className="home-page__eyebrow-dot" />
@@ -269,10 +423,12 @@ export default function HomePage() {
         />
       </section>
 
+      <GenerateWithAI />
+
       {showEmptyHint && (
         <p className="home-page__empty-hint">
-          Aún no se ha generado el primer paquete. El próximo viernes a las
-          18:00 la IA preparará los borradores de tus comunidades.
+          Aún no se ha generado el primer paquete. Usá el panel de arriba para
+          generar borradores con IA, o esperá al próximo viernes a las 18:00.
         </p>
       )}
 
@@ -289,7 +445,6 @@ export default function HomePage() {
               key={s.to}
               to={s.to}
               className={`home-page__card home-page__card--${s.accent}`}
-              style={{ animationDelay: `${i * 60}ms` }}
             >
               <span className="home-page__card-icon" aria-hidden="true">
                 <Icon />

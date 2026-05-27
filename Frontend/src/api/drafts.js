@@ -10,11 +10,12 @@ function mapChannelDraft(d) {
     channel: CHANNEL_MAP[d.targetPlatform] || d.targetPlatform,
     title: d.title || `Borrador ${CHANNEL_MAP[d.targetPlatform] || d.targetPlatform}`,
     body: d.content || "",
+    rawStatus: d.status,
     status: d.status === "GENERATED" ? "pending"
           : d.status === "IN_REVIEW" ? "edited"
           : d.status === "APPROVED" ? "approved"
           : d.status === "REJECTED" ? "rejected"
-          : d.status === "PUBLISHED" ? "approved"
+          : d.status === "PUBLISHED" ? "published"
           : "pending",
     editedAt: d.approvedAt || d.createdAt,
   };
@@ -22,7 +23,7 @@ function mapChannelDraft(d) {
 
 async function fetchDigests() {
   const { data } = await api.get(`${DIGEST_BASE}/latest`, { params: { size: 20 } });
-  return data;
+  return Array.isArray(data) ? data : [];
 }
 
 async function fetchChannelDrafts(digestId) {

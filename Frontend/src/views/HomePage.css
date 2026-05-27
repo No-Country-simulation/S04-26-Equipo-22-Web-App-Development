@@ -1,13 +1,62 @@
 .home-page {
+  position: relative;
   max-width: 1040px;
   margin: 0 auto;
   padding: 48px 24px 64px;
-  animation: homeIn 0.55s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  perspective: 1200px;
+  overflow: hidden;
 }
 
-@keyframes homeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* ============================================================ */
+/* FLOATING GRADIENT ORBS                                        */
+/* ============================================================ */
+
+.home-page__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform;
+}
+
+.home-page__orb--1 {
+  width: 400px;
+  height: 400px;
+  top: -120px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.15), rgba(124, 58, 237, 0.08), transparent 70%);
+}
+
+.home-page__orb--2 {
+  width: 300px;
+  height: 300px;
+  top: 40%;
+  left: -80px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.12), rgba(37, 99, 235, 0.06), transparent 70%);
+}
+
+.home-page__orb--3 {
+  width: 350px;
+  height: 350px;
+  bottom: -60px;
+  right: -60px;
+  background: radial-gradient(circle, rgba(5, 150, 105, 0.1), rgba(37, 99, 235, 0.06), transparent 70%);
+}
+
+/* ============================================================ */
+/* Z-INDEX layering (content above orbs)                         */
+/* ============================================================ */
+
+.home-page__hero,
+.home-page__pipeline,
+.home-page__stats,
+.home-page__grid,
+.home-page__error,
+.home-page__empty-hint,
+.generate-ai {
+  position: relative;
+  z-index: 1;
 }
 
 /* ============================================================ */
@@ -58,7 +107,8 @@
 }
 
 .home-page__hero-accent {
-  background: linear-gradient(90deg, #2563eb, #7c3aed);
+  background: linear-gradient(90deg, #2563eb, #7c3aed, #ec4899, #2563eb);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -90,7 +140,7 @@
     linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(124, 58, 237, 0.06)),
     #ffffff;
   overflow: hidden;
-  animation: cardIn 0.5s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  clip-path: inset(0 0 0 0);
 }
 
 .home-page__pipeline::before {
@@ -267,13 +317,13 @@
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
-  animation: cardIn 0.5s cubic-bezier(0.2, 0.7, 0.1, 1) both;
+  will-change: transform, opacity;
 }
 
 .home-page__stat:hover {
   border-color: rgba(37, 99, 235, 0.4);
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.1), 0 0 0 1px rgba(37, 99, 235, 0.08);
+  transform: translateY(-3px) scale(1.02);
 }
 
 .home-page__stat-icon {
@@ -284,6 +334,11 @@
   height: 40px;
   border-radius: 12px;
   flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.home-page__stat:hover .home-page__stat-icon {
+  transform: scale(1.15) rotate(-5deg);
 }
 
 .home-page__stat-icon svg {
@@ -365,6 +420,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 18px;
+  perspective: 800px;
 }
 
 .home-page__card {
@@ -383,12 +439,7 @@
     border-color 0.18s,
     box-shadow 0.18s,
     transform 0.18s;
-  animation: cardIn 0.5s cubic-bezier(0.2, 0.7, 0.1, 1) both;
-}
-
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  will-change: transform, opacity;
 }
 
 .home-page__card::before {
@@ -407,8 +458,8 @@
 
 .home-page__card:hover {
   border-color: #2563eb;
-  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.12);
-  transform: translateY(-3px);
+  box-shadow: 0 14px 35px rgba(37, 99, 235, 0.15);
+  transform: translateY(-5px) rotateX(2deg);
 }
 .home-page__card:hover::before { opacity: 1; }
 

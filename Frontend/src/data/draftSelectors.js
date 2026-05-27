@@ -15,6 +15,7 @@ export const STATUS_LABELS = {
 };
 
 export function flattenDraftsForList(drafts) {
+  if (!Array.isArray(drafts)) return [];
   const rows = [];
   for (const draft of drafts) {
     for (const channel of CHANNELS) {
@@ -36,6 +37,7 @@ export function flattenDraftsForList(drafts) {
 }
 
 export function countByChannel(drafts) {
+  if (!Array.isArray(drafts)) return { newsletter: 0, linkedin: 0, twitter: 0, all: 0 };
   const counts = { newsletter: 0, linkedin: 0, twitter: 0, all: 0 };
   for (const draft of drafts) {
     for (const channel of CHANNELS) {

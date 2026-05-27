@@ -3,7 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import "./Header.css";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Inicio", end: true },
+  { to: "/dashboard", label: "Inicio", end: true },
   { to: "/communities", label: "Comunidades" },
   { to: "/drafts", label: "Borradores" },
   { to: "/approval", label: "Aprobación" },

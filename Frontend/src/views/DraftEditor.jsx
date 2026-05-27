@@ -188,7 +188,7 @@ export function DraftEditor() {
         <div
           ref={editorRef}
           className="editor-content-area editor-content-rich"
-          contentEditable
+          contentEditable={draft.channels[channel]?.rawStatus !== "PUBLISHED"}
           suppressContentEditableWarning
           onKeyUp={() => { updateActiveFormats(); recountChars(); }}
           onMouseUp={updateActiveFormats}
@@ -206,16 +206,24 @@ export function DraftEditor() {
         {error && <p className="editor-error">{error}</p>}
 
         <div className="editor-actions">
-          <button className="editor-btn-save" onClick={() => handleSave()} disabled={saving}>
-            {saving ? "Guardando…" : "Guardar cambios"}
-          </button>
-          <button
-            className="editor-btn-publish"
-            onClick={() => handleSave({ submitForReview: true })}
-            disabled={saving}
-          >
-            Guardar y enviar a revisión
-          </button>
+          {draft.channels[channel]?.rawStatus === "PUBLISHED" ? (
+            <p className="editor-published-msg">Este borrador ya fue publicado y no se puede editar.</p>
+          ) : (
+            <>
+              <button className="editor-btn-save" onClick={() => handleSave()} disabled={saving}>
+                {saving ? "Guardando…" : "Guardar cambios"}
+              </button>
+              {(draft.status === "GENERATED" || draft.status === "PENDING") && (
+                <button
+                  className="editor-btn-publish"
+                  onClick={() => handleSave({ submitForReview: true })}
+                  disabled={saving}
+                >
+                  Guardar y enviar a revisión
+                </button>
+              )}
+            </>
+          )}
           <button
             type="button"
             onClick={() => navigate(`/approval/${draftId}`)}

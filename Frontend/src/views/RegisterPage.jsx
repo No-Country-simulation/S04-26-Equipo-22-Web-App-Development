@@ -18,7 +18,7 @@ export default function RegisterPage() {
     setSubmitting(true);
     try {
       await register(form);
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       setError(err?.response?.data?.message || "No se pudo crear la cuenta");
     } finally {
