@@ -316,13 +316,15 @@ public class CommunityPostController {
             @RequestParam(defaultValue = "50") int limit) {
         
         // Si no se proporcionan fechas, usar semana actual
+        LocalDateTime now = LocalDateTime.now();
+
         if (startDate == null) {
-            startDate = communityPostService.getStartOfCurrentWeek();
+            startDate = communityPostService.getStartOfWeek(now);
         }
+
         if (endDate == null) {
-            endDate = communityPostService.getEndOfCurrentWeek();
+            endDate = communityPostService.getEndOfWeek(now);
         }
-        
         List<CommunityPost> posts = communityPostService.getPostsByTypeAndDateRange(
                 type, startDate, endDate, limit);
         List<CommunityPostResponseDTO> response = posts.stream()

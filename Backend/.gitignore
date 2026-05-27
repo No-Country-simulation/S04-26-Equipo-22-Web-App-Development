@@ -17,7 +17,6 @@ out/
 
 # Environment
 .env
-.env.*
 application-local.properties
 
 # IntelliJ

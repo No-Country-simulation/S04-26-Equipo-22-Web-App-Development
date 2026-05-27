@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Profile("!test")
+@Profile("dev")
 public class UserDataSeeder implements ApplicationRunner {
 
     private final UserRepository userRepository;
