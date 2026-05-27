@@ -7,9 +7,12 @@ import com.nocountry.webapp.exception.base.BusinessException;
 import com.nocountry.webapp.exception.base.ConflictException;
 import com.nocountry.webapp.exception.base.InvalidStateException;
 import com.nocountry.webapp.exception.base.NotFoundException;
+import com.nocountry.webapp.repository.CommunityPostRepository;
 import com.nocountry.webapp.repository.CommunityRepository;
 import com.nocountry.webapp.repository.WeeklyDigestRepository;
+import com.nocountry.webapp.service.ChannelDraftService;
 import com.nocountry.webapp.service.WeeklyDigestService;
+import com.nocountry.webapp.service.ai.GeminiService;
 import com.nocountry.webapp.service.dto.WeeklyDigestGenerationRequest;
 import com.nocountry.webapp.unit.BaseUnitTest;
 
@@ -47,6 +50,15 @@ class WeeklyDigestServiceUnitTest extends BaseUnitTest {
 
     @Mock
     private CommunityRepository communityRepository;
+
+    @Mock
+    private CommunityPostRepository communityPostRepository;
+
+    @Mock
+    private GeminiService geminiService;
+
+    @Mock
+    private ChannelDraftService channelDraftService;
 
     // Clock fijo en miercoles 27 de mayo de 2026
     // -> calculateWeekStart() = lunes 25 de mayo
