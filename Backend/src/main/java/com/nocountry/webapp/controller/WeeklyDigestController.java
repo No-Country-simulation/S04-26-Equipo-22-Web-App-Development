@@ -3,6 +3,8 @@ package com.nocountry.webapp.controller;
 import com.nocountry.webapp.dto.DigestGenerationResponseDTO;
 import com.nocountry.webapp.dto.WeeklyDigestResponseDTO;
 import com.nocountry.webapp.dto.WeeklyDigestUpdateRequestDTO;
+import com.nocountry.webapp.dto.ChannelDraftResponseDTO;
+import com.nocountry.webapp.entity.ChannelDraft;
 import com.nocountry.webapp.entity.WeeklyDigest;
 import com.nocountry.webapp.service.WeeklyDigestService;
 import com.nocountry.webapp.service.dto.WeeklyDigestGenerationRequest;
@@ -17,6 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -54,6 +57,8 @@ public class WeeklyDigestController {
                 .collect(Collectors.toList());
     }
 
+    // ==================== ENDPOINTS EXISTENTES ====================
+
     @PostMapping
     @Operation(summary = "Generar un nuevo digest semanal para una comunidad")
     @ApiResponses(value = {
@@ -72,11 +77,8 @@ public class WeeklyDigestController {
     @Operation(summary = "Generar digests para todas las comunidades activas")
     @ApiResponse(responseCode = "200", description = "Digests generados exitosamente")
     public ResponseEntity<DigestGenerationResponseDTO> generateDigestsForAllCommunities() {
-        
         log.info("POST /api/weekly-digests/bulk - Generando digests para todas las comunidades");
-        
         List<WeeklyDigest> digests = weeklyDigestService.generateDigestsForAllActiveCommunities();
-        
         return ResponseEntity.ok(DigestGenerationResponseDTO.builder()
                 .generatedCount(digests.size())
                 .message(String.format("Se generaron %d digests", digests.size()))
@@ -221,5 +223,62 @@ public class WeeklyDigestController {
         log.info("GET /api/weekly-digests/recover-unprocessed - currentDate={}, limit={}", currentDate, limit);
         List<WeeklyDigest> digests = weeklyDigestService.recoverUnprocessedDigests(currentDate, limit);
         return ResponseEntity.ok(toResponseList(digests));
+    }
+
+    // ==================== NUEVOS ENDPOINTS CON IA ====================
+
+    @PostMapping("/generate-with-ai")
+    @Operation(summary = "Generar digest completo usando IA (resumen + drafts para todos los canales)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Digest generado exitosamente con IA"),
+            @ApiResponse(responseCode = "404", description = "Comunidad o Editor no encontrado"),
+            @ApiResponse(responseCode = "409", description = "Ya existe un digest para esa comunidad y semana"),
+            @ApiResponse(responseCode = "400", description = "Error al generar contenido con IA")
+    })
+    public ResponseEntity<WeeklyDigestResponseDTO> generateCompleteDigestWithAI(
+            @Parameter(description = "ID de la comunidad") @RequestParam Long communityId,
+            @Parameter(description = "ID del editor") Authentication authentication) {
+        String email = authentication.getName();
+        log.info("POST /api/weekly-digests/generate-with-ai - communityId={}, editorId={}", communityId, email);
+        WeeklyDigest digest = weeklyDigestService.generateCompleteDigestWithAI(communityId, email);
+        return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(digest));
+    }
+
+    @PostMapping("/{digestId}/regenerate-drafts")
+    @Operation(summary = "Regenerar solo los drafts IA para un digest existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Drafts regenerados exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Digest o Editor no encontrado"),
+            @ApiResponse(responseCode = "400", description = "Error al generar contenido con IA")
+    })
+    public ResponseEntity<List<ChannelDraftResponseDTO>> regenerateDrafts(
+            @Parameter(description = "ID del digest") @PathVariable Long digestId,
+            @Parameter(description = "ID del editor") Authentication authentication) {
+        String email = authentication.getName();
+        log.info("POST /api/weekly-digests/{}/regenerate-drafts - editorId={}", digestId, email);
+        List<ChannelDraft> drafts = weeklyDigestService.generateDraftsForDigest(digestId, email);
+        
+        List<ChannelDraftResponseDTO> response = drafts.stream()
+                .map(this::toChannelDraftDTO)
+                .collect(Collectors.toList());
+        
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Convierte ChannelDraft a DTO
+     */
+    private ChannelDraftResponseDTO toChannelDraftDTO(ChannelDraft draft) {
+        return ChannelDraftResponseDTO.builder()
+                .id(draft.getId())
+                .content(draft.getContent())
+                .targetPlatform(draft.getTargetPlatform())
+                .status(draft.getStatus())
+                .createdAt(draft.getCreatedAt())
+                .approvedAt(draft.getApprovedAt())
+                .editorId(draft.getEditor() != null ? draft.getEditor().getId() : null)
+                .editorEmail(draft.getEditor() != null ? draft.getEditor().getEmail() : null)
+                .weeklyDigestId(draft.getWeeklyDigest().getId())
+                .build();
     }
 }

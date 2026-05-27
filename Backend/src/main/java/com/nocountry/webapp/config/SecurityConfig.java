@@ -1,5 +1,4 @@
 package com.nocountry.webapp.config;
-import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.nocountry.webapp.exception.handler.JwtAccessDeniedHandler;
 import com.nocountry.webapp.exception.handler.JwtAuthenticationEntryPoint;
@@ -21,6 +20,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -43,7 +46,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
-                            )
+                        )
                 )
 
                 .exceptionHandling(ex -> ex
@@ -52,7 +55,6 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-
                         // Preflight CORS
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
@@ -66,7 +68,6 @@ public class SecurityConfig {
                                 "/error/**"
                         ).permitAll()
                         .anyRequest().authenticated()
-
                 )
 
                 .authenticationProvider(authenticationProvider())
@@ -101,25 +102,31 @@ public class SecurityConfig {
     }
 
     @Bean
-    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
-        org.springframework.web.cors.CorsConfiguration configuration = 
-                new org.springframework.web.cors.CorsConfiguration();
-        
+    public CorsConfigurationSource corsConfigurationSource() {    
+        CorsConfiguration configuration = new CorsConfiguration();    
         configuration.setAllowedOrigins(java.util.List.of(
-                "http://localhost:5173", 
-                "http://localhost:5175", 
+                "http://localhost:5173",
+                "http://localhost:5175",
                 "http://127.0.0.1:5175",
                 "https://tu-proyecto-front.vercel.app"
-        ));
-        
-        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        // MEJORA: Aseguramos que acepte cualquier header común si el Front manda algo extra
-        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "Cache-Control", "x-requested-with"));
-        configuration.setAllowCredentials(true);
-
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = 
-                new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        ));    
+        configuration.setAllowedMethods(java.util.List.of(
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+        ));    
+        configuration.setAllowedHeaders(java.util.List.of(
+                "Authorization",
+                "Content-Type",
+                "Cache-Control"
+        ));    
+        configuration.setAllowCredentials(true);    
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();    
+        source.registerCorsConfiguration("/**", configuration);    
         return source;
     }
 }

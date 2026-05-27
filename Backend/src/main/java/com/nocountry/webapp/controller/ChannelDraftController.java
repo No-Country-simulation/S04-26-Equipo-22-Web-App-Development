@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,7 +61,7 @@ public class ChannelDraftController {
             @ApiResponse(responseCode = "400", description = "Ya existe un borrador para esta plataforma o editor sin rol USER")
     })
     public ResponseEntity<ChannelDraftResponseDTO> createDraft(
-            @Valid @RequestBody ChannelDraftCreateRequestDTO request) {
+            @Valid @RequestBody ChannelDraftCreateRequestDTO request, Authentication authentication) {
         log.info("POST /api/channel-drafts - Creando borrador para digest: {} en plataforma: {}",
                 request.getWeeklyDigestId(), request.getPlatform());
         
@@ -68,7 +69,7 @@ public class ChannelDraftController {
                 request.getWeeklyDigestId(),
                 request.getContent(),
                 request.getPlatform(),
-                request.getEditorId()
+                authentication.getName()
         );
         
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(draft));
@@ -82,16 +83,16 @@ public class ChannelDraftController {
             @ApiResponse(responseCode = "400", description = "Editor sin rol USER")
     })
     public ResponseEntity<List<ChannelDraftResponseDTO>> createCompleteDrafts(
-            @Valid @RequestBody ChannelDraftCompleteRequestDTO request) {
+            @Valid @RequestBody ChannelDraftCompleteRequestDTO request, Authentication authentication) {
         log.info("POST /api/channel-drafts/complete - Creando borradores completos para digest: {}",
                 request.getWeeklyDigestId());
-        
+        String email = authentication.getName();
         List<ChannelDraft> drafts = channelDraftService.createCompleteDrafts(
                 request.getWeeklyDigestId(),
                 request.getNewsletterContent(),
                 request.getLinkedinContent(),
                 request.getTwitterContent(),
-                request.getEditorId()
+                email
         );
         
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponseList(drafts));
@@ -160,9 +161,10 @@ public class ChannelDraftController {
     })
     public ResponseEntity<ChannelDraftResponseDTO> approveDraft(
             @Parameter(description = "ID del borrador") @PathVariable Long draftId,
-            @Valid @RequestBody ChannelDraftApproveRequestDTO request) {
+            Authentication authentication) {
         log.info("PATCH /api/channel-drafts/{}/approve", draftId);
-        ChannelDraft draft = channelDraftService.approveDraft(draftId, request.getEditorId());
+        String email = authentication.getName();
+        ChannelDraft draft = channelDraftService.approveDraft(draftId, email);
         return ResponseEntity.ok(toResponse(draft));
     }
 
@@ -261,9 +263,10 @@ public class ChannelDraftController {
     })
     public ResponseEntity<Void> approveAllDraftsByDigestId(
             @Parameter(description = "ID del digest semanal") @PathVariable Long weeklyDigestId,
-            @RequestParam Long editorId) {
-        log.info("PATCH /api/channel-drafts/approve-all/{} - editorId={}", weeklyDigestId, editorId);
-        channelDraftService.approveAllDraftsByDigestId(weeklyDigestId, editorId);
+            Authentication authentication) {
+        String email = authentication.getName();
+        log.info("PATCH /api/channel-drafts/approve-all/{} - editorEmail={}", weeklyDigestId, email);
+        channelDraftService.approveAllDraftsByDigestId(weeklyDigestId, email);
         return ResponseEntity.noContent().build();
     }
 
