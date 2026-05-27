@@ -41,6 +41,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
 
         // Evitar duplicar datos de la semana actual
         if (
+
                 communityPostRepository.existsByCollectedAtBetween(
                         weekStart,
                         weekEnd
@@ -48,6 +49,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
         ) {
                 log.info("Current week already seeded");
                 return;
+
         }
 
         log.info("Starting community post seeding...");
@@ -64,6 +66,7 @@ public class CommunityPostDataSeeder implements ApplicationRunner {
                 );
 
                 return;
+
         }
 
         /*

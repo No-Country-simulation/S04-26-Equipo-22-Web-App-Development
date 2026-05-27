@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: "/drafts", label: "Borradores" },
   { to: "/approval", label: "Aprobación" },
   { to: "/preview", label: "Preview" },
+  { to: "/job-status", label: "Estado del trabajo" },
 ];
 
 export default function Header() {

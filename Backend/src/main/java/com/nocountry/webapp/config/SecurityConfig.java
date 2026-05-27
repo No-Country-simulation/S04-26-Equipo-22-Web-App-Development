@@ -39,6 +39,9 @@ public class SecurityConfig {
         http
                 // MEJORA: Le inyectamos explícitamente tu configuración de CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                .cors(withDefaults())
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
@@ -52,6 +55,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
+
                         // Preflight CORS
                         .requestMatchers(
                                 HttpMethod.OPTIONS,
@@ -65,6 +69,7 @@ public class SecurityConfig {
                                 "/error/**"
                         ).permitAll()
                         .anyRequest().authenticated()
+
                 )
 
                 .authenticationProvider(authenticationProvider())
