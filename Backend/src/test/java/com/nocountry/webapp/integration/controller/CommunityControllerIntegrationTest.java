@@ -15,10 +15,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.springframework.security.test.context.support.WithMockUser;
 import static org.hamcrest.Matchers.containsString;
 
 
 @DisplayName("Integration Tests for CommunityController")
+@WithMockUser
 public class CommunityControllerIntegrationTest extends BaseIntegrationTest {
 
     private CommunityRequestDTO validRequest;

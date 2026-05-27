@@ -33,13 +33,12 @@ services:
     ports:
       - '8080:8080'
 
+    env_file:
+      - ./Backend/.env
+
     environment:
-      SPRING_PROFILES_ACTIVE: dev
       DB_HOST: db
       DB_PORT: 5432
-      DB_NAME: talent
-      DB_USER: postgres
-      DB_PASSWORD: postgres
 
     depends_on:
       db:

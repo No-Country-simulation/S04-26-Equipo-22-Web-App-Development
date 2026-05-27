@@ -11,7 +11,7 @@
     import org.springframework.transaction.annotation.Transactional;
 
     @SpringBootTest
-    @AutoConfigureMockMvc(addFilters = false)
+    @AutoConfigureMockMvc
     @ActiveProfiles("test")
     @TestPropertySource(locations = "classpath:application-test.properties")
     @Transactional
