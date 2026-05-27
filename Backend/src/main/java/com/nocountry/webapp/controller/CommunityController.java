@@ -94,8 +94,12 @@ public class CommunityController {
     })
     public ResponseEntity<CommunityResponseDTO> createCommunity(
             @Valid @RequestBody CommunityRequestDTO requestDTO) {
+        
         Community community = convertToEntity(requestDTO);
+        
+       
         Community created = communityService.createCommunity(community);
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(created));
     }
 
@@ -115,7 +119,7 @@ public class CommunityController {
             @Parameter(description = "ID de la comunidad", example = "1", required = true)
             @PathVariable Long id,
             @Valid @RequestBody CommunityUpdateDTO requestDTO) {
-        // Convertir DTO a Entity para la actualización
+                
         Community updatedData = new Community();
         updatedData.setName(requestDTO.getName());
         updatedData.setPlatform(requestDTO.getPlatform());

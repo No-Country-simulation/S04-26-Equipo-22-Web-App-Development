@@ -40,6 +40,6 @@ public class CommunityPost {
     private LocalDateTime collectedAt;
 
     @ManyToOne
-    @JoinColumn(name = "community_id", nullable = false)
+    @JoinColumn(nullable = false)
     private Community community;
 }

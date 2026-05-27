@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -38,6 +37,8 @@ public class SecurityConfig {
             throws Exception {
 
         http
+                // MEJORA: Le inyectamos explícitamente tu configuración de CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
                 .cors(withDefaults())
 
@@ -45,7 +46,7 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
-                        )
+                            )
                 )
 
                 .exceptionHandling(ex -> ex
@@ -54,19 +55,21 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                                // Preflight CORS
-                .requestMatchers(
-                        HttpMethod.OPTIONS,
-                        "/**"
-                ).permitAll()
-                .requestMatchers(
-                        "/api/auth/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/error/**"
-                ).permitAll()
-                .anyRequest().authenticated()
+
+                        // Preflight CORS
+                        .requestMatchers(
+                                HttpMethod.OPTIONS,
+                                "/**"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/error/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
+
                 )
 
                 .authenticationProvider(authenticationProvider())
@@ -81,20 +84,15 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider();
-
         provider.setUserDetailsService(userDetailsService);
-
         provider.setPasswordEncoder(passwordEncoder());
-
         return provider;
     }
 
@@ -102,27 +100,24 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
     ) throws Exception {
-
         return config.getAuthenticationManager();
     }
+
     @Bean
     public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
         org.springframework.web.cors.CorsConfiguration configuration = 
                 new org.springframework.web.cors.CorsConfiguration();
         
-        // 1. Permitimos el localhost del Front y el futuro dominio de Vercel
         configuration.setAllowedOrigins(java.util.List.of(
                 "http://localhost:5173", 
-                "https://tu-proyecto-front.vercel.app" // <- Acá cambian por su URL real de Vercel
+                "http://localhost:5175", 
+                "http://127.0.0.1:5175",
+                "https://tu-proyecto-front.vercel.app"
         ));
         
-        // 2. Permitimos los métodos HTTP que usa el CRUD
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        
-        // 3. Permitimos los Headers necesarios (como el Authorization para el JWT)
-        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "Cache-Control"));
-        
-        // 4. Permitimos que viajen las credenciales si el Front las necesita
+        // MEJORA: Aseguramos que acepte cualquier header común si el Front manda algo extra
+        configuration.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type", "Cache-Control", "x-requested-with"));
         configuration.setAllowCredentials(true);
 
         org.springframework.web.cors.UrlBasedCorsConfigurationSource source = 
