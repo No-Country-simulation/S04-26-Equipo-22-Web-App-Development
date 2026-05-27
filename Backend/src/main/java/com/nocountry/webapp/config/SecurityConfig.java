@@ -1,4 +1,5 @@
 package com.nocountry.webapp.config;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.nocountry.webapp.exception.handler.JwtAccessDeniedHandler;
 import com.nocountry.webapp.exception.handler.JwtAuthenticationEntryPoint;
