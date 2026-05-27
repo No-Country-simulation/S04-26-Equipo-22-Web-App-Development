@@ -168,71 +168,61 @@ export default function HomePage() {
     const container = containerRef.current;
     if (!container) return;
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const tl = gsap.timeline({ defaults: { ease: "power3.out", clearProps: "all" } });
 
-    tl.from(".home-page__orb", {
-      scale: 0,
-      opacity: 0,
-      duration: 1.8,
-      stagger: 0.3,
-      ease: "elastic.out(1, 0.5)",
-    });
+    tl.fromTo(".home-page__orb",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 1.8, stagger: 0.3, ease: "elastic.out(1, 0.5)", clearProps: "transform" }
+    );
 
-    tl.from(".home-page__eyebrow", {
-      y: -20,
-      opacity: 0,
-      scale: 0.8,
-      duration: 0.6,
-    }, 0.1);
+    tl.fromTo(".home-page__eyebrow",
+      { y: -20, opacity: 0, scale: 0.8 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.6, clearProps: "all" },
+      0.1
+    );
 
-    tl.from(".home-page__hero h1", {
-      y: 40,
-      opacity: 0,
-      duration: 0.8,
-      ease: "power4.out",
-    }, 0.2);
+    tl.fromTo(".home-page__hero h1",
+      { y: 40, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power4.out", clearProps: "all" },
+      0.2
+    );
 
-    tl.from(".home-page__hero p", {
-      y: 30,
-      opacity: 0,
-      duration: 0.7,
-    }, 0.4);
+    tl.fromTo(".home-page__hero p",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.7, clearProps: "all" },
+      0.4
+    );
 
-    tl.from(".home-page__pipeline", {
-      clipPath: "inset(0 100% 0 0)",
-      opacity: 0,
-      duration: 1,
-      ease: "power4.inOut",
-    }, 0.5);
+    tl.fromTo(".home-page__pipeline",
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, ease: "power4.out", clearProps: "all" },
+      0.5
+    );
 
-    tl.from(".home-page__pipeline-cell", {
-      x: -30,
-      opacity: 0,
-      duration: 0.6,
-      stagger: 0.15,
-    }, 0.8);
+    tl.fromTo(".home-page__pipeline-cell",
+      { x: -30, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.6, stagger: 0.15, clearProps: "all" },
+      0.7
+    );
 
-    tl.from(".home-page__pipeline-badge", {
-      scale: 0,
-      opacity: 0,
-      duration: 0.5,
-      ease: "back.out(2)",
-    }, 1.0);
+    tl.fromTo(".home-page__pipeline-badge",
+      { scale: 0, opacity: 0 },
+      { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)", clearProps: "all" },
+      0.9
+    );
 
     gsap.utils.toArray(".home-page__stat").forEach((stat, i) => {
-      gsap.from(stat, {
-        scrollTrigger: {
-          trigger: stat,
-          start: "top 90%",
-          toggleActions: "play none none none",
-        },
-        y: 60,
-        opacity: 0,
-        scale: 0.85,
-        duration: 0.7,
-        delay: i * 0.1,
-        ease: "back.out(1.7)",
-      });
+      gsap.fromTo(stat,
+        { y: 50, opacity: 0, scale: 0.85 },
+        {
+          y: 0, opacity: 1, scale: 1,
+          scrollTrigger: { trigger: stat, start: "top 92%", toggleActions: "play none none none" },
+          duration: 0.7,
+          delay: i * 0.1,
+          ease: "back.out(1.7)",
+          clearProps: "all",
+        }
+      );
     });
 
     if (!loading) {
@@ -245,46 +235,38 @@ export default function HomePage() {
           duration: 1.5,
           ease: "power2.out",
           snap: { val: 1 },
-          scrollTrigger: {
-            trigger: el,
-            start: "top 90%",
-            toggleActions: "play none none none",
-          },
+          scrollTrigger: { trigger: el, start: "top 92%", toggleActions: "play none none none" },
           onUpdate: () => { el.textContent = Math.round(proxy.val); },
         });
       });
     }
 
     gsap.utils.toArray(".home-page__card").forEach((card, i) => {
-      gsap.from(card, {
-        scrollTrigger: {
-          trigger: card,
-          start: "top 92%",
-          toggleActions: "play none none none",
-        },
-        y: 80,
-        opacity: 0,
-        rotateX: 15,
-        scale: 0.9,
-        duration: 0.8,
-        delay: i * 0.12,
-        ease: "power3.out",
-      });
+      gsap.fromTo(card,
+        { y: 60, opacity: 0, scale: 0.92 },
+        {
+          y: 0, opacity: 1, scale: 1,
+          scrollTrigger: { trigger: card, start: "top 92%", toggleActions: "play none none none" },
+          duration: 0.8,
+          delay: i * 0.12,
+          ease: "power3.out",
+          clearProps: "all",
+        }
+      );
     });
 
     const generateSection = container.querySelector(".generate-ai");
     if (generateSection) {
-      gsap.from(generateSection, {
-        scrollTrigger: {
-          trigger: generateSection,
-          start: "top 90%",
-          toggleActions: "play none none none",
-        },
-        y: 50,
-        opacity: 0,
-        duration: 0.8,
-        ease: "power3.out",
-      });
+      gsap.fromTo(generateSection,
+        { y: 40, opacity: 0 },
+        {
+          y: 0, opacity: 1,
+          scrollTrigger: { trigger: generateSection, start: "top 92%", toggleActions: "play none none none" },
+          duration: 0.8,
+          ease: "power3.out",
+          clearProps: "all",
+        }
+      );
     }
 
     gsap.utils.toArray(".home-page__orb").forEach((orb) => {

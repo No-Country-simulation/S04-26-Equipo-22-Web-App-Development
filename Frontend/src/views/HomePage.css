@@ -4,7 +4,7 @@
   margin: 0 auto;
   padding: 48px 24px 64px;
   perspective: 1200px;
-  overflow: hidden;
+  overflow-x: clip;
 }
 
 /* ============================================================ */
@@ -140,7 +140,6 @@
     linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(124, 58, 237, 0.06)),
     #ffffff;
   overflow: hidden;
-  clip-path: inset(0 0 0 0);
 }
 
 .home-page__pipeline::before {
