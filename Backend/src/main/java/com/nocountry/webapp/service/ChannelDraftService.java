@@ -49,9 +49,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.USER) {
+        if (editor.getRole() != Role.EDITOR) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol USER"
+                    "El usuario asignado no tiene rol EDITOR"
             );
         }
         // Verificar si ya existe borrador para esta plataforma
@@ -83,9 +83,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.USER) {
+        if (editor.getRole() != Role.EDITOR) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol USER"
+                    "El usuario asignado no tiene rol EDITOR"
             );
         }
 
@@ -187,9 +187,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.USER) {
+        if (editor.getRole() != Role.EDITOR) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol USER"
+                    "El usuario asignado no tiene rol EDITOR"
             );
         }
 
@@ -307,9 +307,9 @@ public class ChannelDraftService {
         User editor = userRepository.findById(editorId)
                 .orElseThrow(() -> new NotFoundException("Editor no encontrado con ID: " + editorId));
 
-        if (editor.getRole() != Role.USER) {
+        if (editor.getRole() != Role.EDITOR) {
             throw new BusinessException(
-                    "El usuario asignado no tiene rol USER"
+                    "El usuario asignado no tiene rol EDITOR"
             );
         }
 

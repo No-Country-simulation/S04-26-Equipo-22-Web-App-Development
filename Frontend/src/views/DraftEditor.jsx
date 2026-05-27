@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useCallback, useEffect } from "react";
+import DOMPurify from "dompurify";
 import * as draftsApi from "../api/drafts";
 import { CHANNEL_LABELS } from "../data/draftSelectors";
 import "./DraftEditor.css";
@@ -55,7 +56,7 @@ export function DraftEditor() {
         }
         setTitle(ch.title || "");
         if (editorRef.current) {
-          editorRef.current.innerHTML = ch.body || "";
+          editorRef.current.innerHTML = DOMPurify.sanitize(ch.body || "");
           setCharCount((editorRef.current.textContent || "").length);
         }
       })

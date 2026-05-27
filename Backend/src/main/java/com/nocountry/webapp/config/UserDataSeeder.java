@@ -25,14 +25,12 @@ public class UserDataSeeder implements ApplicationRunner {
 
         log.info("🔥 USER SEEDER STARTING...");
 
-        createIfNotExists("admin@talentcircle.com", "Admin123*", Role.ADMIN);
-        createIfNotExists("user@talentcircle.com", "User123*", Role.USER);
+        createIfNotExists("editor@talentcircle.com", "Editor123*", Role.EDITOR);
 
         log.info("========================================");
         log.info("🚀 USER SEEDER COMPLETED");
         log.info("----------------------------------------");
-        log.info("👑 ADMIN -> admin@talentcircle.com / Admin123*");
-        log.info("👤 USER  -> user@talentcircle.com / User123*");
+        log.info("📝 EDITOR -> editor@talentcircle.com / Editor123*");
         log.info("========================================");
     }
 
