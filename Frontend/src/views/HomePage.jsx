@@ -13,7 +13,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { useAuth } from "../context/AuthContext";
 import { useFetch } from "../hooks/useFetch";
@@ -21,8 +20,6 @@ import * as draftsApi from "../api/drafts";
 import * as communitiesApi from "../api/communities";
 import GenerateWithAI from "../components/GenerateWithAI";
 import "./HomePage.css";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const PENDING_STATUSES = new Set(["GENERATED", "IN_REVIEW"]);
 const DATE_FORMATTER = new Intl.DateTimeFormat("es-AR", {
@@ -168,121 +165,64 @@ export default function HomePage() {
     const container = containerRef.current;
     if (!container) return;
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out", clearProps: "all" } });
-
-    tl.fromTo(".home-page__orb",
-      { scale: 0, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 1.8, stagger: 0.3, ease: "elastic.out(1, 0.5)", clearProps: "transform" }
-    );
+    const tl = gsap.timeline({
+      defaults: { ease: "power2.out", clearProps: "all" },
+    });
 
     tl.fromTo(".home-page__eyebrow",
-      { y: -20, opacity: 0, scale: 0.8 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.6, clearProps: "all" },
-      0.1
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.4 }
     );
-
     tl.fromTo(".home-page__hero h1",
-      { y: 40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: "power4.out", clearProps: "all" },
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.5 },
+      0.05
+    );
+    tl.fromTo(".home-page__hero p",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.4 },
+      0.15
+    );
+    tl.fromTo(".home-page__pipeline",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.5 },
       0.2
     );
-
-    tl.fromTo(".home-page__hero p",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.7, clearProps: "all" },
-      0.4
+    tl.fromTo(".home-page__stat",
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.06 },
+      0.3
     );
-
-    tl.fromTo(".home-page__pipeline",
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.8, ease: "power4.out", clearProps: "all" },
+    tl.fromTo(".generate-ai",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4 },
+      0.45
+    );
+    tl.fromTo(".home-page__card",
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.06 },
       0.5
     );
-
-    tl.fromTo(".home-page__pipeline-cell",
-      { x: -30, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.6, stagger: 0.15, clearProps: "all" },
-      0.7
-    );
-
-    tl.fromTo(".home-page__pipeline-badge",
-      { scale: 0, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2)", clearProps: "all" },
-      0.9
-    );
-
-    gsap.utils.toArray(".home-page__stat").forEach((stat, i) => {
-      gsap.fromTo(stat,
-        { y: 50, opacity: 0, scale: 0.85 },
-        {
-          y: 0, opacity: 1, scale: 1,
-          scrollTrigger: { trigger: stat, start: "top 92%", toggleActions: "play none none none" },
-          duration: 0.7,
-          delay: i * 0.1,
-          ease: "back.out(1.7)",
-          clearProps: "all",
-        }
-      );
-    });
 
     if (!loading) {
       container.querySelectorAll(".home-page__stat-value").forEach((el) => {
         const target = parseInt(el.textContent, 10);
-        if (isNaN(target)) return;
+        if (isNaN(target) || target === 0) return;
         const proxy = { val: 0 };
         gsap.to(proxy, {
           val: target,
-          duration: 1.5,
+          duration: 0.8,
+          delay: 0.4,
           ease: "power2.out",
           snap: { val: 1 },
-          scrollTrigger: { trigger: el, start: "top 92%", toggleActions: "play none none none" },
           onUpdate: () => { el.textContent = Math.round(proxy.val); },
         });
       });
     }
 
-    gsap.utils.toArray(".home-page__card").forEach((card, i) => {
-      gsap.fromTo(card,
-        { y: 60, opacity: 0, scale: 0.92 },
-        {
-          y: 0, opacity: 1, scale: 1,
-          scrollTrigger: { trigger: card, start: "top 92%", toggleActions: "play none none none" },
-          duration: 0.8,
-          delay: i * 0.12,
-          ease: "power3.out",
-          clearProps: "all",
-        }
-      );
-    });
-
-    const generateSection = container.querySelector(".generate-ai");
-    if (generateSection) {
-      gsap.fromTo(generateSection,
-        { y: 40, opacity: 0 },
-        {
-          y: 0, opacity: 1,
-          scrollTrigger: { trigger: generateSection, start: "top 92%", toggleActions: "play none none none" },
-          duration: 0.8,
-          ease: "power3.out",
-          clearProps: "all",
-        }
-      );
-    }
-
-    gsap.utils.toArray(".home-page__orb").forEach((orb) => {
-      gsap.to(orb, {
-        y: "random(-40, 40)",
-        x: "random(-30, 30)",
-        duration: "random(4, 7)",
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-    });
-
     gsap.to(".home-page__hero-accent", {
       backgroundPosition: "200% center",
-      duration: 3,
+      duration: 4,
       repeat: -1,
       ease: "none",
     });
@@ -291,10 +231,6 @@ export default function HomePage() {
 
   return (
     <div className="home-page" ref={containerRef}>
-      <div className="home-page__orb home-page__orb--1" aria-hidden="true" />
-      <div className="home-page__orb home-page__orb--2" aria-hidden="true" />
-      <div className="home-page__orb home-page__orb--3" aria-hidden="true" />
-
       <header className="home-page__hero">
         <span className="home-page__eyebrow">
           <span className="home-page__eyebrow-dot" />
