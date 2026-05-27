@@ -17,7 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+//@Component
 @DependsOn("communityDataSeeder")
 @RequiredArgsConstructor
 @Slf4j

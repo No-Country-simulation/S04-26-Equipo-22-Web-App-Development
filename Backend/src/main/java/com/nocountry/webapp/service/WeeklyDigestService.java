@@ -131,7 +131,7 @@ public class WeeklyDigestService {
                         context
                 );
 
-        return channelDraftService.createCompleteDrafts(
+        return channelDraftService.regenerateCompleteDrafts(
                 digest.getId(),
                 generatedContent.getWeeklySummary(),
                 generatedContent.getLinkedinPost(),
@@ -799,29 +799,18 @@ public class WeeklyDigestService {
     }
 
     /**
-     * Inicio de semana
+     * Calcula inicio de semana (lunes)
      */
     private LocalDate calculateWeekStart() {
-
-        return LocalDate.now(clock)
-                .with(
-                        TemporalAdjusters.previousOrSame(
-                                DayOfWeek.MONDAY
-                        )
-                );
+    return LocalDate.now(clock)
+            .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     }
-
+    
     /**
-     * Fin de semana
+     * Calcula fin de semana (domingo)
      */
-    private LocalDate calculateWeekEnd(
-            LocalDate weekStart
-    ) {
-
-        return weekStart.with(
-                TemporalAdjusters.nextOrSame(
-                        DayOfWeek.SUNDAY
-                )
-        );
+    private LocalDate calculateWeekEnd(LocalDate weekStart) {
+    return weekStart
+            .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
     }
 }

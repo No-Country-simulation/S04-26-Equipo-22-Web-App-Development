@@ -61,6 +61,7 @@ public class PromptBuilderService {
         prompt.append("Genera un objeto JSON con esta estructura exacta:\n");
         prompt.append("{\n");
         prompt.append("  \"weeklySummary\": \"resumen ejecutivo de la semana (200-300 palabras)\",\n");
+        prompt.append("  \"newsletterContent\": \"newsletter completo en markdown\",\n");
         prompt.append("  \"linkedinPost\": \"post profesional para LinkedIn (máx 3000 chars, con hashtags)\",\n");
         prompt.append("  \"twitterPost\": \"tweet corto (máx 280 chars, con 1-2 hashtags)\",\n");
         prompt.append("  \"keyHighlights\": [\"highlight 1\", \"highlight 2\", \"highlight 3\"]\n");
@@ -168,6 +169,10 @@ public class PromptBuilderService {
         return prompt.toString();
     }
     
+    /*
+     * Método auxiliar para agregar datos clave al prompt de contexto, formateando la información de manera clara para que el modelo pueda entenderla fácilmente
+     * Incluye la semana, estadísticas generales, top publicaciones, preguntas y recursos compartidos
+    */
     private void addContextData(StringBuilder prompt, WeeklyDigestContextDTO context) {
         prompt.append("Semana: ").append(context.getWeekStart().format(DATE_FORMATTER));
         prompt.append(" al ").append(context.getWeekEnd().format(DATE_FORMATTER)).append("\n\n");
@@ -192,6 +197,10 @@ public class PromptBuilderService {
         }
     }
     
+    /*
+     * Método auxiliar para truncar texto a un máximo de caracteres, agregando "..." si se excede
+     * Esto es útil para generar versiones resumidas del contenido para LinkedIn y Twitter
+    */
     private String truncate(String text, int maxLength) {
         if (text == null) return "";
         if (text.length() <= maxLength) return text;

@@ -110,6 +110,9 @@ public class GeminiService {
         return callGemini(prompt);
     }
 
+    /*
+     * Llama a Gemini con el prompt dado y devuelve el texto generado
+     */
     private String callGemini(String prompt) {
 
         Client client = Client.builder()
@@ -126,37 +129,49 @@ public class GeminiService {
         return response.text();
     }
 
+    /*
+     * Parsea la respuesta de Gemini a nuestro DTO, con manejo de 
+     * errores para casos donde el formato no sea el esperado
+    */
     private GeneratedContentDTO parseGeneratedContent(
-            String jsonContent
-    ) {
+                String jsonContent
+        ) {
 
         try {
 
-            return objectMapper.readValue(
-                    jsonContent,
-                    GeneratedContentDTO.class
-            );
+                String cleanJson = cleanJsonResponse(jsonContent);
+
+                return objectMapper.readValue(
+                        cleanJson,
+                        GeneratedContentDTO.class
+                );
 
         } catch (Exception e) {
 
-            log.warn(
-                    "No se pudo parsear JSON, usando fallback"
-            );
+                log.error(
+                        "Error parseando respuesta IA: {}",
+                        jsonContent,
+                        e
+                );
 
-            return GeneratedContentDTO
-                    .builder()
-                    .weeklySummary(jsonContent)
-                    .linkedinPost(
-                            resumenCorto(jsonContent, 300)
-                    )
-                    .twitterPost(
-                            resumenCorto(jsonContent, 280)
-                    )
-                    .keyHighlights(List.of())
-                    .build();
+                return GeneratedContentDTO
+                        .builder()
+                        .weeklySummary(jsonContent)
+                        .linkedinPost(
+                                resumenCorto(jsonContent, 300)
+                        )
+                        .twitterPost(
+                                resumenCorto(jsonContent, 280)
+                        )
+                        .keyHighlights(List.of())
+                        .build();
         }
-    }
+        }
 
+    /*
+     * Método auxiliar para acortar texto a un máximo de caracteres, agregando "..." si se excede
+     * Esto es útil para generar versiones resumidas del contenido para LinkedIn y Twitter
+     */
     private String resumenCorto(
             String texto,
             int maxLength
@@ -174,5 +189,21 @@ public class GeminiService {
                 0,
                 maxLength - 3
         ) + "...";
+    }
+
+    /*
+     * Método auxiliar para limpiar la respuesta de Gemini, eliminando posibles etiquetas de formato
+     * como ```json y ``` que podrían rodear el contenido JSON generado, y asegurando que no haya espacios innecesarios
+    */
+    private String cleanJsonResponse(String content) {
+
+        if (content == null) {
+                return "";
+        }
+
+        return content
+                .replace("```json", "")
+                .replace("```", "")
+                .trim();
     }
 }

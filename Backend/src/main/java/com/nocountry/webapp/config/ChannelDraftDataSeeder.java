@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 @Slf4j
 @Profile("dev")
