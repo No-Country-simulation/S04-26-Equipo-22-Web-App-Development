@@ -1,67 +1,71 @@
-Markdown
-# TalentCircle — Frontend Web Application
+# TalentCircle — Plataforma Integral (Equipo 22 - S04-26)
 
-Esta sección del repositorio contiene la aplicación cliente de la plataforma TalentCircle. Una interfaz SPA (Single Page Application) de alto rendimiento, modular y con diseño totalmente responsivo orientada a tableros analíticos y administración de contenidos.
+ **Objetivo:** Automatizar el monitoreo de comunidades tecnológicas, analizar datos semanales de manera automatizada y generar borradores de contenido (Newsletter, LinkedIn, Twitter) optimizados mediante Inteligencia Artificial.
 
----
-
-## 🛠️ Stack Tecnológico Frontend
-
-* **Core:** React 18+ / JavaScript (ES6+)
-* **Herramienta de Construcción:** Vite (Entorno de desarrollo ultra rápido)
-* **Gestión de Estado:** Context API (Global State para sesión, autenticación y carrito de datos)
-* **Estilos y Maquetación:** Bootstrap 5 / PostCSS
+Este repositorio unificado contiene tanto el ecosistema de la interfaz de usuario (Frontend) como el Core API de servicios (Backend). El proyecto se encuentra **completamente terminado, integrado y listo para producción**.
 
 ---
 
-## 📌 Prerrequisitos de Entorno
+##  Integrantes del Equipo
 
-Antes de inicializar los servicios del Frontend de manera aislada o nativa, asegúrate de contar con:
-- **Node.js** (Versión 18 o superior recomendada).
-- **npm** (Administrador de paquetes de Node, instalado automáticamente junto con Node.js).
+* **Rider Manrique Cueto** — Backend Developer
+* **Anthony Bañon** — Backend Developer
+* **Alejandro Camacho** — Fullstack Developer
+* **Martin Aguilera** — Frontend Developer
+* **Abigail Pintos** — Frontend Developer
+* **Luis Alberto vera** — Frontend Developer
+* **Jorge Enrique Briches** — QA Tester / Analyst
 
 ---
 
-## 🚀 Ejecución en Entorno de Desarrollo Local
+##  Stack Tecnológico
 
-Si deseas ejecutar la interfaz web de manera local y nativa (sin usar los contenedores unificados de Docker):
+* **Backend:** Java 17 / Spring Boot 3 / Arquitectura REST
+* **Base de Datos:** PostgreSQL / Hibernate (JPA)
+* **Inteligencia Artificial:** Integración con modelos LLM (OpenAI API / LangChain4j)
+* **Frontend:** React / JavaScript (Vite) / Bootstrap & PostCSS
+* **Contenedores:** Docker / Docker Desktop (Orquestación unificada)
 
-1. **Ingresar al directorio correspondiente:**
-   ```bash
-   cd Frontend
-Instalar todas las dependencias del proyecto:
+---
+
+##  Prerrequisitos del Sistema Global
+
+Antes de iniciar la aplicación de manera local, asegúrate de contar con:
+- **Docker Desktop** (Obligatorio para la orquestación unificada de servicios y base de datos).
+- **Java SE Development Kit (JDK) 17** o superior (Opcional para ejecución nativa).
+- **Node.js (v18+)** y **npm** (Opcional para ejecución nativa del Frontend).
+
+---
+
+##  Clonación y Configuración del Repositorio
+
+Para descargar el proyecto y posicionarte en la rama estable de producción/entrega, ejecuta en tu terminal:
+
+```bash
+# 1. Clonar el repositorio unificado de la simulación
+git clone [https://github.com/No-Country-simulation/S04-26-Equipo-22-Web-App-Development.git](https://github.com/No-Country-simulation/S04-26-Equipo-22-Web-App-Development.git)
+
+# 2. Ingresar al directorio principal del proyecto
+cd S04-26-Equipo-22-Web-App-Development
+
+# 3. Cambiar a la rama de integración final
+git checkout develop
+
+Guía de Despliegue Rápido (Docker) 
+Este es el método oficial y recomendado para la evaluación en el Demo Day. Permite levantar la base de datos PostgreSQL, la API de Java y la interfaz de React interconectadas en una red limpia con un solo comando.
+
+Asegúrate de tener Docker Desktop abierto y corriendo.
+
+Posiciónate en la raíz principal del proyecto (donde se encuentra el archivo docker-compose.yml).
+
+Ejecuta el comando de inicialización limpia:
 
 Bash
-npm install
-Iniciar el servidor local de desarrollo con Vite:
+docker compose down
+docker compose up --build -d
+ Mapeo de Servicios Disponibles:
+ Frontend UI Web (React + Vite): http://localhost:5175
 
-Bash
-npm run dev
-El servidor local se inicializará típicamente en el puerto configurado: http://localhost:5175
+ Backend REST API (Spring Boot): http://localhost:8080
 
-🏗️ Arquitectura de Carpetas y Componentes (src/)
-La estructura del código está organizada de forma modular siguiendo las buenas prácticas de React:
-
-src/
-├── assets/          # Recursos estáticos (Imágenes, logotipos, vectores SVG)
-├── components/      # Componentes de UI reutilizables (Navbar, Sidebar, Footer, Modales)
-├── context/         # Configuración del Estado Global (AuthContext, DataContext)
-│   ├── AuthContext.jsx # Manejo global de tokens de sesión JWT y estado de login
-│   └── AppProvider.jsx # Proveedor que envuelve la aplicación evitando el "Prop Drilling"
-├── hooks/           # Custom Hooks personalizados para modularizar lógica de negocio
-├── layouts/          # Plantillas estructurales de vistas compartidas
-├── pages/           # Páginas o pantallas principales de la SPA
-│   ├── Dashboard/   # Tablero analítico principal (KPIs y métricas semanales)
-│   ├── Communities/ # Panel de gestión y CRUD de comunidades monitoreadas
-│   ├── Drafts/      # Editor dinámico de borradores generados por IA (Twitter, LinkedIn)
-│   └── Login/       # Formulario de autenticación segura
-├── services/        # Configuración de clientes HTTP (Instancia de Axios o Fetch a la API)
-├── styles/          # Hojas de estilos generales (Configuración de PostCSS y Bootstrap)
-├── App.jsx          # Enrutador principal y estructura central del Front
-└── main.jsx         # Punto de entrada oficial de la aplicación a la jerarquía del DOM
-📋 Características Implementadas Destacadas
-Consumo de API Segura: Interconexión mediante Axios con el backend en Spring Boot, interceptando cabeceras para enviar los tokens JWT de manera transparente.
-
-Flujo de Estado Limpio: Implementación de Context API para centralizar la información que múltiples componentes lejanos necesitan compartir (roles de usuario, sesión activa, borradores en edición), eliminando el prop drilling.
-
-Control de Roles: Control de vistas en el cliente dependiendo del rol inyectado desde la base de datos (USER o EDITOR), bloqueando o permitiendo la edición de componentes.
+ Documentación Interactiva Swagger UI: http://localhost:8080/swagger-ui/index.html
