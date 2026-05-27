@@ -89,14 +89,14 @@ function JobStatusPage() {
     {
       name: "Ranking IA",
       status:
-        digest.topReactedPosts.length > 0
+        digest.topReactedPosts?.length > 0
           ? "OK"
           : "Pendiente",
     },
     {
       name: "Generación drafts",
       status:
-        digest.topResources.length > 0
+        digest.topResources?.length > 0
           ? "OK"
           : "Sin datos",
     },

@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Inbox, ArrowLeft, ArrowRight, AlertCircle, Bot, Sparkles, Eye, CheckCircle2, Send } from "lucide-react";
 import * as draftsApi from "../api/drafts";
@@ -179,6 +179,11 @@ function ApprovalDetail({ id }) {
   const { acting, error: actionError, run } = useAsyncAction();
   const [copied, setCopied] = useState(null);
   const [exportModal, setExportModal] = useState(null);
+  const copiedTimerRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearTimeout(copiedTimerRef.current);
+  }, []);
 
   const error = actionError || loadError;
 
@@ -186,7 +191,8 @@ function ApprovalDetail({ id }) {
     try {
       await draftExport.copyMarkdown(draft, channel);
       setCopied(channel);
-      setTimeout(() => setCopied(null), 1800);
+      clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopied(null), 1800);
     } catch {
       /* clipboard error – silent */
     }

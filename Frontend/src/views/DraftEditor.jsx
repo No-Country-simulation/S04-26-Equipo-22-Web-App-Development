@@ -21,6 +21,7 @@ export function DraftEditor() {
   const { draftId, channel } = useParams();
   const navigate = useNavigate();
   const editorRef = useRef(null);
+  const savedTimerRef = useRef(null);
 
   const [draft, setDraft] = useState(null);
   const [title, setTitle] = useState("");
@@ -34,6 +35,10 @@ export function DraftEditor() {
   const TWITTER_LIMIT = 280;
   const isTwitter = channel === "twitter";
   const overLimit = isTwitter && charCount > TWITTER_LIMIT;
+
+  useEffect(() => {
+    return () => clearTimeout(savedTimerRef.current);
+  }, []);
 
   const recountChars = useCallback(() => {
     if (!editorRef.current) return;
@@ -106,7 +111,8 @@ export function DraftEditor() {
       const updated = await draftsApi.updateChannelDraft(draftId, channel, payload);
       setDraft(updated);
       setSaved(true);
-      setTimeout(() => setSaved(false), 2500);
+      clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSaved(false), 2500);
 
       if (submitForReview && updated.status === "GENERATED") {
         await draftsApi.transitionDraft(draftId, "IN_REVIEW");

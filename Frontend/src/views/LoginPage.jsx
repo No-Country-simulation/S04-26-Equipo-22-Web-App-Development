@@ -9,7 +9,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: "", password: "" });
-  const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
@@ -78,17 +77,6 @@ export default function LoginPage() {
             </button>
           </span>
         </label>
-
-        <div className="auth-form__row">
-          <label className="auth-form__checkbox">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-            />
-            Recordarme
-          </label>
-        </div>
 
         {error && (
           <div className="auth-form__error">

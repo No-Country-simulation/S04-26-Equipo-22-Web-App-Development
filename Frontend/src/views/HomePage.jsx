@@ -105,20 +105,15 @@ export default function HomePage() {
       draftsApi.listDrafts(),
       communitiesApi.listCommunities({ onlyActive: true }),
     ]);
-    return {
-      drafts:
-        draftsRes.status === "fulfilled"
-          ? Array.isArray(draftsRes.value)
-            ? draftsRes.value
-            : []
-          : [],
-      communities:
-        communitiesRes.status === "fulfilled"
-          ? Array.isArray(communitiesRes.value)
-            ? communitiesRes.value
-            : []
-          : [],
-    };
+
+    const drafts = draftsRes.status === "fulfilled" ? (Array.isArray(draftsRes.value) ? draftsRes.value : []) : [];
+    const communities = communitiesRes.status === "fulfilled" ? (Array.isArray(communitiesRes.value) ? communitiesRes.value : []) : [];
+
+    if (draftsRes.status === "rejected" && communitiesRes.status === "rejected") {
+      throw new Error("No pudimos cargar la información del pipeline.");
+    }
+
+    return { drafts, communities, partialError: draftsRes.status === "rejected" || communitiesRes.status === "rejected" };
   });
 
   const drafts = data?.drafts ?? [];
@@ -235,10 +230,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {error && (
+      {(error || data?.partialError) && (
         <div className="home-page__error" role="status">
           <AlertCircle size={16} />
-          <span>{error}</span>
+          <span>{error || "No pudimos cargar parte de la información del pipeline."}</span>
         </div>
       )}
 
