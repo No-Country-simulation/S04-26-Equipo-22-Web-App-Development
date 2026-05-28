@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Copy, Check, FileText, FileJson, FileType } from "lucide-react";
 import { CHANNEL_LABELS, CHANNELS } from "../../data/draftSelectors";
 import { getChannelView } from "../../data/draftSelectors";
@@ -20,6 +20,13 @@ function ExportModal({ draft, channel: initialChannel, onClose, onConfirmPublish
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(null);
   const [publishing, setPublishing] = useState(false);
+  const copiedTimerRef = useRef(null);
+  const errorTimerRef = useRef(null);
+
+  useEffect(() => () => {
+    clearTimeout(copiedTimerRef.current);
+    clearTimeout(errorTimerRef.current);
+  }, []);
 
   const availableChannels = CHANNELS.filter((c) => draft.channels[c]);
   const ch = draft.channels[activeChannel];
@@ -34,10 +41,12 @@ function ExportModal({ draft, channel: initialChannel, onClose, onConfirmPublish
     try {
       await draftExport.copyPlainText(draft, activeChannel);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopyError("No se pudo copiar al portapapeles");
-      setTimeout(() => setCopyError(null), 3000);
+      clearTimeout(errorTimerRef.current);
+      errorTimerRef.current = setTimeout(() => setCopyError(null), 3000);
     }
   };
 

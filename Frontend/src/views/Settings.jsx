@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as communitiesApi from "../api/communities";
 import * as authApi from "../api/auth";
@@ -9,6 +9,9 @@ import "./Settings.css";
 function Settings() {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const logoutTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(logoutTimerRef.current), []);
 
   const { data: communities = [], setData: setCommunities } = useFetch(
     () => communitiesApi.listCommunities({ onlyActive: true })
@@ -81,7 +84,8 @@ function Settings() {
       });
       setPwdMsg({ type: "success", text: "Contraseña actualizada. Volvé a iniciar sesión." });
       setPwd({ currentPassword: "", newPassword: "", confirm: "" });
-      setTimeout(async () => {
+      clearTimeout(logoutTimerRef.current);
+      logoutTimerRef.current = setTimeout(async () => {
         await logout();
         navigate("/login");
       }, 1500);

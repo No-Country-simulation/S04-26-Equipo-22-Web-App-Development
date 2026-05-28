@@ -42,6 +42,7 @@ export function DraftEditor() {
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => { mountedRef.current = false; };
   }, []);
 
@@ -129,7 +130,8 @@ export function DraftEditor() {
       }, 2500);
 
       if (submitForReview && updated.status === "GENERATED") {
-        await draftsApi.transitionDraft(draftId, "IN_REVIEW");
+        const transitioned = await draftsApi.transitionDraft(draftId, "IN_REVIEW");
+        if (mountedRef.current) setDraft(transitioned);
       }
     } catch (err) {
       if (mountedRef.current) setError(err?.message || "No se pudo guardar");

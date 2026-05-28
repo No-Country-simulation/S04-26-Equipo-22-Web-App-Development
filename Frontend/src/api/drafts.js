@@ -107,6 +107,14 @@ export async function updateChannelDraft(draftId, channel, payload) {
   return getDraft(draftId);
 }
 
+async function patchIgnoringStateConflict(url) {
+  try {
+    await api.patch(url);
+  } catch (err) {
+    if (err?.response?.status !== 400) throw err;
+  }
+}
+
 export async function transitionDraft(draftId, nextStatus) {
   const platformToChannel = { NEWSLETTER: "newsletter", LINKEDIN: "linkedin", X: "twitter" };
   const { data: drafts } = await api.get(`${DRAFT_BASE}/by-digest/${draftId}`);
@@ -115,16 +123,24 @@ export async function transitionDraft(draftId, nextStatus) {
     if (!ch) continue;
     switch (nextStatus) {
       case "IN_REVIEW":
-        await api.patch(`${DRAFT_BASE}/${draft.id}/start-review`);
+        if (draft.status === "GENERATED") {
+          await patchIgnoringStateConflict(`${DRAFT_BASE}/${draft.id}/start-review`);
+        }
         break;
       case "APPROVED":
-        await api.patch(`${DRAFT_BASE}/${draft.id}/approve`);
+        if (draft.status !== "APPROVED" && draft.status !== "PUBLISHED") {
+          await patchIgnoringStateConflict(`${DRAFT_BASE}/${draft.id}/approve`);
+        }
         break;
       case "REJECTED":
-        await api.patch(`${DRAFT_BASE}/${draft.id}/reject`);
+        if (draft.status !== "PUBLISHED") {
+          await patchIgnoringStateConflict(`${DRAFT_BASE}/${draft.id}/reject`);
+        }
         break;
       case "PUBLISHED":
-        await api.patch(`${DRAFT_BASE}/${draft.id}/publish`);
+        if (draft.status === "APPROVED") {
+          await patchIgnoringStateConflict(`${DRAFT_BASE}/${draft.id}/publish`);
+        }
         break;
     }
   }
