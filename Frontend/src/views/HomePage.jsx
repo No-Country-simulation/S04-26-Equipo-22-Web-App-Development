@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   FileText,
@@ -12,10 +12,13 @@ import {
   Sparkles,
   AlertCircle,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { useAuth } from "../hooks/useAuth";
 import { useFetch } from "../hooks/useFetch";
 import * as draftsApi from "../api/drafts";
 import * as communitiesApi from "../api/communities";
+import GenerateWithAI from "../components/GenerateWithAI";
 import "./HomePage.css";
 
 const PENDING_STATUSES = new Set(["GENERATED", "IN_REVIEW"]);
@@ -99,6 +102,7 @@ const SECTIONS = [
 export default function HomePage() {
   const { user } = useAuth();
   const firstName = user?.email ? user.email.split("@")[0] : "";
+  const containerRef = useRef(null);
 
   const { data, loading, error } = useFetch(async () => {
     const [draftsRes, communitiesRes] = await Promise.allSettled([
@@ -116,16 +120,19 @@ export default function HomePage() {
     return { drafts, communities, partialError: draftsRes.status === "rejected" || communitiesRes.status === "rejected" };
   });
 
-  const drafts = data?.drafts ?? [];
-  const communities = data?.communities ?? [];
+  const drafts = useMemo(() => data?.drafts ?? [], [data]);
+  const communities = useMemo(() => data?.communities ?? [], [data]);
 
   const metrics = useMemo(() => {
-    const sortedByWeek = [...drafts].sort((a, b) =>
+    const safeDrafts = Array.isArray(drafts) ? drafts : [];
+    const safeCommunities = Array.isArray(communities) ? communities : [];
+
+    const sortedByWeek = [...safeDrafts].sort((a, b) =>
       (b.weekOf || "").localeCompare(a.weekOf || "")
     );
     const lastWeekOf = sortedByWeek[0]?.weekOf || null;
     const lastWeekDrafts = lastWeekOf
-      ? drafts.filter((d) => d.weekOf === lastWeekOf)
+      ? safeDrafts.filter((d) => d.weekOf === lastWeekOf)
       : [];
 
     const postsAnalyzed = lastWeekDrafts.reduce(
@@ -133,17 +140,17 @@ export default function HomePage() {
       0
     );
 
-    const pendingDrafts = drafts.filter((d) => PENDING_STATUSES.has(d.status)).length;
+    const pendingDrafts = safeDrafts.filter((d) => PENDING_STATUSES.has(d.status)).length;
 
     return {
       lastFriday: getLastFridayFromWeekOf(lastWeekOf),
       nextFriday: getNextFridayAt18(),
-      totalDrafts: drafts.length,
+      totalDrafts: safeDrafts.length,
       pendingDrafts,
-      activeCommunities: communities.length,
+      activeCommunities: safeCommunities.length,
       postsAnalyzed,
       topicsGenerated: lastWeekDrafts.length,
-      channels: 3, // newsletter, linkedin, twitter
+      channels: 3,
       lastWeekOf,
     };
   }, [drafts, communities]);
@@ -157,8 +164,76 @@ export default function HomePage() {
 
   const showEmptyHint = !loading && drafts.length === 0;
 
+  useGSAP(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power2.out", clearProps: "all" },
+    });
+
+    tl.fromTo(".home-page__eyebrow",
+      { opacity: 0, y: 8 },
+      { opacity: 1, y: 0, duration: 0.4 }
+    );
+    tl.fromTo(".home-page__hero h1",
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: 0.5 },
+      0.05
+    );
+    tl.fromTo(".home-page__hero p",
+      { opacity: 0 },
+      { opacity: 1, duration: 0.4 },
+      0.15
+    );
+    tl.fromTo(".home-page__pipeline",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.5 },
+      0.2
+    );
+    tl.fromTo(".home-page__stat",
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.06 },
+      0.3
+    );
+    tl.fromTo(".generate-ai",
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.4 },
+      0.45
+    );
+    tl.fromTo(".home-page__card",
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0, duration: 0.4, stagger: 0.06 },
+      0.5
+    );
+
+    if (!loading) {
+      container.querySelectorAll(".home-page__stat-value").forEach((el) => {
+        const target = parseInt(el.textContent, 10);
+        if (isNaN(target) || target === 0) return;
+        const proxy = { val: 0 };
+        gsap.to(proxy, {
+          val: target,
+          duration: 0.8,
+          delay: 0.4,
+          ease: "power2.out",
+          snap: { val: 1 },
+          onUpdate: () => { el.textContent = Math.round(proxy.val); },
+        });
+      });
+    }
+
+    gsap.to(".home-page__hero-accent", {
+      backgroundPosition: "200% center",
+      duration: 4,
+      repeat: -1,
+      ease: "none",
+    });
+
+  }, { scope: containerRef, dependencies: [loading] });
+
   return (
-    <div className="home-page">
+    <div className="home-page" ref={containerRef}>
       <header className="home-page__hero">
         <span className="home-page__eyebrow">
           <span className="home-page__eyebrow-dot" />
@@ -269,15 +344,17 @@ export default function HomePage() {
         />
       </section>
 
+      <GenerateWithAI />
+
       {showEmptyHint && (
         <p className="home-page__empty-hint">
-          Aún no se ha generado el primer paquete. El próximo viernes a las
-          18:00 la IA preparará los borradores de tus comunidades.
+          Aún no se ha generado el primer paquete. Usá el panel de arriba para
+          generar borradores con IA, o esperá al próximo viernes a las 18:00.
         </p>
       )}
 
       <div className="home-page__grid">
-        {SECTIONS.map((s, i) => {
+        {SECTIONS.map((s) => {
           const Icon = s.icon;
           const badgeValue = badgeMap[s.badgeKey];
           const showBadge =
@@ -289,7 +366,6 @@ export default function HomePage() {
               key={s.to}
               to={s.to}
               className={`home-page__card home-page__card--${s.accent}`}
-              style={{ animationDelay: `${i * 60}ms` }}
             >
               <span className="home-page__card-icon" aria-hidden="true">
                 <Icon />

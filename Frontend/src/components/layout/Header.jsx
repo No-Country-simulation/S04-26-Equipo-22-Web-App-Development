@@ -1,9 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 import "./Header.css";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Inicio", end: true },
+  { to: "/dashboard", label: "Inicio", end: true },
   { to: "/communities", label: "Comunidades" },
   { to: "/drafts", label: "Borradores" },
   { to: "/approval", label: "Aprobación" },

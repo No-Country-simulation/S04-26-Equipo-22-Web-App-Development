@@ -27,6 +27,7 @@ const steps = [
 ];
 
 function ApprovalFlow({ draft }) {
+  if (!draft) return null;
 
   const currentStep = steps.findIndex(
     (step) => step.key === draft.status

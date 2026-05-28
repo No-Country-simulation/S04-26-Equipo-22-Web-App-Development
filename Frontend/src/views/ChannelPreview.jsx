@@ -28,10 +28,11 @@ function ChannelPreview() {
   const draftId = params.get("draftId");
   const channelParam = params.get("channel");
 
-  const { data: drafts = [], loading, error } = useFetch(() => draftsApi.listDrafts());
+  const { data: rawDrafts, loading, error } = useFetch(() => draftsApi.listDrafts());
+  const drafts = useMemo(() => (Array.isArray(rawDrafts) ? rawDrafts : []), [rawDrafts]);
 
   const selectedDraft = useMemo(
-    () => drafts.find((d) => d.id === draftId) || drafts[0],
+    () => drafts.find((d) => d.id === draftId) || drafts[0] || null,
     [drafts, draftId]
   );
 

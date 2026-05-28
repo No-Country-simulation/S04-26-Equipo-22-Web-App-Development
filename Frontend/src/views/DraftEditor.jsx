@@ -22,6 +22,7 @@ export function DraftEditor() {
   const navigate = useNavigate();
   const editorRef = useRef(null);
   const savedTimerRef = useRef(null);
+  const mountedRef = useRef(true);
 
   const [draft, setDraft] = useState(null);
   const [title, setTitle] = useState("");
@@ -40,6 +41,10 @@ export function DraftEditor() {
     return () => clearTimeout(savedTimerRef.current);
   }, []);
 
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
+  }, []);
+
   const recountChars = useCallback(() => {
     if (!editorRef.current) return;
     setCharCount((editorRef.current.textContent || "").length);
@@ -47,6 +52,7 @@ export function DraftEditor() {
 
   useEffect(() => {
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
     draftsApi
@@ -109,18 +115,21 @@ export function DraftEditor() {
     try {
       const payload = channel === "twitter" ? { body } : { title, body };
       const updated = await draftsApi.updateChannelDraft(draftId, channel, payload);
+      if (!mountedRef.current) return;
       setDraft(updated);
       setSaved(true);
       clearTimeout(savedTimerRef.current);
-      savedTimerRef.current = setTimeout(() => setSaved(false), 2500);
+      savedTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) setSaved(false);
+      }, 2500);
 
       if (submitForReview && updated.status === "GENERATED") {
         await draftsApi.transitionDraft(draftId, "IN_REVIEW");
       }
     } catch (err) {
-      setError(err?.message || "No se pudo guardar");
+      if (mountedRef.current) setError(err?.message || "No se pudo guardar");
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   };
 
@@ -188,7 +197,7 @@ export function DraftEditor() {
         <div
           ref={editorRef}
           className="editor-content-area editor-content-rich"
-          contentEditable
+          contentEditable={draft.channels[channel]?.rawStatus !== "PUBLISHED"}
           suppressContentEditableWarning
           onKeyUp={() => { updateActiveFormats(); recountChars(); }}
           onMouseUp={updateActiveFormats}
@@ -206,16 +215,24 @@ export function DraftEditor() {
         {error && <p className="editor-error">{error}</p>}
 
         <div className="editor-actions">
-          <button className="editor-btn-save" onClick={() => handleSave()} disabled={saving}>
-            {saving ? "Guardando…" : "Guardar cambios"}
-          </button>
-          <button
-            className="editor-btn-publish"
-            onClick={() => handleSave({ submitForReview: true })}
-            disabled={saving}
-          >
-            Guardar y enviar a revisión
-          </button>
+          {draft.channels[channel]?.rawStatus === "PUBLISHED" ? (
+            <p className="editor-published-msg">Este borrador ya fue publicado y no se puede editar.</p>
+          ) : (
+            <>
+              <button className="editor-btn-save" onClick={() => handleSave()} disabled={saving}>
+                {saving ? "Guardando…" : "Guardar cambios"}
+              </button>
+              {draft.status === "GENERATED" && (
+                <button
+                  className="editor-btn-publish"
+                  onClick={() => handleSave({ submitForReview: true })}
+                  disabled={saving}
+                >
+                  Guardar y enviar a revisión
+                </button>
+              )}
+            </>
+          )}
           <button
             type="button"
             onClick={() => navigate(`/approval/${draftId}`)}

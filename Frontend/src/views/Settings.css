@@ -296,3 +296,66 @@
     align-self: flex-end;
   }
 }
+.password-form {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-width: 420px;
+}
+
+.password-form input {
+	padding: 10px 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	font-size: 0.88rem;
+}
+
+.password-form input:focus {
+	outline: none;
+	border-color: #2563eb;
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.pwd-msg {
+	margin: 0;
+	padding: 8px 12px;
+	border-radius: 8px;
+	font-size: 0.85rem;
+}
+
+.pwd-msg--success {
+	background: #f0fdf4;
+	color: #166534;
+	border: 1px solid #bbf7d0;
+}
+
+.pwd-msg--error {
+	background: #fef2f2;
+	color: #991b1b;
+	border: 1px solid #fecaca;
+}
+
+.settings-danger {
+	border-left: 3px solid #ef4444;
+}
+
+.danger-btn {
+	padding: 10px 20px;
+	background: white;
+	color: #ef4444;
+	border: 1px solid #fecaca;
+	border-radius: 8px;
+	font-size: 0.88rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.danger-btn:hover:not(:disabled) {
+	background: #fef2f2;
+}
+
+.danger-btn:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}

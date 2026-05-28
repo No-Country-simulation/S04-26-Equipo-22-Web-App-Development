@@ -6,6 +6,7 @@ function stripHtml(html) {
 }
 
 function toMarkdown(draft, channel) {
+  if (!draft || !draft.channels) return "";
   const ch = draft.channels[channel];
   if (!ch) return "";
   const title = ch.title ? `# ${ch.title}\n\n` : "";
@@ -15,6 +16,7 @@ function toMarkdown(draft, channel) {
 }
 
 function toJson(draft, channel) {
+  if (!draft || !draft.channels) return null;
   const ch = draft.channels[channel];
   if (!ch) return null;
   return {
@@ -44,12 +46,14 @@ function triggerDownload(filename, content, mime) {
 }
 
 export async function copyMarkdown(draft, channel) {
+  if (!draft || !draft.channels) return "";
   const md = toMarkdown(draft, channel);
   await navigator.clipboard.writeText(md);
   return md;
 }
 
 export function downloadJson(draft, channel) {
+  if (!draft || !draft.channels) return;
   const payload = toJson(draft, channel);
   if (!payload) return;
   const filename = `${draft.id}-${channel}.json`;
@@ -57,12 +61,14 @@ export function downloadJson(draft, channel) {
 }
 
 export function downloadMarkdown(draft, channel) {
+  if (!draft || !draft.channels) return;
   const md = toMarkdown(draft, channel);
   const filename = `${draft.id}-${channel}.md`;
   triggerDownload(filename, md, "text/markdown");
 }
 
 export function downloadTxt(draft, channel) {
+  if (!draft || !draft.channels) return;
   const ch = draft.channels[channel];
   if (!ch) return;
   const title = ch.title ? `${ch.title}\n${"=".repeat(ch.title.length)}\n\n` : "";
@@ -74,12 +80,14 @@ export function downloadTxt(draft, channel) {
 }
 
 export function getPlainText(draft, channel) {
+  if (!draft || !draft.channels) return "";
   const ch = draft.channels[channel];
   if (!ch) return "";
   return stripHtml(ch.body).trim();
 }
 
 export async function copyPlainText(draft, channel) {
+  if (!draft || !draft.channels) return "";
   const text = getPlainText(draft, channel);
   await navigator.clipboard.writeText(text);
   return text;

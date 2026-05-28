@@ -29,7 +29,7 @@ export function DraftFilters({ filter, setFilter, counts }) {
               <ChannelIcon channel={id} className="filters__icon" />
             )}
             <span className="filters__label">{label}</span>
-            <span className="filters__count">{counts[id] ?? 0}</span>
+            <span className="filters__count">{counts?.[id] ?? 0}</span>
           </button>
         );
       })}

@@ -1,17 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export function useFetch(fetchFn, deps = []) {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const idRef = useRef(0);
+  const fetchFnRef = useRef(fetchFn);
+
+  useEffect(() => {
+    fetchFnRef.current = fetchFn;
+  });
 
   const execute = useCallback(async () => {
     const id = ++idRef.current;
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchFn();
+      const result = await fetchFnRef.current();
       if (id === idRef.current) setData(result);
     } catch (err) {
       if (id === idRef.current) {
@@ -20,11 +25,13 @@ export function useFetch(fetchFn, deps = []) {
     } finally {
       if (id === idRef.current) setLoading(false);
     }
-  }, deps); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
+  }, deps);
 
   useEffect(() => {
     execute();
-    return () => { idRef.current++; };
+    const ref = idRef;
+    return () => { ref.current++; };
   }, [execute]);
 
   const refetch = useCallback(() => execute(), [execute]);

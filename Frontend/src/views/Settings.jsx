@@ -1,17 +1,25 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as communitiesApi from "../api/communities";
+import * as authApi from "../api/auth";
+import { useAuth } from "../hooks/useAuth";
 import { useFetch } from "../hooks/useFetch";
 import "./Settings.css";
 
 function Settings() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const { data: communities = [], setData: setCommunities } = useFetch(
     () => communitiesApi.listCommunities({ onlyActive: true })
   );
 
   const [newCommunity, setNewCommunity] = useState("");
+  const [communityMsg, setCommunityMsg] = useState(null);
+  const [pwd, setPwd] = useState({ currentPassword: "", newPassword: "", confirm: "" });
+  const [pwdMsg, setPwdMsg] = useState(null);
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const [channels] = useState({
     newsletter: { connected: true, email: "hola@talentcircle.es" },
@@ -30,26 +38,71 @@ function Settings() {
 
   const addCommunity = async () => {
     if (!newCommunity.trim()) return;
+    setCommunityMsg(null);
     try {
       const created = await communitiesApi.createCommunity({ name: newCommunity, platform: "general", active: true });
       setCommunities([...communities, created]);
       setNewCommunity("");
-    } catch {
-      // silently handled
+      setCommunityMsg({ type: "success", text: "Comunidad agregada" });
+    } catch (err) {
+      const msg = err?.response?.data?.message || "No se pudo agregar la comunidad";
+      setCommunityMsg({ type: "error", text: msg });
     }
   };
 
   const removeCommunity = async (id) => {
+    setCommunityMsg(null);
     try {
       await communitiesApi.deactivateCommunity(id);
       setCommunities(communities.filter(c => c.id !== id));
-    } catch {
-      // silently handled
+      setCommunityMsg({ type: "success", text: "Comunidad eliminada" });
+    } catch (err) {
+      const msg = err?.response?.data?.message || "No se pudo eliminar la comunidad";
+      setCommunityMsg({ type: "error", text: msg });
     }
   };
 
   const handleSave = () => {
     alert("✅ Configuración guardada correctamente");
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPwdMsg(null);
+    if (pwd.newPassword !== pwd.confirm) {
+      setPwdMsg({ type: "error", text: "Las contraseñas nuevas no coinciden" });
+      return;
+    }
+    setPwdLoading(true);
+    try {
+      await authApi.updatePassword({
+        currentPassword: pwd.currentPassword,
+        newPassword: pwd.newPassword,
+      });
+      setPwdMsg({ type: "success", text: "Contraseña actualizada. Volvé a iniciar sesión." });
+      setPwd({ currentPassword: "", newPassword: "", confirm: "" });
+      setTimeout(async () => {
+        await logout();
+        navigate("/login");
+      }, 1500);
+    } catch (err) {
+      const msg = err?.response?.data?.message || "No se pudo cambiar la contraseña";
+      setPwdMsg({ type: "error", text: msg });
+    } finally {
+      setPwdLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!window.confirm("¿Eliminar tu cuenta permanentemente? Esta acción es irreversible.")) return;
+    setDeleting(true);
+    try {
+      await authApi.deleteAccount();
+      navigate("/");
+    } catch (err) {
+      alert(err?.response?.data?.message || "No se pudo eliminar la cuenta");
+      setDeleting(false);
+    }
   };
 
   return (
@@ -65,6 +118,9 @@ function Settings() {
       <div className="settings-sections">
         <section className="settings-section">
           <h2>🌐 Comunidades vigiladas</h2>
+          {communityMsg && (
+            <p className={`pwd-msg pwd-msg--${communityMsg.type}`}>{communityMsg.text}</p>
+          )}
           <div className="community-list">
             {communities.map((community) => (
               <div key={community.id} className="community-item">
@@ -150,6 +206,53 @@ function Settings() {
           </select>
         </section>
       </div>
+
+      <section className="settings-section">
+        <h2>🔒 Cambiar contraseña</h2>
+        <form className="password-form" onSubmit={handleChangePassword}>
+          <input
+            type="password"
+            placeholder="Contraseña actual"
+            value={pwd.currentPassword}
+            onChange={(e) => setPwd({ ...pwd, currentPassword: e.target.value })}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Nueva contraseña (min 8, mayúscula, minúscula, número)"
+            value={pwd.newPassword}
+            onChange={(e) => setPwd({ ...pwd, newPassword: e.target.value })}
+            minLength={8}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Confirmar nueva contraseña"
+            value={pwd.confirm}
+            onChange={(e) => setPwd({ ...pwd, confirm: e.target.value })}
+            required
+          />
+          {pwdMsg && (
+            <p className={`pwd-msg pwd-msg--${pwdMsg.type}`}>{pwdMsg.text}</p>
+          )}
+          <button type="submit" disabled={pwdLoading} className="save-btn">
+            {pwdLoading ? "Cambiando…" : "Cambiar contraseña"}
+          </button>
+        </form>
+      </section>
+
+      <section className="settings-section settings-danger">
+        <h2>⚠️ Zona peligrosa</h2>
+        <p className="section-desc">Eliminar tu cuenta es permanente. Perderás acceso a todos tus borradores.</p>
+        <button
+          type="button"
+          className="danger-btn"
+          onClick={handleDeleteAccount}
+          disabled={deleting}
+        >
+          {deleting ? "Eliminando…" : "Eliminar mi cuenta"}
+        </button>
+      </section>
 
       <div className="settings-actions">
         <button className="save-btn" onClick={handleSave}>💾 Guardar configuración</button>
