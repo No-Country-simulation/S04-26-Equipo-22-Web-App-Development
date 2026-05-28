@@ -59,17 +59,14 @@ export function DraftEditor() {
       .getDraft(draftId)
       .then((d) => {
         if (cancelled) return;
-        setDraft(d);
         const ch = d.channels[channel];
         if (!ch) {
+          setDraft(d);
           setError(`El canal "${channel}" no existe en este borrador.`);
           return;
         }
         setTitle(ch.title || "");
-        if (editorRef.current) {
-          editorRef.current.innerHTML = DOMPurify.sanitize(ch.body || "");
-          setCharCount((editorRef.current.textContent || "").length);
-        }
+        setDraft(d);
       })
       .catch((err) => {
         if (!cancelled) setError(err?.message || "No se pudo cargar el borrador");
@@ -81,6 +78,14 @@ export function DraftEditor() {
       cancelled = true;
     };
   }, [draftId, channel]);
+
+  useEffect(() => {
+    if (loading || !draft || !editorRef.current) return;
+    const ch = draft.channels?.[channel];
+    if (!ch) return;
+    editorRef.current.innerHTML = DOMPurify.sanitize(ch.body || "");
+    setCharCount((editorRef.current.textContent || "").length);
+  }, [loading, draft, channel]);
 
   const updateActiveFormats = useCallback(() => {
     const formats = new Set();
