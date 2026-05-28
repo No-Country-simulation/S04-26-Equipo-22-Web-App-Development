@@ -69,3 +69,6 @@ docker compose up --build -d
  Backend REST API (Spring Boot): http://localhost:8080
 
  Documentación Interactiva Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+
+docker-compose -f docker-compose.yml restart

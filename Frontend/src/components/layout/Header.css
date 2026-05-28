@@ -1,72 +1,313 @@
+/* ==================================================================
+   APP HEADER — pill rail, aligned with app design language
+   ================================================================== */
+
 .app-header {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 12px 24px;
-  background: #1f2937;
-  color: #f9fafb;
-  border-bottom: 1px solid #111827;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(140%) blur(10px);
+  -webkit-backdrop-filter: saturate(140%) blur(10px);
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.app-header__brand {
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.5px;
+.app-header__inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 24px;
+  max-width: 1440px;
+  margin: 0 auto;
 }
+
+/* ============================================================ */
+/* BRAND                                                        */
+/* ============================================================ */
+
+.app-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.98rem;
+  letter-spacing: -0.2px;
+  padding: 4px 4px 4px 0;
+  flex-shrink: 0;
+}
+
+.app-header__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.28);
+}
+
+.app-header__brand-text {
+  background: linear-gradient(90deg, #0f172a, #1f2937);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ============================================================ */
+/* NAV                                                          */
+/* ============================================================ */
 
 .app-header__nav {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 4px;
   flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.app-header__nav::-webkit-scrollbar { display: none; }
 
 .app-header__link {
-  color: #d1d5db;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: #4b5563;
   text-decoration: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  white-space: nowrap;
+  position: relative;
+  transition: background 0.16s, color 0.16s, transform 0.12s;
+}
+
+.app-header__link svg {
+  flex-shrink: 0;
+  color: #9ca3af;
+  transition: color 0.16s;
 }
 
 .app-header__link:hover {
-  background: #374151;
+  background: #f3f4f6;
+  color: #0f172a;
 }
+.app-header__link:hover svg { color: #2563eb; }
 
 .app-header__link.is-active {
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  box-shadow: 0 4px 12px -2px rgba(124, 58, 237, 0.32);
 }
+.app-header__link.is-active svg { color: #fff; }
+
+/* ============================================================ */
+/* USER                                                         */
+/* ============================================================ */
 
 .app-header__user {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  flex-shrink: 0;
+}
+
+.app-header__avatar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 4px 4px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.app-header__avatar-btn:hover,
+.app-header__avatar-btn.is-open {
+  background: #f9fafb;
+  border-color: #c7d2fe;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.app-header__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
+}
+
+.app-header__caret {
+  color: #6b7280;
+  transition: transform 0.18s, color 0.18s;
+}
+.app-header__avatar-btn.is-open .app-header__caret {
+  transform: rotate(180deg);
+  color: #2563eb;
+}
+
+.app-header__user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 240px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px -12px rgba(15, 23, 42, 0.18);
+  padding: 6px;
+  z-index: 60;
+  animation: headerMenuIn 0.16s ease-out;
+}
+
+@keyframes headerMenuIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.app-header__user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 4px;
+}
+.app-header__user-email {
   font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-.app-header__email {
-  color: #f9fafb;
-}
-
-.app-header__role {
-  background: #374151;
+.app-header__user-role {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 999px;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+.app-header__user-role.role--admin {
+  background: rgba(124, 58, 237, 0.1);
+  color: #6d28d9;
+}
+.app-header__user-role.role--user {
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
 }
 
-.app-header__logout {
+.app-header__user-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
   background: transparent;
-  border: 1px solid #6b7280;
-  color: #f9fafb;
-  padding: 4px 12px;
-  border-radius: 6px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #b91c1c;
   cursor: pointer;
-  font-size: 0.8rem;
+  text-align: left;
+  transition: background 0.14s, color 0.14s;
+}
+.app-header__user-action:hover {
+  background: #fef2f2;
+  color: #991b1b;
 }
 
-.app-header__logout:hover {
-  background: #374151;
+/* ============================================================ */
+/* MOBILE BURGER                                                */
+/* ============================================================ */
+
+.app-header__burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-left: auto;
+}
+.app-header__burger:hover {
+  background: #f9fafb;
+  border-color: #c7d2fe;
+}
+
+/* ============================================================ */
+/* RESPONSIVE                                                   */
+/* ============================================================ */
+
+@media (max-width: 1100px) {
+  .app-header__link span {
+    display: none;
+  }
+  .app-header__link {
+    padding: 7px 9px;
+  }
+  .app-header__link svg { color: #4b5563; }
+  .app-header__link.is-active svg { color: #fff; }
+}
+
+@media (max-width: 820px) {
+  .app-header__inner {
+    flex-wrap: wrap;
+    padding: 10px 18px;
+    gap: 12px;
+  }
+  .app-header__burger { display: inline-flex; }
+
+  .app-header__nav {
+    order: 3;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 8px 0 4px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.24s ease, padding 0.24s ease;
+  }
+  .app-header__nav.is-open {
+    max-height: 480px;
+    padding: 8px 0 6px;
+    border-top: 1px solid #f3f4f6;
+  }
+  .app-header__link {
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+  }
+  .app-header__link span { display: inline; }
+  .app-header__link svg { color: #9ca3af; }
+  .app-header__link.is-active svg { color: #fff; }
+
+  .app-header__user { margin-left: 0; }
 }

@@ -1,11 +1,30 @@
 import { Fragment, useState, useRef, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Inbox, ArrowLeft, ArrowRight, AlertCircle, Bot, Sparkles, Eye, CheckCircle2, Send, RefreshCw, CheckCheck } from "lucide-react";
+import {
+  Inbox,
+  ArrowLeft,
+  ArrowUpRight,
+  AlertCircle,
+  Bot,
+  Sparkles,
+  Eye,
+  CheckCircle2,
+  Send,
+  RefreshCw,
+  CheckCheck,
+  X,
+  Hash,
+  Calendar,
+  Pencil,
+  Copy,
+  FileJson,
+  FileText,
+  ExternalLink,
+} from "lucide-react";
 import * as draftsApi from "../api/drafts";
 import * as draftExport from "../api/draftExport";
 import { regenerateDrafts as regenerateDraftsApi } from "../api/weeklyDigest";
 import { CHANNEL_LABELS, STATUS_LABELS, CHANNELS } from "../data/draftSelectors";
-import ApprovalFlow from "../components/approval/ApprovalFlow";
 import ApprovalButtons from "../components/approval/ApprovalButtons";
 import ExportModal from "../components/approval/ExportModal";
 import ChannelIcon from "../components/ChannelIcon";
@@ -14,22 +33,39 @@ import { useAsyncAction } from "../hooks/useAsyncAction";
 import { formatDateTime } from "../utils/formatDate";
 import "./ApprovalPage.css";
 
+/* ------------------------------------------------------------------ */
+/* helpers                                                            */
+/* ------------------------------------------------------------------ */
+
+const fmtId = (id) => String(id ?? "").padStart(3, "0");
+
+const CHANNEL_KICKERS = {
+  newsletter: "NEWSLETTER",
+  linkedin: "LINKEDIN",
+  twitter: "X / TWITTER",
+};
+
+/* ------------------------------------------------------------------ */
+/* List view — tabular wire feed                                      */
+/* ------------------------------------------------------------------ */
+
 function ApprovalList() {
   const { data: drafts = [], loading, error } = useFetch(() => draftsApi.listDrafts());
 
   if (loading) {
     return (
       <div className="approval-list approval-list--loading">
-        <span className="approval-spinner" />
-        Cargando borradores…
+        <span className="approval-spinner" aria-hidden="true" />
+        <span>Cargando borradores…</span>
       </div>
     );
   }
+
   if (error) {
     return (
       <div className="approval-list">
         <p className="approval-list__error">
-          <AlertCircle aria-hidden="true" /> {error}
+          <AlertCircle size={15} aria-hidden="true" /> {error}
         </p>
       </div>
     );
@@ -40,7 +76,7 @@ function ApprovalList() {
       <div className="approval-list">
         <div className="approval-empty">
           <div className="approval-empty__icon" aria-hidden="true">
-            <Inbox />
+            <Inbox size={22} />
           </div>
           <h3>No hay borradores en revisión</h3>
           <p>
@@ -54,25 +90,37 @@ function ApprovalList() {
 
   return (
     <div className="approval-list">
+      <div className="approval-list__head" aria-hidden="true">
+        <span>ID</span>
+        <span>Tema</span>
+        <span>Semana</span>
+        <span>Estado</span>
+      </div>
+
       {drafts.map((d) => (
         <Link key={d.id} to={`/approval/${d.id}`} className="approval-list__item">
+          <span className="approval-list__id">
+            <span className="approval-list__id-rule" aria-hidden="true" />
+            <span className="approval-list__id-num">№{fmtId(d.id)}</span>
+          </span>
+
           <div className="approval-list__main">
-            <div className="approval-list__title-row">
-              <h3>{d.topicTitle}</h3>
-              <span className={`approval-list__status status--${d.status.toLowerCase()}`}>
-                <span className="approval-list__status-dot" aria-hidden="true" />
-                {STATUS_LABELS[d.status] || d.status}
-              </span>
-            </div>
+            <h3 className="approval-list__title">{d.topicTitle}</h3>
             <p className="approval-list__summary">{d.topicSummary}</p>
-            <small>
-              <span className="approval-list__week">Semana del {d.weekOf}</span>
-              <span className="approval-list__sep" aria-hidden="true">·</span>
-              <span>actualizado {formatDateTime(d.updatedAt)}</span>
-            </small>
           </div>
+
+          <span className="approval-list__week">
+            <Calendar size={11} aria-hidden="true" />
+            {d.weekOf}
+          </span>
+
+          <span className={`approval-status status--${d.status.toLowerCase()}`}>
+            <span className="approval-status__dot" aria-hidden="true" />
+            {STATUS_LABELS[d.status] || d.status}
+          </span>
+
           <span className="approval-list__chevron" aria-hidden="true">
-            <ArrowRight />
+            <ArrowUpRight size={14} />
           </span>
         </Link>
       ))}
@@ -80,7 +128,11 @@ function ApprovalList() {
   );
 }
 
-function AIReasoningCard({ draft }) {
+/* ------------------------------------------------------------------ */
+/* AI reasoning — compact margin block                                */
+/* ------------------------------------------------------------------ */
+
+function AIReasoningBlock({ draft }) {
   const contributions = draft.sourceContributions;
   if (!contributions || contributions.length === 0) return null;
 
@@ -89,32 +141,41 @@ function AIReasoningCard({ draft }) {
     .slice(0, 3);
 
   return (
-    <section className="approval-ai-card">
-      <header className="approval-ai-card__header">
-        <Bot size={15} aria-hidden="true" />
-        <span>La IA seleccionó este tema porque…</span>
+    <section className="approval-reasoning" aria-label="Razonamiento de la IA">
+      <header className="approval-reasoning__head">
+        <Bot size={13} aria-hidden="true" />
+        <span>Por qué la IA eligió este tema</span>
       </header>
-      <ul className="approval-ai-card__signals">
-        {topSignals.map((c) => {
+      <ol className="approval-reasoning__list">
+        {topSignals.map((c, i) => {
           const score = c.reactionsCount + c.commentsCount;
-          const excerpt = c.excerpt.length > 88 ? c.excerpt.slice(0, 88) + "…" : c.excerpt;
+          const excerpt = c.excerpt.length > 96 ? c.excerpt.slice(0, 96) + "…" : c.excerpt;
           return (
-            <li key={c.id} className="approval-ai-card__signal">
-              <div className="approval-ai-card__signal-text">
-                <span className="approval-ai-card__excerpt">"{excerpt}"</span>
-                <span className="approval-ai-card__meta">{c.authorName} · {c.communityName}</span>
+            <li key={c.id} className="approval-reasoning__item">
+              <span className="approval-reasoning__rank">{String(i + 1).padStart(2, "0")}</span>
+              <div className="approval-reasoning__text">
+                <p className="approval-reasoning__excerpt">“{excerpt}”</p>
+                <span className="approval-reasoning__meta">
+                  {c.authorName} · {c.communityName}
+                </span>
               </div>
-              <span className="approval-ai-card__score">{score} pts</span>
+              <span className="approval-reasoning__score" title="Reacciones + comentarios">
+                {score}
+              </span>
             </li>
           );
         })}
-      </ul>
-      <p className="approval-ai-card__footer">
-        Basado en {contributions.length} contribuciones de la semana
+      </ol>
+      <p className="approval-reasoning__foot">
+        Basado en {contributions.length}&nbsp;contribuciones de la semana
       </p>
     </section>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Vertical timeline                                                  */
+/* ------------------------------------------------------------------ */
 
 const TIMELINE_STEPS = [
   { key: "GENERATED", label: "Generado",    Icon: Sparkles,     hint: "Viernes 18:00", dateKey: "createdAt"   },
@@ -130,9 +191,13 @@ function DraftTimeline({ draft }) {
   const isRejected = draft.status === "REJECTED";
 
   return (
-    <section className="approval-timeline-wrap">
-      <h2>Ciclo de publicación</h2>
-      <div className="approval-timeline">
+    <section className="approval-timeline" aria-label="Ciclo de publicación">
+      <header className="approval-eyebrow">
+        <span className="approval-eyebrow__rule" aria-hidden="true" />
+        <span>Ciclo de publicación</span>
+      </header>
+
+      <ol className="approval-timeline__list">
         {TIMELINE_STEPS.map((step, idx) => {
           const isDone = idx < activeIdx;
           const isActive = idx === activeIdx && !isRejected;
@@ -145,32 +210,32 @@ function DraftTimeline({ draft }) {
           else if (isActive) mod = "active";
 
           return (
-            <Fragment key={step.key}>
-              {idx > 0 && (
-                <div className={`approval-timeline__bar${isDone || isActive ? " approval-timeline__bar--filled" : ""}`} />
-              )}
-              <div className="approval-timeline__step">
-                <div className={`approval-timeline__dot approval-timeline__dot--${mod}`}>
-                  <step.Icon size={14} />
-                </div>
-                <div className="approval-timeline__text">
-                  <span className={`approval-timeline__label${isActive ? " is-active" : ""}`}>
-                    {step.label}
-                  </span>
-                  {date ? (
-                    <span className="approval-timeline__date">{formatDateTime(date)}</span>
-                  ) : step.hint ? (
-                    <span className="approval-timeline__hint">{step.hint}</span>
-                  ) : null}
-                </div>
+            <li key={step.key} className={`approval-timeline__item is-${mod}`}>
+              <span className="approval-timeline__rail" aria-hidden="true" />
+              <span className="approval-timeline__dot">
+                <step.Icon size={12} />
+              </span>
+              <div className="approval-timeline__text">
+                <span className="approval-timeline__label">{step.label}</span>
+                {date ? (
+                  <span className="approval-timeline__date">{formatDateTime(date)}</span>
+                ) : step.hint ? (
+                  <span className="approval-timeline__hint">— {step.hint}</span>
+                ) : (
+                  <span className="approval-timeline__hint">— pendiente</span>
+                )}
               </div>
-            </Fragment>
+            </li>
           );
         })}
-      </div>
+      </ol>
     </section>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Detail view                                                        */
+/* ------------------------------------------------------------------ */
 
 function ApprovalDetail({ id }) {
   const navigate = useNavigate();
@@ -178,11 +243,23 @@ function ApprovalDetail({ id }) {
   const { acting, error: actionError, run } = useAsyncAction();
   const [copied, setCopied] = useState(null);
   const [exportModal, setExportModal] = useState(null);
+  const [regenStage, setRegenStage] = useState(null); // null | 'confirm' | 'loading'
+  const [toast, setToast] = useState(null); // { type: 'success'|'error', message }
   const copiedTimerRef = useRef(null);
+  const toastTimerRef = useRef(null);
 
   useEffect(() => {
-    return () => clearTimeout(copiedTimerRef.current);
+    return () => {
+      clearTimeout(copiedTimerRef.current);
+      clearTimeout(toastTimerRef.current);
+    };
   }, []);
+
+  const showToast = (type, message) => {
+    setToast({ type, message });
+    clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToast(null), 4000);
+  };
 
   const error = actionError || loadError;
 
@@ -223,8 +300,10 @@ function ApprovalDetail({ id }) {
     setExportModal(null);
   };
 
-  const onRegenerateWithAI = async () => {
-    if (!window.confirm("¿Regenerar todos los borradores con IA? Se reemplazará el contenido actual.")) return;
+  const onRegenerateWithAI = () => setRegenStage("confirm");
+
+  const onConfirmRegenerate = async () => {
+    setRegenStage("loading");
     try {
       await run(async () => {
         await regenerateDraftsApi(id);
@@ -232,8 +311,11 @@ function ApprovalDetail({ id }) {
         setDraft(refreshed);
         return refreshed;
       });
+      setRegenStage(null);
+      showToast("success", "Borradores regenerados con IA correctamente.");
     } catch {
-      /* error captured in actionError */
+      setRegenStage(null);
+      showToast("error", "No se pudieron regenerar los borradores. Intentá nuevamente.");
     }
   };
 
@@ -246,154 +328,245 @@ function ApprovalDetail({ id }) {
     }
   };
 
-  if (loading) return <p>Cargando…</p>;
+  if (loading) {
+    return (
+      <div className="approval-list approval-list--loading">
+        <span className="approval-spinner" aria-hidden="true" />
+        <span>Cargando borrador…</span>
+      </div>
+    );
+  }
   if (error && !draft) return <p className="approval-detail__error">{error}</p>;
-  if (!draft) return <p>Borrador no encontrado.</p>;
+  if (!draft) return <p className="approval-detail__error">Borrador no encontrado.</p>;
+
+  const channelCount = CHANNELS.filter((c) => draft.channels?.[c]).length;
+  const sources = draft.sourceContributions || [];
 
   return (
-    <div>
+    <div className="approval-shell">
       <Link to="/approval" className="approval-back">
-        <ArrowLeft aria-hidden="true" /> Volver al listado
+        <ArrowLeft size={14} aria-hidden="true" />
+        <span>Volver al listado</span>
       </Link>
 
-      <header className="approval-detail__header">
-        <h2>{draft.topicTitle}</h2>
-        <p className="approval-detail__summary">{draft.topicSummary}</p>
-        <small>
-          Semana del {draft.weekOf} · creado {formatDateTime(draft.createdAt)} · actualizado{" "}
-          {formatDateTime(draft.updatedAt)}
-        </small>
-      </header>
+      <div className="approval-grid">
+        {/* ============================ RAIL ============================ */}
+        <aside className="approval-rail">
+          <section className="approval-masthead">
+            <div className="approval-masthead__kicker">
+              <Hash size={11} aria-hidden="true" />
+              <span>DIGEST №{fmtId(draft.id)}</span>
+              <span className="approval-masthead__dot" aria-hidden="true" />
+              <span>SEMANA {draft.weekOf}</span>
+            </div>
 
-      <AIReasoningCard draft={draft} />
+            <h1 className="approval-masthead__title">{draft.topicTitle}</h1>
 
-      <section className="approval-sources">
-        <h2>Contribuciones que originaron este borrador</h2>
-        <p className="approval-sources__hint">
-          El LLM seleccionó este tema a partir de las publicaciones, preguntas y recursos más
-          relevantes de la semana.
-        </p>
-        {(!draft.sourceContributions || draft.sourceContributions.length === 0) ? (
-          <p className="approval-sources__empty">Sin contribuciones registradas.</p>
-        ) : (
-          <ul className="approval-sources__list">
-            {draft.sourceContributions.map((c) => (
-              <li key={c.id} className="approval-sources__item">
-                <header>
-                  <span className={`approval-sources__type type--${c.type.toLowerCase()}`}>
-                    {c.type}
-                  </span>
-                  <span className="approval-sources__community">{c.communityName}</span>
-                </header>
-                <p className="approval-sources__excerpt">"{c.excerpt}"</p>
-                <footer>
-                  <span><strong>{c.authorName}</strong></span>
-                  <span title="Reacciones">❤ {c.reactionsCount}</span>
-                  <span title="Comentarios">💬 {c.commentsCount}</span>
-                  {c.sourceUrl && (
-                    <a href={c.sourceUrl} target="_blank" rel="noreferrer">
-                      Ver original ↗
-                    </a>
-                  )}
-                </footer>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+            <p className="approval-masthead__dek">{draft.topicSummary}</p>
 
-      <section className="approval-content">
-        <h2>Estado del flujo</h2>
-        <ApprovalFlow draft={draft} />
-      </section>
+            <div className="approval-masthead__dateline">
+              <span className="approval-masthead__date">
+                Creado&nbsp;
+                <time>{formatDateTime(draft.createdAt)}</time>
+              </span>
+              <span className="approval-masthead__date">
+                Actualizado&nbsp;
+                <time>{formatDateTime(draft.updatedAt)}</time>
+              </span>
+              <span className={`approval-status status--${draft.status.toLowerCase()}`}>
+                <span className="approval-status__dot" aria-hidden="true" />
+                {STATUS_LABELS[draft.status] || draft.status}
+              </span>
+            </div>
+          </section>
 
-      <DraftTimeline draft={draft} />
+          <section className="approval-rail__actions" aria-label="Acciones masivas">
+            <button
+              type="button"
+              className="approval-bulk-btn approval-bulk-btn--regenerate"
+              onClick={onRegenerateWithAI}
+              disabled={acting}
+            >
+              <RefreshCw size={13} aria-hidden="true" />
+              {acting ? "Regenerando…" : "Regenerar con IA"}
+            </button>
+            <button
+              type="button"
+              className="approval-bulk-btn approval-bulk-btn--approve-all"
+              onClick={onApproveAll}
+              disabled={acting}
+            >
+              <CheckCheck size={13} aria-hidden="true" />
+              Aprobar todos
+            </button>
+          </section>
 
-      <section className="approval-channels">
-        <h2>Versiones por canal</h2>
-        <div className="approval-channels__grid">
-          {CHANNELS.map((c) => {
-            const ch = draft.channels[c];
-            if (!ch) return null;
-            return (
-              <article key={c} className="approval-channels__card">
-                <header>
-                  <span className="approval-channels__icon-wrap">
-                    <ChannelIcon channel={c} size={16} />
-                    <strong className="approval-channels__label">{CHANNEL_LABELS[c]}</strong>
-                  </span>
-                  <span className="approval-channels__chstatus">{ch.status}</span>
-                </header>
-                {ch.title && <h4>{ch.title}</h4>}
-                <pre className="approval-channels__body">{ch.body}</pre>
-                <div className="approval-channels__actions">
-                  <button onClick={() => navigate(`/editor/${draft.id}/${c}`)}>Editar</button>
-                  <button
-                    onClick={() => navigate(`/preview?draftId=${draft.id}&channel=${c}`)}
-                  >
-                    Preview
-                  </button>
-                  <button
-                    onClick={() => onCopyMarkdown(c)}
-                    title="Copiar al portapapeles como Markdown"
-                  >
-                    {copied === c ? "✓ Copiado" : "Copiar MD"}
-                  </button>
-                  <button
-                    onClick={() => draftExport.downloadJson(draft, c)}
-                    title="Descargar como JSON estructurado"
-                  >
-                    JSON
-                  </button>
-                  <button
-                    onClick={() => draftExport.downloadMarkdown(draft, c)}
-                    title="Descargar como Markdown"
-                  >
-                    MD
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
+          <DraftTimeline draft={draft} />
 
-      <section className="approval-actions">
-        <h2>Acciones</h2>
-        {error && <p className="approval-detail__error">{error}</p>}
+          <AIReasoningBlock draft={draft} />
+        </aside>
 
-        <div className="approval-actions__bulk">
-          <button
-            type="button"
-            className="approval-bulk-btn approval-bulk-btn--regenerate"
-            onClick={onRegenerateWithAI}
-            disabled={acting}
-            title="Regenera todos los borradores usando IA"
-          >
-            <RefreshCw size={15} />
-            {acting ? "Regenerando…" : "Regenerar con IA"}
-          </button>
+        {/* ========================== WORK ========================== */}
+        <main className="approval-work">
+          <section className="approval-channels">
+            <header className="approval-section-head">
+              <h2 className="approval-section-title">
+                <span className="approval-section-title__rule" aria-hidden="true" />
+                <span>Versiones por canal</span>
+                <span className="approval-section-title__count">{channelCount}</span>
+              </h2>
+              <p className="approval-section-sub">
+                Cada canal se publica con su voz y formato propios. Editá libremente antes de aprobar.
+              </p>
+            </header>
 
-          <button
-            type="button"
-            className="approval-bulk-btn approval-bulk-btn--approve-all"
-            onClick={onApproveAll}
-            disabled={acting}
-            title="Aprueba todos los borradores del digest a la vez"
-          >
-            <CheckCheck size={15} />
-            Aprobar todos
-          </button>
-        </div>
+            <div className="approval-channels__grid">
+              {CHANNELS.map((c) => {
+                const ch = draft.channels[c];
+                if (!ch) return null;
+                const isCopied = copied === c;
+                return (
+                  <article key={c} className={`approval-channel approval-channel--${c}`}>
+                    <span className="approval-channel__tint" aria-hidden="true" />
 
-        <ApprovalButtons
-          status={draft.status}
-          onChangeStatus={onChangeStatus}
-          onPublish={onOpenPublishModal}
-          onExport={onOpenExportModal}
-          disabled={acting}
-        />
-      </section>
+                    <header className="approval-channel__head">
+                      <span className="approval-channel__id">
+                        <ChannelIcon channel={c} size={14} />
+                        <span className="approval-channel__kicker">
+                          {CHANNEL_KICKERS[c] || (CHANNEL_LABELS[c] || c).toUpperCase()}
+                        </span>
+                      </span>
+                      <span className={`approval-status approval-status--xs status--${(ch.status || "").toLowerCase()}`}>
+                        <span className="approval-status__dot" aria-hidden="true" />
+                        {ch.status}
+                      </span>
+                    </header>
+
+                    {ch.title && <h3 className="approval-channel__title">{ch.title}</h3>}
+
+                    <pre className="approval-channel__body">{ch.body}</pre>
+
+                    <footer className="approval-channel__actions">
+                      <button
+                        type="button"
+                        className="ch-btn ch-btn--primary"
+                        onClick={() => navigate(`/editor/${draft.id}/${c}`)}
+                      >
+                        <Pencil size={12} aria-hidden="true" />
+                        <span>Editar</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="ch-btn"
+                        onClick={() => navigate(`/preview?draftId=${draft.id}&channel=${c}`)}
+                      >
+                        <Eye size={12} aria-hidden="true" />
+                        <span>Preview</span>
+                      </button>
+                      <button
+                        type="button"
+                        className={`ch-btn${isCopied ? " is-success" : ""}`}
+                        onClick={() => onCopyMarkdown(c)}
+                        title="Copiar al portapapeles como Markdown"
+                      >
+                        {isCopied ? <CheckCircle2 size={12} aria-hidden="true" /> : <Copy size={12} aria-hidden="true" />}
+                        <span>{isCopied ? "Copiado" : "Copiar MD"}</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="ch-btn ch-btn--icon"
+                        onClick={() => draftExport.downloadJson(draft, c)}
+                        title="Descargar como JSON estructurado"
+                        aria-label="Descargar JSON"
+                      >
+                        <FileJson size={12} aria-hidden="true" />
+                      </button>
+                      <button
+                        type="button"
+                        className="ch-btn ch-btn--icon"
+                        onClick={() => draftExport.downloadMarkdown(draft, c)}
+                        title="Descargar como Markdown"
+                        aria-label="Descargar Markdown"
+                      >
+                        <FileText size={12} aria-hidden="true" />
+                      </button>
+                    </footer>
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          <section className="approval-transitions" aria-label="Transiciones de estado">
+            <header className="approval-section-head">
+              <h2 className="approval-section-title">
+                <span className="approval-section-title__rule" aria-hidden="true" />
+                <span>Próximo movimiento</span>
+              </h2>
+              <p className="approval-section-sub">
+                Definí el siguiente paso del borrador en el flujo editorial.
+              </p>
+            </header>
+
+            {error && (
+              <p className="approval-detail__error">
+                <AlertCircle size={14} aria-hidden="true" /> {error}
+              </p>
+            )}
+
+            <div className="approval-transitions__row">
+              <ApprovalButtons
+                status={draft.status}
+                onChangeStatus={onChangeStatus}
+                onPublish={onOpenPublishModal}
+                onExport={onOpenExportModal}
+                disabled={acting}
+              />
+            </div>
+          </section>
+
+          <section className="approval-sources" aria-label="Fuentes">
+            <header className="approval-section-head">
+              <h2 className="approval-section-title">
+                <span className="approval-section-title__rule" aria-hidden="true" />
+                <span>Fuentes</span>
+                <span className="approval-section-title__count">{sources.length}</span>
+              </h2>
+              <p className="approval-section-sub">
+                Las contribuciones de la semana que dieron origen a este tema.
+              </p>
+            </header>
+
+            {sources.length === 0 ? (
+              <p className="approval-sources__empty">Sin contribuciones registradas.</p>
+            ) : (
+              <ul className="approval-sources__list">
+                {sources.map((c) => (
+                  <li key={c.id} className="approval-source">
+                    <header className="approval-source__head">
+                      <span className={`approval-source__type type--${c.type.toLowerCase()}`}>
+                        {c.type}
+                      </span>
+                      <span className="approval-source__community">{c.communityName}</span>
+                    </header>
+                    <p className="approval-source__excerpt">“{c.excerpt}”</p>
+                    <footer className="approval-source__foot">
+                      <span className="approval-source__author">{c.authorName}</span>
+                      <span className="approval-source__stat" title="Reacciones">❤ {c.reactionsCount}</span>
+                      <span className="approval-source__stat" title="Comentarios">💬 {c.commentsCount}</span>
+                      {c.sourceUrl && (
+                        <a href={c.sourceUrl} target="_blank" rel="noreferrer" className="approval-source__link">
+                          Original <ExternalLink size={11} aria-hidden="true" />
+                        </a>
+                      )}
+                    </footer>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </main>
+      </div>
 
       {exportModal && (
         <ExportModal
@@ -403,9 +576,87 @@ function ApprovalDetail({ id }) {
           onConfirmPublish={onConfirmPublish}
         />
       )}
+
+      {regenStage && (
+        <div className="regen-modal__overlay" role="dialog" aria-modal="true">
+          <div className="regen-modal">
+            {regenStage === "confirm" ? (
+              <Fragment>
+                <header className="regen-modal__header">
+                  <span className="regen-modal__icon" aria-hidden="true">
+                    <Sparkles size={16} />
+                  </span>
+                  <div className="regen-modal__heading">
+                    <span className="regen-modal__kicker">ACCIÓN GENERATIVA</span>
+                    <h3>Regenerar borradores con IA</h3>
+                  </div>
+                  <button
+                    type="button"
+                    className="regen-modal__close"
+                    onClick={() => setRegenStage(null)}
+                    aria-label="Cerrar"
+                  >
+                    <X size={14} />
+                  </button>
+                </header>
+                <p className="regen-modal__body">
+                  Se reemplazará el contenido actual de los tres canales (Newsletter, LinkedIn y Twitter)
+                  con nuevas versiones generadas por la IA. Esta acción no se puede deshacer.
+                </p>
+                <footer className="regen-modal__actions">
+                  <button
+                    type="button"
+                    className="regen-modal__btn regen-modal__btn--ghost"
+                    onClick={() => setRegenStage(null)}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    className="regen-modal__btn regen-modal__btn--primary"
+                    onClick={onConfirmRegenerate}
+                  >
+                    <RefreshCw size={13} aria-hidden="true" /> Regenerar
+                  </button>
+                </footer>
+              </Fragment>
+            ) : (
+              <div className="regen-modal__loading">
+                <span className="regen-modal__pulse" aria-hidden="true">
+                  <span className="regen-modal__pulse-dot" />
+                </span>
+                <span className="regen-modal__kicker regen-modal__kicker--center">EN&nbsp;CURSO</span>
+                <h3>Regenerando borradores con IA</h3>
+                <p>Esto puede tardar unos segundos. No cierres esta ventana.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div
+          className={`approval-toast approval-toast--${toast.type}`}
+          role="status"
+          aria-live="polite"
+        >
+          <span className="approval-toast__icon" aria-hidden="true">
+            {toast.type === "success" ? (
+              <CheckCircle2 size={16} />
+            ) : (
+              <AlertCircle size={16} />
+            )}
+          </span>
+          <span className="approval-toast__msg">{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Page shell                                                         */
+/* ------------------------------------------------------------------ */
 
 export default function ApprovalPage() {
   const { id } = useParams();
@@ -413,8 +664,18 @@ export default function ApprovalPage() {
   return (
     <div className="approval-page">
       <header className="approval-header">
-        <h1>Proceso de aprobación</h1>
-        <p>Revisa y aprueba el contenido antes de su publicación.</p>
+        <div className="approval-header__kicker">
+          <span className="approval-header__rule" aria-hidden="true" />
+          <span>Panel de aprobación</span>
+        </div>
+        <div className="approval-header__row">
+          <h1 className="approval-header__title">Proceso de aprobación</h1>
+          <p className="approval-header__sub">
+            {id
+              ? "Revisá, regenerá con IA y aprobá el contenido antes de su publicación."
+              : "Borradores generados por la IA, listos para tu revisión y aprobación."}
+          </p>
+        </div>
       </header>
 
       {id ? <ApprovalDetail id={id} /> : <ApprovalList />}

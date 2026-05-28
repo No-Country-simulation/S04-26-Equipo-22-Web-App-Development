@@ -163,6 +163,7 @@ public class GeminiService {
                 return GeneratedContentDTO
                         .builder()
                         .weeklySummary(jsonContent)
+                        .newsletterContent(jsonContent)
                         .linkedinPost(
                                 resumenCorto(jsonContent, 300)
                         )
