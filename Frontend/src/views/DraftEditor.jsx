@@ -50,9 +50,9 @@ export function DraftEditor() {
     setCharCount((editorRef.current.textContent || "").length);
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setError(null);
     draftsApi

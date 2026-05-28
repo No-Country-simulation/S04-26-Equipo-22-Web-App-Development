@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useEffect, useState } from "react";
 import * as authApi from "../api/auth";
 import { tokenStorage } from "../auth/tokenStorage";
@@ -25,8 +26,8 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadUser();
     const onLogout = () => {
       setUser(null);

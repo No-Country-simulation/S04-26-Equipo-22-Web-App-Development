@@ -11,7 +11,6 @@ export function useFetch(fetchFn, deps = []) {
     fetchFnRef.current = fetchFn;
   });
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
   const execute = useCallback(async () => {
     const id = ++idRef.current;
     setLoading(true);
@@ -26,6 +25,7 @@ export function useFetch(fetchFn, deps = []) {
     } finally {
       if (id === idRef.current) setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/use-memo
   }, deps);
 
   useEffect(() => {
