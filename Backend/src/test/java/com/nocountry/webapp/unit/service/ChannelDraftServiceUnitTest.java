@@ -66,8 +66,8 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
     private ChannelDraft draft;
 
     private static final Long DIGEST_ID = 1L;
-    private static final Long EDITOR_ID = 10L;
-    private static final Long ADMIN_ID = 20L;
+    private static final String EDITOR_EMAIL = "editor@test.com";
+    private static final String ADMIN_EMAIL = "admin@test.com";
     private static final Long DRAFT_ID = 100L;
     private static final String CONTENT = "Contenido del borrador de prueba";
     private static final String NEWSLETTER_CONTENT = "Contenido newsletter";
@@ -88,7 +88,7 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
 
         // Crear usuario editor con rol USER
         editorUser = User.builder()
-                .id(EDITOR_ID)
+                .id(10L)
                 .email("editor@test.com")
                 .password("password")
                 .role(Role.USER)
@@ -96,7 +96,7 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
 
         // Crear usuario admin con rol ADMIN
         adminUser = User.builder()
-                .id(ADMIN_ID)
+                .id(20L)
                 .email("admin@test.com")
                 .password("password")
                 .role(Role.ADMIN)
@@ -129,7 +129,7 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void createDraft_conDatosValidos_debeCrearBorrador() {
             // Arrange
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.of(weeklyDigest));
-            when(userRepository.findById(EDITOR_ID)).thenReturn(Optional.of(editorUser));
+            when(userRepository.findByEmail(EDITOR_EMAIL)).thenReturn(Optional.of(editorUser));
             when(channelDraftRepository.findByWeeklyDigestIdAndTargetPlatform(DIGEST_ID, TargetPlatform.NEWSLETTER))
                     .thenReturn(Optional.empty());
             when(channelDraftRepository.save(any(ChannelDraft.class))).thenAnswer(invocation -> {
@@ -139,7 +139,7 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
             });
 
             // Act
-            ChannelDraft result = channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_ID);
+            ChannelDraft result = channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_EMAIL);
 
             // Assert
             assertThat(result).isNotNull();
@@ -158,7 +158,7 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_ID))
+            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_EMAIL))
                     .isInstanceOf(NotFoundException.class)
                     .hasMessageContaining("Digest no encontrado con ID: " + DIGEST_ID);
 
@@ -170,12 +170,12 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void createDraft_editorNoExiste_debeLanzarNotFoundException() {
             // Arrange
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.of(weeklyDigest));
-            when(userRepository.findById(EDITOR_ID)).thenReturn(Optional.empty());
+            when(userRepository.findByEmail(EDITOR_EMAIL)).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_ID))
+            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_EMAIL))
                     .isInstanceOf(NotFoundException.class)
-                    .hasMessageContaining("Editor no encontrado con ID: " + EDITOR_ID);
+                    .hasMessageContaining("Editor no encontrado con email: " + EDITOR_EMAIL);
 
             verify(channelDraftRepository, never()).save(any());
         }
@@ -185,10 +185,10 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void createDraft_editorConRolAdmin_debeLanzarBusinessException() {
             // Arrange
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.of(weeklyDigest));
-            when(userRepository.findById(ADMIN_ID)).thenReturn(Optional.of(adminUser));
+            when(userRepository.findByEmail(ADMIN_EMAIL)).thenReturn(Optional.of(adminUser));
 
             // Act & Assert
-            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, ADMIN_ID))
+            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, ADMIN_EMAIL))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("El usuario asignado no tiene rol USER");
 
@@ -200,12 +200,12 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void createDraft_duplicadoPlataforma_debeLanzarBusinessException() {
             // Arrange
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.of(weeklyDigest));
-            when(userRepository.findById(EDITOR_ID)).thenReturn(Optional.of(editorUser));
+            when(userRepository.findByEmail(EDITOR_EMAIL)).thenReturn(Optional.of(editorUser));
             when(channelDraftRepository.findByWeeklyDigestIdAndTargetPlatform(DIGEST_ID, TargetPlatform.NEWSLETTER))
                     .thenReturn(Optional.of(draft));
 
             // Act & Assert
-            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_ID))
+            assertThatThrownBy(() -> channelDraftService.createDraft(DIGEST_ID, CONTENT, TargetPlatform.NEWSLETTER, EDITOR_EMAIL))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("Ya existe un borrador para el digest");
 
@@ -224,7 +224,7 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void createCompleteDrafts_conDatosValidos_debeCrearTresBorradores() {
             // Arrange
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.of(weeklyDigest));
-            when(userRepository.findById(EDITOR_ID)).thenReturn(Optional.of(editorUser));
+            when(userRepository.findByEmail(EDITOR_EMAIL)).thenReturn(Optional.of(editorUser));
             for (TargetPlatform platform : TargetPlatform.values()) {
                 when(channelDraftRepository.findByWeeklyDigestIdAndTargetPlatform(DIGEST_ID, platform))
                         .thenReturn(Optional.empty());
@@ -233,7 +233,7 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
 
             // Act
             List<ChannelDraft> result = channelDraftService.createCompleteDrafts(
-                    DIGEST_ID, NEWSLETTER_CONTENT, LINKEDIN_CONTENT, TWITTER_CONTENT, EDITOR_ID);
+                    DIGEST_ID, NEWSLETTER_CONTENT, LINKEDIN_CONTENT, TWITTER_CONTENT, EDITOR_EMAIL);
 
             // Assert
             assertThat(result).hasSize(3);
@@ -251,14 +251,14 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void createCompleteDrafts_plataformaDuplicada_debeLanzarBusinessException() {
             // Arrange
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.of(weeklyDigest));
-            when(userRepository.findById(EDITOR_ID)).thenReturn(Optional.of(editorUser));
+            when(userRepository.findByEmail(EDITOR_EMAIL)).thenReturn(Optional.of(editorUser));
             // NEWSLETTER ya existe
             when(channelDraftRepository.findByWeeklyDigestIdAndTargetPlatform(DIGEST_ID, TargetPlatform.NEWSLETTER))
                     .thenReturn(Optional.of(draft));
 
             // Act & Assert
             assertThatThrownBy(() -> channelDraftService.createCompleteDrafts(
-                    DIGEST_ID, NEWSLETTER_CONTENT, LINKEDIN_CONTENT, TWITTER_CONTENT, EDITOR_ID))
+                    DIGEST_ID, NEWSLETTER_CONTENT, LINKEDIN_CONTENT, TWITTER_CONTENT, EDITOR_EMAIL))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("Ya existe un borrador para el digest");
 
@@ -270,11 +270,11 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void createCompleteDrafts_editorAdmin_debeLanzarBusinessException() {
             // Arrange
             when(weeklyDigestRepository.findById(DIGEST_ID)).thenReturn(Optional.of(weeklyDigest));
-            when(userRepository.findById(ADMIN_ID)).thenReturn(Optional.of(adminUser));
+            when(userRepository.findByEmail(ADMIN_EMAIL)).thenReturn(Optional.of(adminUser));
 
             // Act & Assert
             assertThatThrownBy(() -> channelDraftService.createCompleteDrafts(
-                    DIGEST_ID, NEWSLETTER_CONTENT, LINKEDIN_CONTENT, TWITTER_CONTENT, ADMIN_ID))
+                    DIGEST_ID, NEWSLETTER_CONTENT, LINKEDIN_CONTENT, TWITTER_CONTENT, ADMIN_EMAIL))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("El usuario asignado no tiene rol USER");
 
@@ -382,11 +382,11 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void approveDraft_editorValido_debeAprobar() {
             // Arrange
             when(channelDraftRepository.findById(DRAFT_ID)).thenReturn(Optional.of(draft));
-            when(userRepository.findById(EDITOR_ID)).thenReturn(Optional.of(editorUser));
+            when(userRepository.findByEmail(EDITOR_EMAIL)).thenReturn(Optional.of(editorUser));
             when(channelDraftRepository.save(any(ChannelDraft.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // Act
-            ChannelDraft result = channelDraftService.approveDraft(DRAFT_ID, EDITOR_ID);
+            ChannelDraft result = channelDraftService.approveDraft(DRAFT_ID, EDITOR_EMAIL);
 
             // Assert
             assertThat(result.getStatus()).isEqualTo(ChannelDraftStatus.APPROVED);
@@ -401,10 +401,10 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
             // Arrange
             draft.setStatus(ChannelDraftStatus.PUBLISHED);
             when(channelDraftRepository.findById(DRAFT_ID)).thenReturn(Optional.of(draft));
-            when(userRepository.findById(EDITOR_ID)).thenReturn(Optional.of(editorUser));
+            when(userRepository.findByEmail(EDITOR_EMAIL)).thenReturn(Optional.of(editorUser));
 
             // Act & Assert
-            assertThatThrownBy(() -> channelDraftService.approveDraft(DRAFT_ID, EDITOR_ID))
+            assertThatThrownBy(() -> channelDraftService.approveDraft(DRAFT_ID, EDITOR_EMAIL))
                     .isInstanceOf(InvalidStateException.class)
                     .hasMessageContaining("No se puede aprobar un borrador ya publicado");
 
@@ -416,10 +416,10 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void approveDraft_editorAdmin_debeLanzarBusinessException() {
             // Arrange
             when(channelDraftRepository.findById(DRAFT_ID)).thenReturn(Optional.of(draft));
-            when(userRepository.findById(ADMIN_ID)).thenReturn(Optional.of(adminUser));
+            when(userRepository.findByEmail(ADMIN_EMAIL)).thenReturn(Optional.of(adminUser));
 
             // Act & Assert
-            assertThatThrownBy(() -> channelDraftService.approveDraft(DRAFT_ID, ADMIN_ID))
+            assertThatThrownBy(() -> channelDraftService.approveDraft(DRAFT_ID, ADMIN_EMAIL))
                     .isInstanceOf(BusinessException.class)
                     .hasMessageContaining("El usuario asignado no tiene rol USER");
 
@@ -431,12 +431,12 @@ class ChannelDraftServiceUnitTest extends BaseUnitTest {
         void approveDraft_editorNoExiste_debeLanzarNotFoundException() {
             // Arrange
             when(channelDraftRepository.findById(DRAFT_ID)).thenReturn(Optional.of(draft));
-            when(userRepository.findById(999L)).thenReturn(Optional.empty());
+            when(userRepository.findByEmail("noexiste@test.com")).thenReturn(Optional.empty());
 
             // Act & Assert
-            assertThatThrownBy(() -> channelDraftService.approveDraft(DRAFT_ID, 999L))
+            assertThatThrownBy(() -> channelDraftService.approveDraft(DRAFT_ID, "noexiste@test.com"))
                     .isInstanceOf(NotFoundException.class)
-                    .hasMessageContaining("Editor no encontrado con ID: 999");
+                    .hasMessageContaining("Editor no encontrado con email: noexiste@test.com");
         }
     }
 
