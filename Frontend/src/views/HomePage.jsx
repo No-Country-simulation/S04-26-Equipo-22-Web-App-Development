@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useFetch } from "../hooks/useFetch";
 import * as draftsApi from "../api/drafts";
 import * as communitiesApi from "../api/communities";
@@ -120,16 +120,19 @@ export default function HomePage() {
     return { drafts, communities, partialError: draftsRes.status === "rejected" || communitiesRes.status === "rejected" };
   });
 
-  const drafts = data?.drafts ?? [];
-  const communities = data?.communities ?? [];
+  const drafts = useMemo(() => data?.drafts ?? [], [data]);
+  const communities = useMemo(() => data?.communities ?? [], [data]);
 
   const metrics = useMemo(() => {
-    const sortedByWeek = [...drafts].sort((a, b) =>
+    const safeDrafts = Array.isArray(drafts) ? drafts : [];
+    const safeCommunities = Array.isArray(communities) ? communities : [];
+
+    const sortedByWeek = [...safeDrafts].sort((a, b) =>
       (b.weekOf || "").localeCompare(a.weekOf || "")
     );
     const lastWeekOf = sortedByWeek[0]?.weekOf || null;
     const lastWeekDrafts = lastWeekOf
-      ? drafts.filter((d) => d.weekOf === lastWeekOf)
+      ? safeDrafts.filter((d) => d.weekOf === lastWeekOf)
       : [];
 
     const postsAnalyzed = lastWeekDrafts.reduce(
@@ -137,14 +140,14 @@ export default function HomePage() {
       0
     );
 
-    const pendingDrafts = drafts.filter((d) => PENDING_STATUSES.has(d.status)).length;
+    const pendingDrafts = safeDrafts.filter((d) => PENDING_STATUSES.has(d.status)).length;
 
     return {
       lastFriday: getLastFridayFromWeekOf(lastWeekOf),
       nextFriday: getNextFridayAt18(),
-      totalDrafts: drafts.length,
+      totalDrafts: safeDrafts.length,
       pendingDrafts,
-      activeCommunities: communities.length,
+      activeCommunities: safeCommunities.length,
       postsAnalyzed,
       topicsGenerated: lastWeekDrafts.length,
       channels: 3,
@@ -351,7 +354,7 @@ export default function HomePage() {
       )}
 
       <div className="home-page__grid">
-        {SECTIONS.map((s, i) => {
+        {SECTIONS.map((s) => {
           const Icon = s.icon;
           const badgeValue = badgeMap[s.badgeKey];
           const showBadge =

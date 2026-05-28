@@ -174,7 +174,7 @@ function DraftTimeline({ draft }) {
 
 function ApprovalDetail({ id }) {
   const navigate = useNavigate();
-  const { data: draft, loading, error: loadError, setData: setDraft, refetch } = useFetch(() => draftsApi.getDraft(id), [id]);
+  const { data: draft, loading, error: loadError, setData: setDraft } = useFetch(() => draftsApi.getDraft(id), [id]);
   const { acting, error: actionError, run } = useAsyncAction();
   const [copied, setCopied] = useState(null);
   const [exportModal, setExportModal] = useState(null);
@@ -226,9 +226,12 @@ function ApprovalDetail({ id }) {
   const onRegenerateWithAI = async () => {
     if (!window.confirm("¿Regenerar todos los borradores con IA? Se reemplazará el contenido actual.")) return;
     try {
-      await run(() => regenerateDraftsApi(id));
-      const refreshed = await draftsApi.getDraft(id);
-      setDraft(refreshed);
+      await run(async () => {
+        await regenerateDraftsApi(id);
+        const refreshed = await draftsApi.getDraft(id);
+        setDraft(refreshed);
+        return refreshed;
+      });
     } catch {
       /* error captured in actionError */
     }

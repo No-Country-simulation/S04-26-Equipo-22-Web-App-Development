@@ -8,7 +8,7 @@ import {
   Filter,
 } from "lucide-react";
 import * as communitiesApi from "../api/communities";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import { useFetch } from "../hooks/useFetch";
 import { useAsyncAction } from "../hooks/useAsyncAction";
 import "./CommunitiesPage.css";
@@ -22,7 +22,7 @@ export default function CommunitiesPage() {
   const [showOnlyActive, setShowOnlyActive] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
 
-  const { data: communities = [], loading, error, setError, setData: setCommunities, refetch } = useFetch(
+  const { data: communities = [], loading, error, setError, refetch } = useFetch(
     () => communitiesApi.listCommunities({ onlyActive: showOnlyActive }),
     [showOnlyActive]
   );

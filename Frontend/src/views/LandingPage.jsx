@@ -4,7 +4,7 @@ import { Sparkles, FileText, CheckCircle2, Download, ArrowRight, Users, BarChart
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 import "./LandingPage.css";
 
 gsap.registerPlugin(ScrollTrigger);
