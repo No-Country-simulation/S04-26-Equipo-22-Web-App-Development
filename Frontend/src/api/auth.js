@@ -28,3 +28,16 @@ export async function getCurrentUser() {
   const { data } = await api.get("/api/users/me");
   return data;
 }
+
+export async function updatePassword({ currentPassword, newPassword }) {
+  const { data } = await api.patch("/api/users/me/password", {
+    currentPassword,
+    newPassword,
+  });
+  return data;
+}
+
+export async function deleteAccount() {
+  await api.delete("/api/users/me");
+  tokenStorage.clear();
+}

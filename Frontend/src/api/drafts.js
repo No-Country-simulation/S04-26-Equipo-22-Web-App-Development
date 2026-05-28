@@ -35,6 +35,17 @@ async function fetchChannelDrafts(digestId) {
   }
 }
 
+function computeAggregateStatus(channelDrafts) {
+  if (!channelDrafts || channelDrafts.length === 0) return "GENERATED";
+  const statuses = channelDrafts.map((d) => d.status);
+
+  if (statuses.every((s) => s === "PUBLISHED")) return "PUBLISHED";
+  if (statuses.every((s) => s === "APPROVED" || s === "PUBLISHED")) return "APPROVED";
+  if (statuses.some((s) => s === "IN_REVIEW")) return "IN_REVIEW";
+  if (statuses.every((s) => s === "REJECTED")) return "REJECTED";
+  return "GENERATED";
+}
+
 async function assembleDraft(digest) {
   const channelDrafts = await fetchChannelDrafts(digest.id);
   const channels = {};
@@ -46,6 +57,12 @@ async function assembleDraft(digest) {
   if (!channels.linkedin) channels.linkedin = { channel: "linkedin", title: "Borrador linkedin", body: "", status: "pending" };
   if (!channels.twitter) channels.twitter = { channel: "twitter", title: "Borrador twitter", body: "", status: "pending" };
 
+  const aggregateStatus = computeAggregateStatus(channelDrafts);
+  const latestUpdate = channelDrafts.reduce((acc, d) => {
+    const ts = d.approvedAt || d.createdAt;
+    return ts && ts > acc ? ts : acc;
+  }, digest.createdAt || "");
+
   return {
     id: String(digest.id),
     weekOf: digest.weekStart || "",
@@ -53,10 +70,10 @@ async function assembleDraft(digest) {
     topicSummary: digest.summary || "",
     sourceContributions: [],
     channels,
-    // FIX COPILOT: Mapea el estado real del backend para desongelar los botones de aprobación
-    status: digest.status || "GENERATED",
+    status: aggregateStatus,
+    digestStatus: digest.status,
     createdAt: digest.createdAt || "",
-    updatedAt: digest.createdAt || "",
+    updatedAt: latestUpdate || digest.createdAt || "",
   };
 }
 
@@ -90,7 +107,7 @@ export async function updateChannelDraft(draftId, channel, payload) {
   return getDraft(draftId);
 }
 
-export async function transitionDraft(draftId, nextStatus, { editorId } = {}) {
+export async function transitionDraft(draftId, nextStatus) {
   const platformToChannel = { NEWSLETTER: "newsletter", LINKEDIN: "linkedin", X: "twitter" };
   const { data: drafts } = await api.get(`${DRAFT_BASE}/by-digest/${draftId}`);
   for (const draft of drafts) {
@@ -101,7 +118,7 @@ export async function transitionDraft(draftId, nextStatus, { editorId } = {}) {
         await api.patch(`${DRAFT_BASE}/${draft.id}/start-review`);
         break;
       case "APPROVED":
-        await api.patch(`${DRAFT_BASE}/${draft.id}/approve`, { editorId });
+        await api.patch(`${DRAFT_BASE}/${draft.id}/approve`);
         break;
       case "REJECTED":
         await api.patch(`${DRAFT_BASE}/${draft.id}/reject`);
@@ -116,4 +133,14 @@ export async function transitionDraft(draftId, nextStatus, { editorId } = {}) {
 
 export async function publishDraft(draftId) {
   return transitionDraft(draftId, "PUBLISHED");
+}
+
+export async function approveAllDrafts(weeklyDigestId) {
+  await api.patch(`${DRAFT_BASE}/approve-all/${weeklyDigestId}`);
+  return getDraft(weeklyDigestId);
+}
+
+export async function areAllDraftsApproved(weeklyDigestId) {
+  const { data } = await api.get(`${DRAFT_BASE}/are-all-approved/${weeklyDigestId}`);
+  return Boolean(data);
 }

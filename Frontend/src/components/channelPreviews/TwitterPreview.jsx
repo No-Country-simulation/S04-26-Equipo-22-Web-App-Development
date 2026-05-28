@@ -11,12 +11,13 @@ import {
 } from "lucide-react";
 
 function TwitterPreview({ data }) {
+	if (!data) return null;
 	return (
 		<article className="twitter-card">
 
 			<img
-				src={data.avatar}
-				alt={data.user}
+				src={data.avatar || ""}
+				alt={data.user || ""}
 				className="twitter-avatar"
 			/>
 
@@ -27,7 +28,7 @@ function TwitterPreview({ data }) {
 
 					<div className="twitter-user-info">
 
-						<h3>{data.user}</h3>
+						<h3>{data.user || ""}</h3>
 
 						{
 							data.verified && (
@@ -36,24 +37,24 @@ function TwitterPreview({ data }) {
 						}
 
 						<span className="twitter-username">
-							{data.username}
+							{data.username || ""}
 						</span>
 
-						
+
 
 						<span className="twitter-time">
-							{data.time}
+							{data.time || ""}
 						</span>
 
 					</div>
 
-					
+
 
 				</div>
 
 				{/* CONTENT */}
 				<p className="twitter-content">
-					{data.content}
+					{data.content || ""}
 				</p>
 
 				{/* IMAGE */}

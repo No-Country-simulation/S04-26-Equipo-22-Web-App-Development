@@ -18,6 +18,7 @@ const PREVIEW_COMPONENT = {
 function ExportModal({ draft, channel: initialChannel, onClose, onConfirmPublish }) {
   const [activeChannel, setActiveChannel] = useState(initialChannel);
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(null);
   const [publishing, setPublishing] = useState(false);
 
   const availableChannels = CHANNELS.filter((c) => draft.channels[c]);
@@ -29,12 +30,14 @@ function ExportModal({ draft, channel: initialChannel, onClose, onConfirmPublish
   const isAlreadyPublished = draft.status === "PUBLISHED";
 
   const handleCopy = async () => {
+    setCopyError(null);
     try {
       await draftExport.copyPlainText(draft, activeChannel);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      /* clipboard error */
+      setCopyError("No se pudo copiar al portapapeles");
+      setTimeout(() => setCopyError(null), 3000);
     }
   };
 
@@ -106,6 +109,9 @@ function ExportModal({ draft, channel: initialChannel, onClose, onConfirmPublish
               .json
             </button>
           </div>
+          {copyError && (
+            <p className="export-modal__copy-error" role="alert">{copyError}</p>
+          )}
         </div>
 
         <footer className="export-modal__footer">

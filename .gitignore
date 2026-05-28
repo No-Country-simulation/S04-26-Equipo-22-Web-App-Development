@@ -40,3 +40,9 @@ $*
 # =========================
 *.tmp
 coverage/
+
+# =========================
+# AI assistant / local notes
+# =========================
+.claude/
+Dastos_arranque_Docker.md

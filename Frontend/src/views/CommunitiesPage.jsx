@@ -32,14 +32,21 @@ export default function CommunitiesPage() {
   const onCreate = async (e) => {
     e.preventDefault();
     if (!form.name.trim() || !form.platform.trim()) return;
+    setError(null);
     await run(async () => {
-      await communitiesApi.createCommunity(form);
-      setForm(INITIAL_FORM);
-      await refetch();
+      try {
+        await communitiesApi.createCommunity(form);
+        setForm(INITIAL_FORM);
+        await refetch();
+      } catch (err) {
+        setError(err?.response?.data?.message || "No se pudo crear la comunidad");
+        throw err;
+      }
     });
   };
 
   const onToggleActive = async (community) => {
+    setError(null);
     try {
       if (community.active) {
         await communitiesApi.deactivateCommunity(community.id);
@@ -54,6 +61,7 @@ export default function CommunitiesPage() {
 
   const onDelete = async (community) => {
     if (!confirm(`¿Eliminar "${community.name}" definitivamente?`)) return;
+    setError(null);
     try {
       await communitiesApi.deleteCommunity(community.id);
       await refetch();

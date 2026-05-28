@@ -22,6 +22,7 @@ export function DraftEditor() {
   const navigate = useNavigate();
   const editorRef = useRef(null);
   const savedTimerRef = useRef(null);
+  const mountedRef = useRef(true);
 
   const [draft, setDraft] = useState(null);
   const [title, setTitle] = useState("");
@@ -38,6 +39,10 @@ export function DraftEditor() {
 
   useEffect(() => {
     return () => clearTimeout(savedTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    return () => { mountedRef.current = false; };
   }, []);
 
   const recountChars = useCallback(() => {
@@ -109,18 +114,21 @@ export function DraftEditor() {
     try {
       const payload = channel === "twitter" ? { body } : { title, body };
       const updated = await draftsApi.updateChannelDraft(draftId, channel, payload);
+      if (!mountedRef.current) return;
       setDraft(updated);
       setSaved(true);
       clearTimeout(savedTimerRef.current);
-      savedTimerRef.current = setTimeout(() => setSaved(false), 2500);
+      savedTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) setSaved(false);
+      }, 2500);
 
       if (submitForReview && updated.status === "GENERATED") {
         await draftsApi.transitionDraft(draftId, "IN_REVIEW");
       }
     } catch (err) {
-      setError(err?.message || "No se pudo guardar");
+      if (mountedRef.current) setError(err?.message || "No se pudo guardar");
     } finally {
-      setSaving(false);
+      if (mountedRef.current) setSaving(false);
     }
   };
 
@@ -213,7 +221,7 @@ export function DraftEditor() {
               <button className="editor-btn-save" onClick={() => handleSave()} disabled={saving}>
                 {saving ? "Guardando…" : "Guardar cambios"}
               </button>
-              {(draft.status === "GENERATED" || draft.status === "PENDING") && (
+              {draft.status === "GENERATED" && (
                 <button
                   className="editor-btn-publish"
                   onClick={() => handleSave({ submitForReview: true })}

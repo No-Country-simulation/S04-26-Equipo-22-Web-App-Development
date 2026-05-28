@@ -7,6 +7,7 @@ import {
 	Globe
 } from "lucide-react";
 function LinkedinPreview({ data }) {
+	if (!data) return null;
 	return (
 		<article className="linkedin-card">
 
@@ -16,34 +17,34 @@ function LinkedinPreview({ data }) {
 				<div className="linkedin-user">
 
 					<img
-						src={data.avatar}
-						alt={data.user}
+						src={data.avatar || ""}
+						alt={data.user || ""}
 						className="linkedin-avatar"
 					/>
 
 					<div className="linkedin-user-info">
 
-						<h3>{data.user}</h3>
+						<h3>{data.user || ""}</h3>
 
 						<span className="linkedin-role">
-							{data.role}
+							{data.role || ""}
 						</span>
 
 						<p className="linkedin-time">
-							{data.time} · <Globe />
+							{data.time || ""} · <Globe />
 						</p>
 
 					</div>
 
 				</div>
 
-				
+
 
 			</div>
 
 			{/* CONTENT */}
 			<p className="linkedin-content">
-				{data.content}
+				{data.content || ""}
 			</p>
 
 			{/* IMAGE */}

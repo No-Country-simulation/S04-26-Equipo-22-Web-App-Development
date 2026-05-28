@@ -5,13 +5,18 @@ export function useFetch(fetchFn, deps = []) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const idRef = useRef(0);
+  const fetchFnRef = useRef(fetchFn);
+
+  useEffect(() => {
+    fetchFnRef.current = fetchFn;
+  });
 
   const execute = useCallback(async () => {
     const id = ++idRef.current;
     setLoading(true);
     setError(null);
     try {
-      const result = await fetchFn();
+      const result = await fetchFnRef.current();
       if (id === idRef.current) setData(result);
     } catch (err) {
       if (id === idRef.current) {

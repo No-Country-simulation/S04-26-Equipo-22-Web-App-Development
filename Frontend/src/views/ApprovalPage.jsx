@@ -1,14 +1,14 @@
 import { Fragment, useState, useRef, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Inbox, ArrowLeft, ArrowRight, AlertCircle, Bot, Sparkles, Eye, CheckCircle2, Send } from "lucide-react";
+import { Inbox, ArrowLeft, ArrowRight, AlertCircle, Bot, Sparkles, Eye, CheckCircle2, Send, RefreshCw, CheckCheck } from "lucide-react";
 import * as draftsApi from "../api/drafts";
 import * as draftExport from "../api/draftExport";
+import { regenerateDrafts as regenerateDraftsApi } from "../api/weeklyDigest";
 import { CHANNEL_LABELS, STATUS_LABELS, CHANNELS } from "../data/draftSelectors";
 import ApprovalFlow from "../components/approval/ApprovalFlow";
 import ApprovalButtons from "../components/approval/ApprovalButtons";
 import ExportModal from "../components/approval/ExportModal";
 import ChannelIcon from "../components/ChannelIcon";
-import { useAuth } from "../context/AuthContext";
 import { useFetch } from "../hooks/useFetch";
 import { useAsyncAction } from "../hooks/useAsyncAction";
 import { formatDateTime } from "../utils/formatDate";
@@ -174,7 +174,6 @@ function DraftTimeline({ draft }) {
 
 function ApprovalDetail({ id }) {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const { data: draft, loading, error: loadError, setData: setDraft, refetch } = useFetch(() => draftsApi.getDraft(id), [id]);
   const { acting, error: actionError, run } = useAsyncAction();
   const [copied, setCopied] = useState(null);
@@ -200,7 +199,7 @@ function ApprovalDetail({ id }) {
 
   const onChangeStatus = async (next) => {
     try {
-      const updated = await run(() => draftsApi.transitionDraft(id, next, { editorId: user?.id }));
+      const updated = await run(() => draftsApi.transitionDraft(id, next));
       setDraft(updated);
     } catch {
       /* error is already captured in actionError */
@@ -208,11 +207,13 @@ function ApprovalDetail({ id }) {
   };
 
   const onOpenPublishModal = () => {
+    if (!draft?.channels) return;
     const firstChannel = CHANNELS.find((c) => draft.channels[c]);
     if (firstChannel) setExportModal(firstChannel);
   };
 
   const onOpenExportModal = () => {
+    if (!draft?.channels) return;
     const firstChannel = CHANNELS.find((c) => draft.channels[c]);
     if (firstChannel) setExportModal(firstChannel);
   };
@@ -220,6 +221,26 @@ function ApprovalDetail({ id }) {
   const onConfirmPublish = async () => {
     await onChangeStatus("PUBLISHED");
     setExportModal(null);
+  };
+
+  const onRegenerateWithAI = async () => {
+    if (!window.confirm("¿Regenerar todos los borradores con IA? Se reemplazará el contenido actual.")) return;
+    try {
+      await run(() => regenerateDraftsApi(id));
+      const refreshed = await draftsApi.getDraft(id);
+      setDraft(refreshed);
+    } catch {
+      /* error captured in actionError */
+    }
+  };
+
+  const onApproveAll = async () => {
+    try {
+      const updated = await run(() => draftsApi.approveAllDrafts(id));
+      setDraft(updated);
+    } catch {
+      /* error captured */
+    }
   };
 
   if (loading) return <p>Cargando…</p>;
@@ -337,6 +358,31 @@ function ApprovalDetail({ id }) {
       <section className="approval-actions">
         <h2>Acciones</h2>
         {error && <p className="approval-detail__error">{error}</p>}
+
+        <div className="approval-actions__bulk">
+          <button
+            type="button"
+            className="approval-bulk-btn approval-bulk-btn--regenerate"
+            onClick={onRegenerateWithAI}
+            disabled={acting}
+            title="Regenera todos los borradores usando IA"
+          >
+            <RefreshCw size={15} />
+            {acting ? "Regenerando…" : "Regenerar con IA"}
+          </button>
+
+          <button
+            type="button"
+            className="approval-bulk-btn approval-bulk-btn--approve-all"
+            onClick={onApproveAll}
+            disabled={acting}
+            title="Aprueba todos los borradores del digest a la vez"
+          >
+            <CheckCheck size={15} />
+            Aprobar todos
+          </button>
+        </div>
+
         <ApprovalButtons
           status={draft.status}
           onChangeStatus={onChangeStatus}

@@ -204,7 +204,74 @@ function JobStatusPage() {
 
       </div>
 
+      {hasData && (
+        <>
+          <TopPostsSection
+            title="Top reaccionados"
+            posts={digest.topReactedPosts}
+            metricKey="reactionsCount"
+            metricLabel="reacciones"
+          />
+          <TopPostsSection
+            title="Preguntas más respondidas"
+            posts={digest.mostAnsweredQuestions}
+            metricKey="commentsCount"
+            metricLabel="respuestas"
+          />
+          <TopPostsSection
+            title="Recursos compartidos"
+            posts={digest.topResources}
+            metricKey="reactionsCount"
+            metricLabel="reacciones"
+          />
+          <TopPostsSection
+            title="Discusiones de la semana"
+            posts={digest.weeklyDiscussions}
+            metricKey="commentsCount"
+            metricLabel="comentarios"
+          />
+          {digest.weeklySessions && digest.weeklySessions.length > 0 && (
+            <TopPostsSection
+              title="Sesiones detectadas"
+              posts={digest.weeklySessions}
+              metricKey="reactionsCount"
+              metricLabel="reacciones"
+            />
+          )}
+        </>
+      )}
+
     </section>
+  );
+}
+
+function TopPostsSection({ title, posts, metricKey, metricLabel }) {
+  if (!posts || posts.length === 0) return null;
+  return (
+    <div className="status-card top-posts-card">
+      <h3>{title}</h3>
+      <ul className="top-posts-list">
+        {posts.slice(0, 5).map((post) => (
+          <li key={post.id} className="top-posts-item">
+            <div className="top-posts-content">
+              <p className="top-posts-text">{post.content}</p>
+              <small className="top-posts-meta">
+                {post.authorName} · {post.type}
+                {post.sourceUrl && (
+                  <>
+                    {" · "}
+                    <a href={post.sourceUrl} target="_blank" rel="noreferrer">ver original</a>
+                  </>
+                )}
+              </small>
+            </div>
+            <span className="top-posts-metric">
+              {post[metricKey]} {metricLabel}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
